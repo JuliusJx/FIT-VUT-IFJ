@@ -9,7 +9,7 @@
 #include "scanner.h"
 
 token *GetToken(){
-    token NewToken;
+    token *NewToken;
     unsigned FSM_State = FSM_Start;
     char c;
 
@@ -27,7 +27,7 @@ token *GetToken(){
                     FSM_State = FSM_Int;
                 else if((c == '(') || (c == ')') || (c == ','))
                     FSM_State = FSM_Separator;
-                else if((c == '#') || (c == ":") || (c == '+') || (c == '*') 
+                else if((c == '#') || (c == ':') || (c == '+') || (c == '*') 
                         || (c == '/') || (c == '<') || (c == '=') || (c == '>'))
                     FSM_State = FSM_Operator;
                 else if(c == '-'){
@@ -43,20 +43,23 @@ token *GetToken(){
                         else{
                             //Returns characters if it is not multiline comment
                             //otherwise could cause problems with short comments
-                            ungetc(c3,stdin);
-                            ungetc(c2,stdin);
+                            ungetc(c3, stdin);
+                            ungetc(c2, stdin);
+                            FSM_State = FSM_Comment;
                         }
-                        FSM_State = FSM_Comment;
                     }
-                    else
+                    else{
                         FSM_State = FSM_Operator;
-                    ungetc(c2, stdin);
+                        ungetc(c2, stdin);
+                    }
                 }
+                else if(c == EOF)
+                    FSM_State = FSM_End;
             default:
+                break;
         }
     }
-
-
+    return NewToken;
 }
 
 // --End of file--
