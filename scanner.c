@@ -73,7 +73,7 @@ token *GetToken(){
 
     char c;
     bool done = false, error = false;
-    unsigned line = 1;
+    NewToken->line = 1;
     unsigned short FSM_State = FSM_Start;
 
     while((!done) && (!error)){
@@ -88,41 +88,34 @@ token *GetToken(){
                     FSM_State = FSM_Int;
                 else if(c == '+'){
                     NewToken->token = TOKEN_Plus;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == '-')
                     FSM_State = FSM_Minus;
                 else if(c == '*'){
                     NewToken->token = TOKEN_Mul;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == '/')
                     FSM_State = FSM_Div;
                 else if(c == '#'){
                     NewToken->token = TOKEN_StrLen;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == ':'){
                     NewToken->token = TOKEN_Define;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == '('){
                     NewToken->token = TOKEN_LeftPar;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == ')'){
                     NewToken->token = TOKEN_RightPar;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == ','){
                     NewToken->token = TOKEN_Separator;
-                    NewToken->line = line;
                     done = true;
                 }
                 else if(c == '.')
@@ -136,10 +129,9 @@ token *GetToken(){
                 else if(c == '~')
                     FSM_State = FSM_NotEqual;
                 else if(c == '\n')
-                    line++;
+                    NewToken->line++;
                 else if(c == EOF){
                     NewToken->token = TOKEN_EOF;
-                    NewToken->line = line;
                     done = true;
                 }
                 break;
@@ -151,7 +143,6 @@ token *GetToken(){
                         NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
                         NewToken->content.str = strcat(NewToken->content.str,"\0");
                         NewToken->token = TOKEN_String;
-                        NewToken->line = line;
                     }
                     done = true;
                 }
@@ -263,7 +254,6 @@ token *GetToken(){
                             NewToken->content.str = strcat(NewToken->content.str,"\0");
                         }
                     }
-                    NewToken->line = line;
                     done = true;
                 }
                 break;
@@ -285,7 +275,6 @@ token *GetToken(){
                 else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Int;
-                    NewToken->line = line;
                     NewToken->content.i = strtoint(newInput.str);
                     done = true;
                 }
@@ -314,7 +303,6 @@ token *GetToken(){
                 else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Num;
-                    NewToken->line = line;
                     NewToken->content.i = strtof(newInput.str, '\0');
                     done = true;
                 }
@@ -352,7 +340,6 @@ token *GetToken(){
                 else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Num;
-                    NewToken->line = line;
                     NewToken->content.i = strtof(newInput.str, '\0');
                     done = true;
                 }
@@ -365,12 +352,10 @@ token *GetToken(){
                 else{
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Minus;
-                    NewToken->line = line;
                     done = true;
                 }
                 break;
             case FSM_Div:
-                NewToken->line = line;
                 if(c == '/')
                     NewToken->token = TOKEN_DivInt;
                 else{
@@ -382,14 +367,12 @@ token *GetToken(){
             case FSM_Concat:
                 if(c == '.'){
                     NewToken->token = TOKEN_Concat;
-                    NewToken->line = line;
                     done = true;
                 }
                 else
                     error = true;
                 break;
             case FSM_Less:
-                NewToken->line = line;
                 if(c == '=')
                     NewToken->token = TOKEN_LessEQ;
                 else{
@@ -399,7 +382,6 @@ token *GetToken(){
                 done = true;
                 break;
             case FSM_Greater:
-                NewToken->line = line;
                 if(c == '=')
                     NewToken->token = TOKEN_GreatEQ;
                 else{
@@ -409,7 +391,6 @@ token *GetToken(){
                 done = true;
                 break;
             case FSM_Assign:
-                NewToken->line = line;
                 if(c == '=')
                     NewToken->token = TOKEN_EQ;
                 else{
@@ -420,7 +401,6 @@ token *GetToken(){
                 break;
             case FSM_NotEqual:
                 if(c == '='){
-                    NewToken->line = line;
                     NewToken->token = TOKEN_NotEQ;
                     done = true;
                 }
