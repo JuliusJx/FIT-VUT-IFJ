@@ -106,6 +106,8 @@ void IDkeyWord( token*);
 
 int InsertChar( contentInput*, char*);
 
+int isKeyWord( contentInput*);
+
 #endif
 
 // --End of file--

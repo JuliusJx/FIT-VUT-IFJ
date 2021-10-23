@@ -24,6 +24,40 @@ int InsertChar(contentInput *cInput, char *c){
     return 0;
 }
 
+int isKeyWord(contentInput *cInput){
+    if(cInput->str == "do")
+        return TOKEN_Key_do;
+    else if(cInput->str == "else")
+        return TOKEN_Key_else;
+    else if(cInput->str == "end")
+        return TOKEN_Key_end;
+    else if(cInput->str == "function")
+        return TOKEN_Key_function;
+    else if(cInput->str == "global")
+        return TOKEN_Key_global;
+    else if(cInput->str == "if")
+        return TOKEN_Key_if;
+    else if(cInput->str == "integer")
+        return TOKEN_Key_integer;
+    else if(cInput->str == "local")
+        return TOKEN_Key_local;
+    else if(cInput->str == "nil")
+        return TOKEN_Key_nil;
+    else if(cInput->str == "number")
+        return TOKEN_Key_number;
+    else if(cInput->str == "require")
+        return TOKEN_Key_require;
+    else if(cInput->str == "return")
+        return TOKEN_Key_return;
+    else if(cInput->str == "string")
+        return TOKEN_Key_string;
+    else if(cInput->str == "then")
+        return TOKEN_Key_then;
+    else if(cInput->str == "while")
+        return TOKEN_Key_while;
+    else 
+        return TOKEN_ID;
+}
 
 token *GetToken(){
     token *NewToken;
@@ -41,7 +75,7 @@ token *GetToken(){
     unsigned line = 1;
     unsigned short FSM_State = FSM_Start;
 
-    while(!done){
+    while((!done) && (!error)){
         c = getc(stdin);
         switch (FSM_State){
             case FSM_Start:
@@ -210,6 +244,24 @@ token *GetToken(){
                 }
                 else
                     error = true;
+                break;
+            case FSM_ID:
+                if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || (c == '_')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                }
+                else{
+                    NewToken->token = isKeyWord(&newInput);
+                    if(NewToken->token == TOKEN_ID){
+                        if((NewToken->content.str = malloc(sizeof((strlen(newInput.str)) + 1))) == NULL)
+                            error = true;
+                        else{
+                            NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+                            NewToken->content.str = strcat(NewToken->content.str,"\0");
+                        }
+                    }
+                    done = true;
+                }
                 break;
             default:
                 break;
