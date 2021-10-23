@@ -104,7 +104,7 @@ token *GetToken();
 
 void IDkeyWord( token*);
 
-int InsertChar( char*, char);
+int InsertChar( contentInput*, char*);
 
 #endif
 

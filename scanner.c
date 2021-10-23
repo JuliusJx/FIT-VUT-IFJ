@@ -13,14 +13,15 @@
 #define true 1
 #define false 0
 
-int InsertChar(contentInput *cInput, char c){
-    if(cInput->index == cInput->length - 1){
+int InsertChar(contentInput *cInput, char *c){
+    int len = strlen(c);
+    while(cInput->index + len > cInput->length){
         cInput->length *= 2;
-        if((cInput->str = realloc(cInput->str, cInput->length)) == NULL)
+        if ((cInput->str = realloc(cInput->str, cInput->length)) == NULL)
             return 1;
     }
-    cInput->str[cInput->index++] = c;
-    cInput->str[cInput->index] = '\0';
+    cInput->str = strcat(cInput->str, c);
+    cInput->index += len;
     return 0;
 }
 
@@ -106,6 +107,62 @@ token *GetToken(){
                     done = true;
                 }
                 break;
+            case FSM_String:
+                if(c == '"'){
+                    //copy newInput to token->str
+                    NewToken->token = TOKEN_String;
+                    done = true;
+                }
+                else if(c == '\\'){
+                    if(InsertChar(&newInput, &c) != 0)
+                        return NULL;
+                    FSM_State = FSM_StrEsc;
+                }
+                else if(c == ' '){
+                    if(InsertChar(&newInput, "\\032") != 0)
+                        return NULL;
+                }
+                else if(c == '#'){
+                    if(InsertChar(&newInput, "\\035") != 0)
+                        return NULL;
+                }
+                else if((c >= 31) && (c <= 255))
+                    if(InsertChar(&newInput, &c) != 0)
+                        return NULL;
+                break;
+            case FSM_StrEsc:
+                if(c == '"'){
+                    if(InsertChar(&newInput, "034") != 0)
+                        return NULL;
+                    FSM_State = FSM_String;
+                }
+                else if(c == '\\'){
+                    if(InsertChar(&newInput, "092") != 0)
+                        return NULL;
+                    FSM_State = FSM_String;
+                }
+                else if(c == 'n'){
+                    if(InsertChar(&newInput, "010") != 0)
+                        return NULL;
+                    FSM_State = FSM_String;
+                }
+                else if(c == 't'){
+                    if(InsertChar(&newInput, "009") != 0)
+                        return NULL;
+                    FSM_State = FSM_String;
+                }
+                else if((c == '0') || (c == '1')){
+                    if(InsertChar(&newInput, c) != 0)
+                        return NULL;
+                    FSM_State = FSM_StrEscA;
+                }
+                else if(c == '2'){
+                    if(InsertChar(&newInput, c) != 0)
+                        return NULL;
+                    FSM_State = FSM_StrEscB;
+                }
+                else
+                    return NULL;
             default:
                 break;
         }
