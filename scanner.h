@@ -9,6 +9,8 @@
 #ifndef scanner_h_
 #define scanner_h_
 
+#include <stdio.h>
+
 //Defines for FSM
 #define FSM_Start 0
 
@@ -100,7 +102,7 @@ typedef struct contentInput{
     unsigned length;
 } contentInput;
 
-token *GetToken();
+token *GetToken( int*);
 
 void IDkeyWord( token*);
 
