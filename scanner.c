@@ -2,7 +2,7 @@
  * File: scanner.c
  * c file for lexical analysis
  * Subject: IFJ
- * Authors: Jakub Julius Smykal
+ * Authors: Jakub Julius Smykal, Ondrej Kovac
  * Year: 2021
  */
 
@@ -10,6 +10,7 @@
 #include "scanner.h"
 #include "string.h"
 #include "stdbool.h"
+#include "stdlib.h"
 
 
 int InsertChar(contentInput *cInput, char *c){
@@ -150,6 +151,7 @@ token *GetToken(){
                         NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
                         NewToken->content.str = strcat(NewToken->content.str,"\0");
                         NewToken->token = TOKEN_String;
+                        NewToken->line = line;
                     }
                     done = true;
                 }
@@ -205,7 +207,7 @@ token *GetToken(){
                     error = true;
                 break;
             case FSM_StrEscA:
-                if((c >= 0) && (c <= 9)){
+                if((c >= '0') && (c <= '9')){
                     if(InsertChar(&newInput, c) != 0)
                         error = true;
                     FSM_State = FSM_StrEscC;
@@ -214,12 +216,12 @@ token *GetToken(){
                     error = true;
                 break;
             case FSM_StrEscB:
-                if((c >= 0) && (c <= 4)){
+                if((c >= '0') && (c <= '4')){
                     if(InsertChar(&newInput, c) != 0)
                         error = true;
                     FSM_State = FSM_StrEscC;
                 }
-                if(c == 5){
+                if(c == '5'){
                     if(InsertChar(&newInput, c) != 0)
                         error = true;
                     FSM_State = FSM_StrEscD;
@@ -228,7 +230,7 @@ token *GetToken(){
                     error = true;
                 break;
             case FSM_StrEscC:
-                if((c >= 0) && (c <= 9)){
+                if((c >= '0') && (c <= '9')){
                     if(InsertChar(&newInput, c) != 0)
                         error = true;
                     FSM_State = FSM_String;
@@ -237,7 +239,7 @@ token *GetToken(){
                     error = true;
                 break;
             case FSM_StrEscD:
-                if((c >= 0) && (c <= 5)){
+                if((c >= '0') && (c <= '5')){
                     if(InsertChar(&newInput, c) != 0)
                         error = true;
                     FSM_State = FSM_String;
@@ -251,6 +253,7 @@ token *GetToken(){
                         error = true;
                 }
                 else{
+                    ungetc(c, stdin);
                     NewToken->token = isKeyWord(&newInput);
                     if(NewToken->token == TOKEN_ID){
                         if((NewToken->content.str = malloc(sizeof((strlen(newInput.str)) + 1))) == NULL)
@@ -260,8 +263,208 @@ token *GetToken(){
                             NewToken->content.str = strcat(NewToken->content.str,"\0");
                         }
                     }
+                    NewToken->line = line;
                     done = true;
                 }
+                break;
+            case FSM_Int:
+                if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                }
+                else if(c == '.'){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumDotA;
+                }
+                else if((c == 'e') || (c == 'E')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumEA;
+                }
+                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Int;
+                    NewToken->line = line;
+                    NewToken->content.i = strtoint(newInput.str);
+                    done = true;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_NumDotA:
+                if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumDot;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_NumDot:
+                if((c == 'e') || (c == 'E')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumEA;
+                }
+                else if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                }
+                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Num;
+                    NewToken->line = line;
+                    NewToken->content.i = strtof(newInput.str, '\0');
+                    done = true;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_NumEA:
+                if ((c == '+') || (c == '-')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumEB;
+                }
+                else if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumE;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_NumEB:
+                if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_NumE;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_NumE:
+                if((c >= '0') && (c <= '9')){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                }
+                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Num;
+                    NewToken->line = line;
+                    NewToken->content.i = strtof(newInput.str, '\0');
+                    done = true;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_Minus:
+                if(c == '-')
+                    FSM_State = FSM_OneLineC;
+                else{
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Minus;
+                    NewToken->line = line;
+                    done = true;
+                }
+                break;
+            case FSM_Div:
+                NewToken->line = line;
+                if(c == '/')
+                    NewToken->token = TOKEN_DivInt;
+                else{
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Div;
+                }
+                done = true;
+                break;
+            case FSM_Concat:
+                if(c == '.'){
+                    NewToken->token = TOKEN_Concat;
+                    NewToken->line = line;
+                    done = true;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_Less:
+                NewToken->line = line;
+                if(c == '=')
+                    NewToken->token = TOKEN_LessEQ;
+                else{
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Less;
+                }
+                done = true;
+                break;
+            case FSM_Greater:
+                NewToken->line = line;
+                if(c == '=')
+                    NewToken->token = TOKEN_GreatEQ;
+                else{
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Greater;
+                }
+                done = true;
+                break;
+            case FSM_Assign:
+                NewToken->line = line;
+                if(c == '=')
+                    NewToken->token = TOKEN_EQ;
+                else{
+                    ungetc(c, stdin);
+                    NewToken->token = TOKEN_Assign;
+                }
+                done = true;
+                break;
+            case FSM_NotEqual:
+                if(c == '='){
+                    NewToken->line = line;
+                    NewToken->token = TOKEN_NotEQ;
+                    done = true;
+                }
+                else
+                    error = true;
+            case FSM_OneLineC:
+                if (c == '[')
+                    FSM_State = FSM_OneLineOpenPar;
+                else if((c == '\n') || (c == EOF)){
+                    ungetc(c, stdin);
+                    FSM_State = FSM_Start;
+                }
+                else
+                    FSM_State = FSM_OneLineCA;
+                break;
+            case FSM_OneLineCA:
+                if((c == '\n') || (c == EOF)){
+                    ungetc(c, stdin);
+                    FSM_State = FSM_Start;
+                }
+                break;
+            case FSM_OneLineOpenPar:
+                if(c == '[')
+                    FSM_State = FSM_MultiLineC;
+                else if((c == '\n') || (c == EOF)){
+                    ungetc(c, stdin);
+                    FSM_State = FSM_Start;
+                }
+                else
+                    FSM_State = FSM_OneLineCA;
+                break;
+            case FSM_MultiLineC:
+                if(c == ']')
+                    FSM_State = FSM_MultilineClosePar;
+                else if(c == EOF)
+                    error = true;
+                break;
+            case FSM_MultilineClosePar:
+                if(c == ']')
+                    FSM_State = FSM_Start;
+                else if(c == EOF)
+                    error = true;
+                else
+                    FSM_State = FSM_MultiLineC;
                 break;
             default:
                 break;

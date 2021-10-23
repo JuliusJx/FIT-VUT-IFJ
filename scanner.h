@@ -42,7 +42,7 @@
 #define FSM_MultiLineC 24
 #define FSM_MultilineClosePar 25
 
-//Defines for token IDs
+//Defines for tokens
 #define TOKEN_String 0
 #define TOKEN_ID 1
 #define TOKEN_Key_do 2
