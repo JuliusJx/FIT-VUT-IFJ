@@ -92,11 +92,19 @@ typedef struct token{
     content content;
     unsigned short token;
     unsigned line;
-}token;
+} token;
+
+typedef struct contentInput{
+    char *str;
+    unsigned index;
+    unsigned length;
+} contentInput;
 
 token *GetToken();
 
 void IDkeyWord( token*);
+
+int InsertChar( char*, char);
 
 #endif
 

@@ -8,14 +8,32 @@
 
 #include "stdio.h"
 #include "scanner.h"
+#include "string.h"
 
 #define true 1
 #define false 0
+
+int InsertChar(contentInput *cInput, char c){
+    if(cInput->index == cInput->length - 1){
+        cInput->length *= 2;
+        if((cInput->str = realloc(cInput->str, cInput->length)) == NULL)
+            return 1;
+    }
+    cInput->str[cInput->index++] = c;
+    cInput->str[cInput->index] = '\0';
+    return 0;
+}
+
 
 token *GetToken(){
     token *NewToken;
     if((NewToken = malloc(sizeof(token))) == NULL)
         return NULL;
+    
+    contentInput newInput = {.index = 0, .length = 8};
+    if((newInput.str = malloc(newInput.length)) == NULL)
+        return NULL;
+
     char c;
     short done = 0;
     unsigned line = 1;
@@ -87,6 +105,9 @@ token *GetToken(){
                     NewToken->line = line;
                     done = true;
                 }
+                break;
+            default:
+                break;
         }
     }
     return NewToken;
