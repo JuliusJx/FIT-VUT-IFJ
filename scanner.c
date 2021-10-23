@@ -9,9 +9,8 @@
 #include "stdio.h"
 #include "scanner.h"
 #include "string.h"
+#include "stdbool.h"
 
-#define true 1
-#define false 0
 
 int InsertChar(contentInput *cInput, char *c){
     int len = strlen(c);
@@ -32,11 +31,13 @@ token *GetToken(){
         return NULL;
     
     contentInput newInput = {.index = 0, .length = 8};
-    if((newInput.str = malloc(newInput.length)) == NULL)
+    if((newInput.str = malloc(newInput.length)) == NULL){
+        free(NewToken);
         return NULL;
+    }
 
     char c;
-    short done = 0;
+    bool done = false, error = false;
     unsigned line = 1;
     unsigned short FSM_State = FSM_Start;
 
@@ -109,63 +110,115 @@ token *GetToken(){
                 break;
             case FSM_String:
                 if(c == '"'){
-                    //copy newInput to token->str
-                    NewToken->token = TOKEN_String;
+                    if((NewToken->content.str = malloc(sizeof((strlen(newInput.str)) + 1))) == NULL)
+                        error = true;
+                    else{
+                        NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+                        NewToken->content.str = strcat(NewToken->content.str,"\0");
+                        NewToken->token = TOKEN_String;
+                    }
                     done = true;
                 }
                 else if(c == '\\'){
                     if(InsertChar(&newInput, &c) != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_StrEsc;
                 }
                 else if(c == ' '){
                     if(InsertChar(&newInput, "\\032") != 0)
-                        return NULL;
+                        error = true;
                 }
                 else if(c == '#'){
                     if(InsertChar(&newInput, "\\035") != 0)
-                        return NULL;
+                        error = true;
                 }
                 else if((c >= 31) && (c <= 255))
                     if(InsertChar(&newInput, &c) != 0)
-                        return NULL;
+                        error = true;
                 break;
             case FSM_StrEsc:
                 if(c == '"'){
                     if(InsertChar(&newInput, "034") != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == '\\'){
                     if(InsertChar(&newInput, "092") != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == 'n'){
                     if(InsertChar(&newInput, "010") != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == 't'){
                     if(InsertChar(&newInput, "009") != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_String;
                 }
                 else if((c == '0') || (c == '1')){
                     if(InsertChar(&newInput, c) != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_StrEscA;
                 }
                 else if(c == '2'){
                     if(InsertChar(&newInput, c) != 0)
-                        return NULL;
+                        error = true;
                     FSM_State = FSM_StrEscB;
                 }
                 else
-                    return NULL;
+                    error = true;
+                break;
+            case FSM_StrEscA:
+                if((c >= 0) && (c <= 9)){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_StrEscC;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_StrEscB:
+                if((c >= 0) && (c <= 4)){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_StrEscC;
+                }
+                if(c == 5){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_StrEscD;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_StrEscC:
+                if((c >= 0) && (c <= 9)){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_String;
+                }
+                else
+                    error = true;
+                break;
+            case FSM_StrEscD:
+                if((c >= 0) && (c <= 5)){
+                    if(InsertChar(&newInput, c) != 0)
+                        error = true;
+                    FSM_State = FSM_String;
+                }
+                else
+                    error = true;
+                break;
             default:
                 break;
         }
+    }
+    free(newInput.str);
+    if(error){
+        free(NewToken);
+        return NULL;
     }
     return NewToken;
 }
