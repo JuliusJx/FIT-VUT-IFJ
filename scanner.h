@@ -2,7 +2,7 @@
  * File: scanner.h
  * Header file for scanner.c
  * Subject: IFJ
- * Authors: Jakub Julius Smykal, Ondrej Kovac
+ * Authors: Jakub Julius Smykal, Ondrej Kovac, Martin Talajka
  * Year: 2021
  */
 
