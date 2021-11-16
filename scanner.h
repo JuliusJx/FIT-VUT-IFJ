@@ -83,7 +83,8 @@
 #define TOKEN_Separator 34
 #define TOKEN_LeftPar 35
 #define TOKEN_RightPar 36
-#define TOKEN_EOF 37
+#define TOKEN_Err 37
+#define TOKEN_EOF 38
 
 //Union structure for token's attributes
 typedef union content{

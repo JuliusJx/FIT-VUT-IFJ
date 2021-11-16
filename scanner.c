@@ -16,9 +16,10 @@
 //Function doubles the size of cInput if array is full (Memory doesn't have to be reallocated as often, but wastes more space)
 //Function returns true if successful, otherwise returns false
 bool InsertChar(contentInput *cInput, char *c){
-    int len = strlen(c);
+    int len = 0;
+    len = strlen(c);
     //c can contain multiple characters => may need to realloc array multiple times until c can be attached to array
-    while(cInput->index + len > cInput->length){
+    while(cInput->index + len >= cInput->length){
         cInput->length *= 2;
         if ((cInput->str = realloc(cInput->str, cInput->length)) == NULL)
             return false;
@@ -80,6 +81,7 @@ token *GetToken(){
         free(NewToken);
         return NULL;
     }
+    newInput.str[0] = '\0';
     //Stores read character from stdin
     char c;
     bool done = false, error = false;
@@ -154,11 +156,10 @@ token *GetToken(){
                 break;
             case FSM_String:
                 if(c == '"'){
-                    if((NewToken->content.str = malloc(sizeof((strlen(newInput.str)) + 1))) == NULL)
+                    if((NewToken->content.str = malloc(strlen(newInput.str) + 1)) == NULL)
                         error = true;
                     else{
                         NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
-                        NewToken->content.str = strcat(NewToken->content.str,"\0");
                         NewToken->token = TOKEN_String;
                     }
                     done = true;
@@ -264,11 +265,10 @@ token *GetToken(){
                     ungetc(c, stdin);
                     NewToken->token = isKeyWord(&newInput);
                     if(NewToken->token == TOKEN_ID){
-                        if((NewToken->content.str = malloc(sizeof((strlen(newInput.str)) + 1))) == NULL)
+                        if((NewToken->content.str = malloc((strlen(newInput.str)) + 1)) == NULL)
                             error = true;
                         else{
                             NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
-                            NewToken->content.str = strcat(NewToken->content.str,"\0");
                         }
                     }
                     done = true;
@@ -467,8 +467,13 @@ token *GetToken(){
     }
     free(newInput.str);
     if(error){
-        free(NewToken);
-        return NULL;
+        if((NewToken->content.str = malloc((strlen(newInput.str)) + 1)) == NULL)
+            error = true;
+        else{
+            NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+        }
+        ungetc(c, stdin);
+        NewToken->token = TOKEN_Err;
     }
     NewToken->line = line;
     return NewToken;
