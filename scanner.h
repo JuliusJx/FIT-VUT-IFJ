@@ -10,6 +10,7 @@
 #define scanner_h_
 
 #include <stdio.h>
+#include <stdbool.h>
 
 //Defines for FSM
 #define FSM_Start 0
@@ -84,29 +85,32 @@
 #define TOKEN_RightPar 36
 #define TOKEN_EOF 37
 
+//Union structure for token's attributes
 typedef union content{
     int i;
     float f;
     char *str;
 } content;
 
+//Token structure
 typedef struct token{
     content content;
     unsigned short token;
     unsigned line;
 } token;
 
+//Structure for reading input
 typedef struct contentInput{
     char *str;
     unsigned index;
     unsigned length;
 } contentInput;
 
-token *GetToken( int*);
+token *GetToken();
 
 void IDkeyWord( token*);
 
-int InsertChar( contentInput*, char*);
+bool InsertChar( contentInput*, char*);
 
 int isKeyWord( contentInput*);
 

@@ -6,25 +6,30 @@
  * Year: 2021
  */
 
-#include "stdio.h"
+#include <stdio.h>
 #include "scanner.h"
-#include "string.h"
-#include "stdbool.h"
-#include "stdlib.h"
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
-
-int InsertChar(contentInput *cInput, char *c){
+//Function inserts input c to data structure cInput
+//Function doubles the size of cInput if array is full (Memory doesn't have to be reallocated as often, but wastes more space)
+//Function returns true if successful, otherwise returns false
+bool InsertChar(contentInput *cInput, char *c){
     int len = strlen(c);
+    //c can contain multiple characters => may need to realloc array multiple times until c can be attached to array
     while(cInput->index + len > cInput->length){
         cInput->length *= 2;
         if ((cInput->str = realloc(cInput->str, cInput->length)) == NULL)
-            return 1;
+            return false;
     }
     cInput->str = strcat(cInput->str, c);
     cInput->index += len;
-    return 0;
+    return true;
 }
 
+//Function checks if string is keyword
+//Function returns number asociated with given keyword or number asociated with common id (not keyword)
 int isKeyWord(contentInput *cInput){
     if(!strcmp(cInput->str,"do"))
         return TOKEN_Key_do;
@@ -60,34 +65,41 @@ int isKeyWord(contentInput *cInput){
         return TOKEN_ID;
 }
 
-token *GetToken(int *line){
+//Function reads input and returns pointer to token it created
+//Function uses FSM to determine what type of token is being read
+token *GetToken(){
+    //Counter for line in input file
+    static int line = 1;
+    //Creates new token and allocates memory
     token *NewToken;
     if((NewToken = malloc(sizeof(token))) == NULL)
         return NULL;
-    
+    //Initializes newInput with starting size of 8 (to avoid unnecessary reallocations with small arrays)
     contentInput newInput = {.index = 0, .length = 8};
     if((newInput.str = malloc(newInput.length)) == NULL){
         free(NewToken);
         return NULL;
     }
-
+    //Stores read character from stdin
     char c;
     bool done = false, error = false;
+    //Stores current state of FSM
     unsigned short FSM_State = FSM_Start;
-
+    //FSM
     while((!done) && (!error)){
+        //Reads character from stdin
         c = getc(stdin);
         switch (FSM_State){
             case FSM_Start:
                 if(c == '"')
                     FSM_State = FSM_String;
                 else if((c == '_') || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_ID;
                 }
                 else if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_Int;
                 }
@@ -134,7 +146,7 @@ token *GetToken(int *line){
                 else if(c == '~')
                     FSM_State = FSM_NotEqual;
                 else if(c == '\n')
-                    (*line)++;
+                    (line)++;
                 else if(c == EOF){
                     NewToken->token = TOKEN_EOF;
                     done = true;
@@ -152,50 +164,50 @@ token *GetToken(int *line){
                     done = true;
                 }
                 else if(c == '\\'){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEsc;
                 }
                 else if(c == ' '){
-                    if(InsertChar(&newInput, "\\032") != 0)
+                    if(!InsertChar(&newInput, "\\032"))
                         error = true;
                 }
                 else if(c == '#'){
-                    if(InsertChar(&newInput, "\\035") != 0)
+                    if(!InsertChar(&newInput, "\\035"))
                         error = true;
                 }
                 else if((c >= 31) && (c <= 255))
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                 break;
             case FSM_StrEsc:
                 if(c == '"'){
-                    if(InsertChar(&newInput, "034") != 0)
+                    if(!InsertChar(&newInput, "034"))
                         error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == '\\'){
-                    if(InsertChar(&newInput, "092") != 0)
+                    if(!InsertChar(&newInput, "092"))
                         error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == 'n'){
-                    if(InsertChar(&newInput, "010") != 0)
+                    if(!InsertChar(&newInput, "010"))
                         error = true;
                     FSM_State = FSM_String;
                 }
                 else if(c == 't'){
-                    if(InsertChar(&newInput, "009") != 0)
+                    if(!InsertChar(&newInput, "009"))
                         error = true;
                     FSM_State = FSM_String;
                 }
                 else if((c == '0') || (c == '1')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEscA;
                 }
                 else if(c == '2'){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEscB;
                 }
@@ -204,7 +216,7 @@ token *GetToken(int *line){
                 break;
             case FSM_StrEscA:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEscC;
                 }
@@ -213,12 +225,12 @@ token *GetToken(int *line){
                 break;
             case FSM_StrEscB:
                 if((c >= '0') && (c <= '4')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEscC;
                 }
                 if(c == '5'){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_StrEscD;
                 }
@@ -227,7 +239,7 @@ token *GetToken(int *line){
                 break;
             case FSM_StrEscC:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_String;
                 }
@@ -236,7 +248,7 @@ token *GetToken(int *line){
                 break;
             case FSM_StrEscD:
                 if((c >= '0') && (c <= '5')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_String;
                 }
@@ -245,7 +257,7 @@ token *GetToken(int *line){
                 break;
             case FSM_ID:
                 if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || (c == '_')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                 }
                 else{
@@ -264,31 +276,29 @@ token *GetToken(int *line){
                 break;
             case FSM_Int:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                 }
                 else if(c == '.'){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumDotA;
                 }
                 else if((c == 'e') || (c == 'E')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumEA;
                 }
-                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                else{
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Int;
                     NewToken->content.i = atoi(newInput.str);
                     done = true;
                 }
-                else
-                    error = true;
                 break;
             case FSM_NumDotA:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumDot;
                 }
@@ -297,31 +307,29 @@ token *GetToken(int *line){
                 break;
             case FSM_NumDot:
                 if((c == 'e') || (c == 'E')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumEA;
                 }
                 else if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                 }
-                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                else{
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Num;
-                    NewToken->content.i = strtof(newInput.str, '\0');
+                    NewToken->content.f = strtof(newInput.str, '\0');
                     done = true;
                 }
-                else
-                    error = true;
                 break;
             case FSM_NumEA:
                 if ((c == '+') || (c == '-')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumEB;
                 }
                 else if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumE;
                 }
@@ -330,7 +338,7 @@ token *GetToken(int *line){
                 break;
             case FSM_NumEB:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                     FSM_State = FSM_NumE;
                 }
@@ -339,17 +347,15 @@ token *GetToken(int *line){
                 break;
             case FSM_NumE:
                 if((c >= '0') && (c <= '9')){
-                    if(InsertChar(&newInput, &c) != 0)
+                    if(!InsertChar(&newInput, &c))
                         error = true;
                 }
-                else if(((c >= 42) && (c <= 47)) || (c == ' ') || (c == '\n') || (c == EOF) || (c == '~') || ((c >= 60) && (c <= 62))){
+                else{
                     ungetc(c, stdin);
                     NewToken->token = TOKEN_Num;
-                    NewToken->content.i = strtof(newInput.str, '\0');
+                    NewToken->content.f = strtof(newInput.str, '\0');
                     done = true;
                 }
-                else
-                    error = true;
                 break;
             case FSM_Minus:
                 if(c == '-')
@@ -441,7 +447,7 @@ token *GetToken(int *line){
                 if(c == ']')
                     FSM_State = FSM_MultilineClosePar;
                 else if(c == '\n')
-                    (*line)++;
+                    (line)++;
                 else if(c == EOF)
                     error = true;
                 break;
@@ -451,7 +457,7 @@ token *GetToken(int *line){
                 else if(c == EOF)
                     error = true;
                 else if(c == '\n')
-                    (*line)++;
+                    (line)++;
                 else
                     FSM_State = FSM_MultiLineC;
                 break;
@@ -464,7 +470,7 @@ token *GetToken(int *line){
         free(NewToken);
         return NULL;
     }
-    NewToken->line = *line;
+    NewToken->line = line;
     return NewToken;
 }
 
