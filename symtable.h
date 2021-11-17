@@ -23,36 +23,34 @@
 typedef struct tableItem{
     char *name;                         //name of function/variable
     unsigned short type;                //defined at lines 17-20
-    bool isInit = false;                //shared bool between variables (true if initialized) and functions (true if defined) 
-    unsigned short paramAmount = 0;     //paramTypes/returnTypes structure:
-    unsigned short returnAmount = 0;    //variable types are represented by numbers
-    char *paramTypes = NULL;            //order of types is represented by string of said numbers
-    char *returnTypes = NULL;           //e.g. (string, int, int, float) is stored as "3112"
+    bool isInit;                        //shared bool between variables (true if initialized) and functions (true if defined) 
+    unsigned short paramAmount;         //paramTypes/returnTypes structure:
+    unsigned short returnAmount;        //variable types are represented by numbers
+    char *paramTypes;                   //order of types is represented by string of said numbers
+    char *returnTypes;                  //e.g. (string, int, int, float) is stored as "3112"
     unsigned short scope;               //represents block of code, where item is declared, implemented using stack
-    tableItem *next;
+    struct tableItem *next;
 }tableItem;
 
-//Structure for symbol table array
-typedef struct symTable{
-    tableItem *table[SYMTABLE_SIZE];
-}symTable;
+//typedef for symbol table array
+typedef tableItem *symTable[SYMTABLE_SIZE];
 
 
 void symInit( symTable*);
 
-int symGetKey( char*);
+int symGetHash( char*);
 
-tableItem *symGetItem( symTable*, char*);
+tableItem *symGetItem( symTable*, char*, unsigned short);
 
-void symDelete( symTable*, int);
+void symDelete( symTable*, char*, unsigned short);
 
-void symDeleteAll( symTable*, int);
+void symDeleteAll( symTable*);
 
 bool symInsert( symTable*, char*, unsigned short, bool, unsigned short);
 
-bool symAddParam( symTable*, char*);
+bool symAddParam( tableItem*, char);
 
-bool symAddReturn( symTable*, char*);
+bool symAddReturn( tableItem*, char);
 
 #endif
 
