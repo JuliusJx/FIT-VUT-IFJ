@@ -13,9 +13,9 @@
 #include <stdbool.h>
 
 //Structure for items in stack
-typedef struct  item{
+typedef struct StackItem{
     int value; //token type / scope index
-    StackItem *next;
+    struct StackItem *next;
 }StackItem;
 
 //Structure for stack

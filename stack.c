@@ -8,6 +8,7 @@
 
 #include "stack.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 //Function resets top pointer to null
