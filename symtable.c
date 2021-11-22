@@ -22,9 +22,10 @@ void symInit( symTable *table){
 //Function calculates index from char array
 //Function returns said index
 int symGetHash( char *id){
-    int sum = 1, i = 0;
+    int sum = 0, i = 0;
     while(id[i] != '\0'){
         sum += id[i];
+        i++;
     }
     return sum % SYMTABLE_SIZE;
 }
@@ -51,6 +52,7 @@ void symDelete( symTable *table, char *id, unsigned short scope){
         //If first item on index is the item that is being deleted
         if((!strcmp(item->name, id)) && (item->scope == scope)){
             (*table)[index] = item->next;
+            free(item->name);
             free(item);
         }
         //Searches in linked list of items on given index
@@ -59,6 +61,7 @@ void symDelete( symTable *table, char *id, unsigned short scope){
                 if((!strcmp(item->next->name, id)) && (item->next->scope == scope)){
                     tableItem *tmp = item->next;
                     item->next = item->next->next;
+                    free(tmp->name);
                     free(tmp);
                     break;
                 }
@@ -74,9 +77,13 @@ void symDeleteAll( symTable *table){
         while ((*table)[i] != NULL){
             tmp = (*table)[i];
             (*table)[i] = tmp->next;
+            if(tmp->paramAmount > 0)
+                free(tmp->paramTypes);
+            if(tmp->returnAmount > 0)
+                free(tmp->returnTypes);
+            free(tmp->name);
             free(tmp);
         }
-        
     }
 }
 //Function creates new item, sets its values and adds new item to the table
@@ -112,16 +119,14 @@ bool symAddParam( tableItem *item, char paramType){
     if(item->paramTypes == NULL){
         if((item->paramTypes = malloc(2 * sizeof(char))) == NULL)
             return false;
-        item->paramTypes[0] = paramType;
-        item->paramTypes[1] = '\0';
+        sprintf(&(item->paramTypes[0]), "%d", paramType);
         item->paramAmount++;
     }
     else{
-                            //needs one space for new character and one for terminal character
+                               //needs one space for new character and one for terminal character
         if((item->paramTypes = realloc(item->paramTypes, strlen(item->paramTypes) + 2)) == NULL)
             return false;
-        item->paramTypes[item->paramAmount++] = paramType;
-        item->paramTypes[item->paramAmount] = '\0';
+        sprintf(&(item->paramTypes[item->paramAmount++]), "%d", paramType);
     }
     return true;
 }
@@ -134,16 +139,14 @@ bool symAddReturn( tableItem *item, char returnType){
     if(item->returnTypes == NULL){
         if((item->returnTypes = malloc(2 * sizeof(char))) == NULL)
             return false;
-        item->returnTypes[0] = returnType;
-        item->returnTypes[1] = '\0';
+        sprintf(&(item->returnTypes[0]), "%d", returnType);
         item->returnAmount++;
     }
     else{
                             //needs one space for new character and one for terminal character
         if((item->returnTypes = realloc(item->returnTypes, strlen(item->returnTypes) + 2)) == NULL)
             return false;
-        item->returnTypes[item->returnAmount++] = returnType;
-        item->returnTypes[item->returnAmount] = '\0';
+        sprintf(&(item->returnTypes[item->returnAmount++]), "%d", returnType);
     }
     return true;
 }
