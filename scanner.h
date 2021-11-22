@@ -79,8 +79,8 @@
 #define TOKEN_Assign 30
 #define TOKEN_EQ 31
 #define TOKEN_NotEQ 32
-#define TOKEN_Define 33
-#define TOKEN_Separator 34
+#define TOKEN_Colon 33
+#define TOKEN_Comma 34
 #define TOKEN_LeftPar 35
 #define TOKEN_RightPar 36
 #define TOKEN_Err 37

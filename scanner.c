@@ -119,7 +119,7 @@ token *GetToken(){
                     done = true;
                 }
                 else if(c == ':'){
-                    NewToken->type = TOKEN_Define;
+                    NewToken->type = TOKEN_Colon;
                     done = true;
                 }
                 else if(c == '('){
@@ -131,7 +131,7 @@ token *GetToken(){
                     done = true;
                 }
                 else if(c == ','){
-                    NewToken->type = TOKEN_Separator;
+                    NewToken->type = TOKEN_Comma;
                     done = true;
                 }
                 else if(c == '.')
