@@ -1,0 +1,54 @@
+1. <program> -> require [string] <body> EOF
+2. <body> -> global [id] : function(<params>) <returns> <body>
+3. <body> -> function [id] (<args>) <returns> <statement> end <body>
+4. <body> -> [id] <after_id> <body>
+5. <body> -> eps
+6. <call> -> [id] (<args>)
+7. <params> -> <type> <param>
+8. <params> -> eps
+9. <param> -> , <type> <param>
+10. <param> -> eps
+11. <returns> -> : <type> <param>
+12. <returns> -> eps
+13. <args> -> [id] : <type> <arg>
+14. <args> -> eps
+15. <arg> -> , [id] : <type> <arg>
+16. <arg> -> eps
+17. <statement> -> if <expression> then <statement> else <statement> end <statement>
+18. <statement> -> while <expression> do <statement> end <statement>
+19. <statement> -> local [id] : <type> <init> <statement>
+20. <statement> -> [id] <after_id> <statement>
+//21. <statement> -> <expression> <statement>
+22. <statement> -> return <expression>
+23. <statement> -> eps
+24. <after_id> -> (<args>)
+25. <after_id> -> <id> = <after_eq>
+26. <after_eq> -> <expression>
+27. <after_eq> -> <call>
+28. <init> -> = <expression>
+29. <init> -> = <call>
+30. <init> -> eps
+31. <id> -> , [id] <id>
+32. <id> -> eps
+33. <expression> -> <expression> + <expression>
+34. <expression> -> <expression> * <expression>
+35. <expression> -> <expression> - <expression>
+36. <expression> -> <expression> / <expression>
+37. <expression> -> <expression> // <expression>
+38. <expression> -> <expression> .. <expression>
+39. <expression> -> <expression> < <expression>
+40. <expression> -> <expression> <= <expression>
+41. <expression> -> <expression> > <expression>
+42. <expression> -> <expression> >= <expression>
+43. <expression> -> <expression> ~= <expression>
+44. <expression> -> <expression> == <expression>
+45. <expression> -> # <expression>
+46. <expression> -> (<expression>)
+47. <expression> -> [id]
+48. <expression> -> <value>
+49. <type> -> integer
+50. <type> -> number
+51. <type> -> string
+52. <value> -> [int]
+53. <value> -> [float]
+54. <value> -> [string]
