@@ -96,7 +96,7 @@ typedef union content{
 //Token structure
 typedef struct token{
     content content;
-    unsigned short token;
+    unsigned short type;
     unsigned line;
 } token;
 

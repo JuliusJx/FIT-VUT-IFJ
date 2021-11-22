@@ -103,35 +103,35 @@ token *GetToken(){
                     FSM_State = FSM_Int;
                 }
                 else if(c == '+'){
-                    NewToken->token = TOKEN_Plus;
+                    NewToken->type = TOKEN_Plus;
                     done = true;
                 }
                 else if(c == '-')
                     FSM_State = FSM_Minus;
                 else if(c == '*'){
-                    NewToken->token = TOKEN_Mul;
+                    NewToken->type = TOKEN_Mul;
                     done = true;
                 }
                 else if(c == '/')
                     FSM_State = FSM_Div;
                 else if(c == '#'){
-                    NewToken->token = TOKEN_StrLen;
+                    NewToken->type = TOKEN_StrLen;
                     done = true;
                 }
                 else if(c == ':'){
-                    NewToken->token = TOKEN_Define;
+                    NewToken->type = TOKEN_Define;
                     done = true;
                 }
                 else if(c == '('){
-                    NewToken->token = TOKEN_LeftPar;
+                    NewToken->type = TOKEN_LeftPar;
                     done = true;
                 }
                 else if(c == ')'){
-                    NewToken->token = TOKEN_RightPar;
+                    NewToken->type = TOKEN_RightPar;
                     done = true;
                 }
                 else if(c == ','){
-                    NewToken->token = TOKEN_Separator;
+                    NewToken->type = TOKEN_Separator;
                     done = true;
                 }
                 else if(c == '.')
@@ -147,7 +147,7 @@ token *GetToken(){
                 else if(c == '\n')
                     (line)++;
                 else if(c == EOF){
-                    NewToken->token = TOKEN_EOF;
+                    NewToken->type = TOKEN_EOF;
                     done = true;
                 }
                 break;
@@ -157,7 +157,7 @@ token *GetToken(){
                         error = true;
                     else{
                         NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
-                        NewToken->token = TOKEN_String;
+                        NewToken->type = TOKEN_String;
                     }
                     done = true;
                 }
@@ -244,8 +244,8 @@ token *GetToken(){
                 }
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = isKeyWord(&newInput);
-                    if(NewToken->token == TOKEN_ID){
+                    NewToken->type = isKeyWord(&newInput);
+                    if(NewToken->type == TOKEN_ID){
                         if((NewToken->content.str = malloc((strlen(newInput.str)) + 1)) == NULL)
                             error = true;
                         else{
@@ -269,7 +269,7 @@ token *GetToken(){
                 }
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Int;
+                    NewToken->type = TOKEN_Int;
                     NewToken->content.i = atoi(newInput.str);
                     done = true;
                 }
@@ -292,7 +292,7 @@ token *GetToken(){
                 }
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Num;
+                    NewToken->type = TOKEN_Num;
                     NewToken->content.f = strtof(newInput.str, '\0');
                     done = true;
                 }
@@ -323,7 +323,7 @@ token *GetToken(){
                 }
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Num;
+                    NewToken->type = TOKEN_Num;
                     NewToken->content.f = strtof(newInput.str, '\0');
                     done = true;
                 }
@@ -333,22 +333,22 @@ token *GetToken(){
                     FSM_State = FSM_OneLineC;
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Minus;
+                    NewToken->type = TOKEN_Minus;
                     done = true;
                 }
                 break;
             case FSM_Div:
                 if(c == '/')
-                    NewToken->token = TOKEN_DivInt;
+                    NewToken->type = TOKEN_DivInt;
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Div;
+                    NewToken->type = TOKEN_Div;
                 }
                 done = true;
                 break;
             case FSM_Concat:
                 if(c == '.'){
-                    NewToken->token = TOKEN_Concat;
+                    NewToken->type = TOKEN_Concat;
                     done = true;
                 }
                 else
@@ -356,34 +356,34 @@ token *GetToken(){
                 break;
             case FSM_Less:
                 if(c == '=')
-                    NewToken->token = TOKEN_LessEQ;
+                    NewToken->type = TOKEN_LessEQ;
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Less;
+                    NewToken->type = TOKEN_Less;
                 }
                 done = true;
                 break;
             case FSM_Greater:
                 if(c == '=')
-                    NewToken->token = TOKEN_GreatEQ;
+                    NewToken->type = TOKEN_GreatEQ;
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Greater;
+                    NewToken->type = TOKEN_Greater;
                 }
                 done = true;
                 break;
             case FSM_Assign:
                 if(c == '=')
-                    NewToken->token = TOKEN_EQ;
+                    NewToken->type = TOKEN_EQ;
                 else{
                     ungetc(c, stdin);
-                    NewToken->token = TOKEN_Assign;
+                    NewToken->type = TOKEN_Assign;
                 }
                 done = true;
                 break;
             case FSM_NotEqual:
                 if(c == '='){
-                    NewToken->token = TOKEN_NotEQ;
+                    NewToken->type = TOKEN_NotEQ;
                     done = true;
                 }
                 else
@@ -442,7 +442,7 @@ token *GetToken(){
         else
             NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
         ungetc(c, stdin);
-        NewToken->token = TOKEN_Err;
+        NewToken->type = TOKEN_Err;
     }
     free(newInput.str);
     if(MemError){
