@@ -1,9 +1,9 @@
 1. <program> -> require [string] <body> EOF
 2. <body> -> global [id] : function(<params>) <returns> <body>
 3. <body> -> function [id] (<args>) <returns> <statement> end <body>
-4. <body> -> [id] <after_id> <body>
+4. <body> -> <call> <body>
 5. <body> -> eps
-6. <call> -> [id] (<args>)
+6. <call> -> [id] (<callArgs>)
 7. <params> -> <type> <param>
 8. <params> -> eps
 9. <param> -> , <type> <param>
@@ -14,6 +14,9 @@
 14. <args> -> eps
 15. <arg> -> , [id] : <type> <arg>
 16. <arg> -> eps
+
+17. <callArgs> -> [id] <id>
+18. <callArgs> -> eps
 17. <statement> -> if <expression> then <statement> else <statement> end <statement>
 18. <statement> -> while <expression> do <statement> end <statement>
 19. <statement> -> local [id] : <type> <init> <statement>

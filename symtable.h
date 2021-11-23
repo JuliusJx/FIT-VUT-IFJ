@@ -6,8 +6,8 @@
  * Year: 2021
  */
 
-#ifndef stack_h_
-#define stack_h_
+#ifndef symtable_h_
+#define symtable_h_
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -23,7 +23,8 @@
 typedef struct tableItem{
     char *name;                         //name of function/variable
     unsigned short type;                //defined at lines 17-20
-    bool isInit;                        //shared bool between variables (true if initialized) and functions (true if defined) 
+    bool isInit;
+    bool isUsed;                        //shared bool between variables (true if initialized) and functions (true if defined) 
     unsigned short paramAmount;         //paramTypes/returnTypes structure:
     unsigned short returnAmount;        //variable types are represented by numbers
     char *paramTypes;                   //order of types is represented by string of said numbers
@@ -43,14 +44,20 @@ int symGetHash( char*);
 tableItem *symGetItem( symTable*, char*, unsigned short);
 
 void symDelete( symTable*, char*, unsigned short);
-
+//add final check (is used, is init)
 void symDeleteAll( symTable*);
+
+//delete all entries with certain scope
 
 bool symInsert( symTable*, char*, unsigned short, bool, unsigned short);
 
 bool symAddParam( tableItem*, char);
 
 bool symAddReturn( tableItem*, char);
+
+void symToggleInit( symTable*, char*, unsigned short);
+
+void symToggleUsed( symTable*, char*, unsigned short);
 
 #endif
 

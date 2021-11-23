@@ -12,6 +12,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "scanner.h"
+#include "symtable.h"
+#include "stack.h"
+
+#define P_PARAM 0
+#define P_RETURN 1
+#define P_ARG 2
+#define P_STATEMENT 3
 
 int main();
 
@@ -37,6 +44,8 @@ bool pArgs();
 
 bool pArg();
 
+bool pCallArgs();
+
 bool pStatement();
 
 bool pAfter_ID();
@@ -45,7 +54,7 @@ bool pAfter_EQ();
 
 bool pInit();
 
-bool pID();
+bool pID( bool);
 
 bool pType();
 
