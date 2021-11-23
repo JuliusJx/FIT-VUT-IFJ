@@ -111,7 +111,7 @@ token *GetToken();
 
 void IDkeyWord( token*);
 
-void InsertChar( contentInput*, char*, bool*);
+void InsertChar( contentInput*, char, bool*);
 
 int isKeyWord( contentInput*);
 
