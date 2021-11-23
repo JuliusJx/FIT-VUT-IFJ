@@ -101,6 +101,7 @@ bool symInsert( symTable *table, char *id, unsigned short type, bool isInit, uns
     newItem->name = strcpy(newItem->name, id);
     newItem->type = type;
     newItem->isInit = isInit;
+    newItem->isUsed = false;
     newItem->paramAmount = 0;
     newItem->returnAmount = 0;
     newItem->paramTypes = NULL;
@@ -149,6 +150,16 @@ bool symAddReturn( tableItem *item, char returnType){
         sprintf(&(item->returnTypes[item->returnAmount++]), "%d", returnType);
     }
     return true;
+}
+
+void symToggleInit( symTable *table, char *id, unsigned short scope){
+    tableItem *tmp = symGetItem(table, id, scope);
+    tmp->isInit = true;
+}
+
+void symToggleUsed( symTable *table, char *id, unsigned short scope){
+    tableItem *tmp = symGetItem(table, id, scope);
+    tmp->isUsed = true;
 }
 
 // --End of file--
