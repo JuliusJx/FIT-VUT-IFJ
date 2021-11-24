@@ -1,0 +1,334 @@
+
+require "ifj21"
+
+--------------------------------
+
+require "asdf"
+
+--------------------------------
+
+rekuire "ifj21"
+
+--------------------------------
+
+require
+
+--------------------------------
+
+
+
+--------------------------------
+
+require "ifj21"
+
+global func : function()
+
+--------------------------------
+
+require "ifj21"
+
+global 0func : function()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(asdfg)
+
+--------------------------------
+
+require "ifj21"
+
+globl func : function()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() :
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : esds
+
+--------------------------------
+
+require "ifj21"
+
+global func : 
+
+--------------------------------
+
+require "ifj21"
+
+global func
+
+--------------------------------
+
+require "ifj21"
+
+global func : function()
+global func : function()
+
+--------------------------------
+
+require "ifj21"
+
+function func() end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function()
+function func() end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+function func() end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+function func(x : integer) end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+function func(x : string) end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+function func(x : iasd) end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+function func(xd) end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+function func() end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+function func() : string end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+function func() : integer end
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+function func() : int end
+
+--------------------------------HERE
+
+require "ifj21"
+
+func()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : string
+func()
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer end
+func()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function() : integer
+function func() : integer end
+func()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+func()
+
+--------------------------------
+
+require "ifj21"
+
+global func : function(string)
+func(x,y)
+
+--------------------------------
+
+require "ifj21"
+
+global func : function()
+func(x)
+
+--------------------------------
+
+require "ifj21"
+
+global func : function()
+func(x
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer end
+func(y)
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer end
+func
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if t
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then els
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then else ee
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then else end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    func()
+ else
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    
+ else
+    func()
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    func()
+ else
+    func()
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    x()
+ else
+    
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    z =
+ else
+    
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ if then
+    z = y
+ else
+    
+ end
+end

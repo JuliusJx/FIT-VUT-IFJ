@@ -3,7 +3,7 @@
 #include "../scanner.h"
 #include "stdlib.h"
 
-int main(){
+/*int main(){
     token *a = GetToken();
 
     while(a->type != TOKEN_EOF){
@@ -37,4 +37,4 @@ int main(){
     printf(" %d]\n",a->line);
     free(a);
     return 0;
-}
+}*/

@@ -32,7 +32,7 @@ bool symstackPush( symstack *stack, tableItem *item){
 //Function sets target pointer to stack->top pointer if stack is not empty
 //Function returns true if successful, otherwise returns false
 bool symstackTop( symstack *stack, tableItem **target){
-    if(!stackIsEmpty(stack)){
+    if(!symstackIsEmpty(stack)){
         *target = stack->top->item;
         return true;
     }
@@ -42,7 +42,7 @@ bool symstackTop( symstack *stack, tableItem **target){
 //Function removes top item from stack
 //Function returns true if successful, otherwise returns false
 bool symstackPop( symstack *stack, tableItem **target){
-    if(!stackIsEmpty(stack)){
+    if(!symstackIsEmpty(stack)){
         *target = stack->top->item;
         symstackItem *tmp = stack->top;
         stack->top = stack->top->next;

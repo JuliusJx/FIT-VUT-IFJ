@@ -28,8 +28,6 @@ symstack *symStack;
 char *tokenID = NULL; //maybe rename to functionID
 int scope = 0;
 
-int main();
-
 bool cmpTokType( token*, int);
 
 token *nextToken();

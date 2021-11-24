@@ -16,7 +16,7 @@
 //Structure for items in stack
 typedef struct symstackItem{
     tableItem *item;
-    struct StackItem *next;
+    struct symstackItem *next;
 }symstackItem;
 
 //Structure for stack

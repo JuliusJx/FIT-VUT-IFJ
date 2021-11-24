@@ -34,13 +34,15 @@ int symGetHash( char *id){
 tableItem *symGetItem( symTable *table, char *id, unsigned short scope){
     int index = symGetHash(id);
     tableItem *item;
-    while (scope > 0){
+    while (true){
         item = (*table)[index];
         while(item != NULL){
             if((!strcmp(item->name, id)) && (item->scope == scope))
                 return item;
             item = item->next;
         }
+        if(scope == 0)
+            break;
         scope--;
     }
     return NULL;
