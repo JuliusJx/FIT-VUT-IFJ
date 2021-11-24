@@ -12,6 +12,13 @@
 #include <string.h>
 #include "parser.h"
 
+token *returnToken = NULL;
+symTable *table;
+stack *argStack;
+symstack *symStack;
+char *tokenID = NULL; //maybe rename to functionID
+int scope = 0;
+
 bool cmpTokType( token *token, int cmpType){
     if(token->type == cmpType)
         return true;

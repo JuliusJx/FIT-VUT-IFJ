@@ -21,12 +21,12 @@
 #define P_ARG 2
 #define P_STATEMENT 3
 
-token *returnToken = NULL;
-symTable *table;
-stack *argStack;
-symstack *symStack;
-char *tokenID = NULL; //maybe rename to functionID
-int scope = 0;
+extern token *returnToken;
+extern symTable *table;
+extern stack *argStack;
+extern symstack *symStack;
+extern char *tokenID; //maybe rename to functionID
+extern int scope;
 
 bool cmpTokType( token*, int);
 
