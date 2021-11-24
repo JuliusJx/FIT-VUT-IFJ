@@ -15,6 +15,7 @@
 //Function resets top pointer to null
 void symstackInit( symstack *stack){
     stack->top = NULL;
+    stack->count = 0;
 }
 //Function pushes item into the stack
 //Function returns true if successful, otherwise returns false
@@ -25,6 +26,7 @@ bool symstackPush( symstack *stack, tableItem *item){
     newItem->next = stack->top;
     newItem->item = item;
     stack->top = newItem;
+    stack->count++;
     return true;
 }
 //Function sets target pointer to stack->top pointer if stack is not empty
@@ -45,13 +47,18 @@ bool symstackPop( symstack *stack, tableItem **target){
         symstackItem *tmp = stack->top;
         stack->top = stack->top->next;
         free(tmp);
+        stack->count--;
         return true;
     }
     return false;
 }
+//Function returns number of items stored in stack
+int symstackCount( symstack *stack){
+    return stack->count;
+}
 //Function returns true if stack is empty, otherwise returns false
 bool symstackIsEmpty( symstack *stack){
-    return stack->top == NULL;
+    return stack->count == 0;
 }
 
 // --End of file--

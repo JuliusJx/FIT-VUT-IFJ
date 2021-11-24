@@ -14,11 +14,19 @@
 #include "scanner.h"
 #include "symtable.h"
 #include "stack.h"
+#include "symstack.h"
 
 #define P_PARAM 0
 #define P_RETURN 1
 #define P_ARG 2
 #define P_STATEMENT 3
+
+token *returnToken = NULL;
+symTable *table;
+stack *argStack;
+symstack *symStack;
+char *tokenID = NULL; //maybe rename to functionID
+int scope = 0;
 
 int main();
 
@@ -48,15 +56,9 @@ bool pCallArgs();
 
 bool pStatement();
 
-bool pAfter_ID();
-
-bool pAfter_EQ();
-
 bool pInit();
 
-bool pID( bool);
-
-bool pType();
+bool pID();
 
 #endif
 

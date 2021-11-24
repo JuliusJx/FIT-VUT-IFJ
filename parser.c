@@ -12,12 +12,6 @@
 #include <string.h>
 #include "parser.h"
 
-token *returnToken = NULL;
-symTable *table;
-stack *argStack;
-char *tokenID = NULL; //maybe rename to functionID
-int scope = 0;
-
 bool cmpTokType( token *token, int cmpType){
     if(token->type == cmpType)
         return true;
@@ -316,8 +310,18 @@ bool pCall(){
         freeToken(cToken);
         return false;
     }
-    if(!pCallArgs())
+
+    if((cToken = nextToken()) == NULL){
         return false;
+    }
+    if(cmpTokType(cToken, TOKEN_ID)){
+        returnToken = cToken;
+        if(!pCallArgs())
+            return false;
+    }
+    else{
+        returnToken = cToken;
+    }
     
     if((cToken = nextToken()) == NULL){
         return false;
@@ -435,6 +439,7 @@ bool pReturns(){
 bool pArgs(){
     token *cToken;
     static int paramIndex = 0;
+    //looks for function entry
     tableItem *item = symGetItem(table, tokenID, 0);
     
     if((cToken = nextToken()) == NULL){
@@ -527,36 +532,43 @@ bool pCallArgs(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_ID)){
+        fprintf(stderr,"2"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+    tableItem *item = symGetItem(table, cToken->content.str, scope);
+    if(item == NULL){
+        fprintf(stderr,"3"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+    int type;
+    if(!stackPop(argStack, &type)){ //more params than expected
+        fprintf(stderr,"5"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+    if(item->type != type){
+        fprintf(stderr,"4"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+    //if next token is comma, recursive call
+    if((cToken = nextToken()) == NULL){
+        return false;
+    }
+    if(!cmpTokType(cToken, TOKEN_Comma)){
         returnToken = cToken;
+        if(!stackIsEmpty(argStack)){ //less params than expected
+            fprintf(stderr,"5"); //TODO - add error code
+            freeToken(cToken);
+            return false;
+        }
         return true;
     }
-    else{
-        tableItem *item = symGetItem(table, cToken->content.str, scope);
-        if(item == NULL){
-            fprintf(stderr,"3"); //TODO - add error code
-            freeToken(cToken);
-            return false;
-        }
-        if(item->scope <= scope){
-            fprintf(stderr,"3"); //TODO - add error code
-            freeToken(cToken);
-            return false;
-        }
-        int type;
-        if(!stackPop(argStack, &type)){
-            fprintf(stderr,"99"); //TODO - add error code
-            freeToken(cToken);
-            return false;
-        }
-        if(item->type != type){
-            fprintf(stderr,"4"); //TODO - add error code
-            freeToken(cToken);
-            return false;
-        }
-        if(!pID(true))
-            return false;
-        return true;
-    }
+    if(!pCallArgs())
+        return false;
+    return true;
 }
 
 bool pStatement(){
@@ -567,6 +579,7 @@ bool pStatement(){
     switch(cToken->type){
         case TOKEN_Key_if:
             //call other parser
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -575,8 +588,12 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+            scope++;
             if(!pStatement())
                 return false;
+            //remove variables at scope
+            scope--;
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -585,8 +602,13 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+
+            scope++;
             if(!pStatement())
                 return false;
+            //remove variables at scope
+            scope--;
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -601,6 +623,7 @@ bool pStatement(){
 
         case TOKEN_Key_while:
             //call other parser
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -609,8 +632,13 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+
+            scope++;
             if(!pStatement())
                 return false;
+            //TODO remove all variables at scope
+            scope--;
+            
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -624,6 +652,7 @@ bool pStatement(){
             break;
         
         case TOKEN_Key_local:
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -633,6 +662,16 @@ bool pStatement(){
                 return false;
             }
             //Add entry to symtable
+            tableItem *item = symGetItem(table, cToken->content.str, scope);
+            if(item != NULL){
+                if((item->scope == scope) || (item->type == FUNC_ID)){
+                    fprintf(stderr,"3"); //TODO - add error code
+                    freeToken(cToken);
+                    return false;
+                }
+            }
+            char *tmp = cToken->content.str;
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -641,23 +680,133 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
-            if(!pType())
+            
+            if((cToken = nextToken()) == NULL){
                 return false;
+            }
+            int type;
+            switch(cToken->type){
+                
+                case TOKEN_String:
+                    type = TYPE_STR;
+                    break;
+                
+                case TOKEN_Int:
+                    type = TYPE_INT;
+                    break;
+
+                case TOKEN_Num:
+                    type = TYPE_NUM;
+                    break;
+                default:
+                    fprintf(stderr,"2"); //TODO - add error code
+                    free(cToken);
+                    return false;
+            }
+            if(!symInsert(table, tmp, type, false, scope)){
+                fprintf(stderr,"99"); //TODO - add error code
+                freeToken(cToken);
+                return false;
+            }
+            item = symGetItem(table, cToken->content.str, scope);
+            symstackPush(symStack, item);
             if(!pInit())
                 return false;
+            symstackPop(symStack, item);
             if(!pStatement())
                 return false;
             break;
 
         case TOKEN_ID:
-            //symtable check
-            if(!pAfter_ID())
+            tableItem *item = symGetItem(table, cToken->content.str, scope);
+            if(item == NULL){
+                fprintf(stderr,"3"); //TODO - add error code
+                freeToken(cToken);
                 return false;
+            }
+            if(item->type == FUNC_ID){
+                returnToken = cToken;
+                if(!pCall())
+                    return false;
+            }
+            else{
+                symstackPush(symStack, item);
+                
+                if((cToken = nextToken()) == NULL)
+                    return false;
+                if(cmpTokType(cToken, TOKEN_Colon)){
+                    if(!pID())
+                        return false;
+                }
+                else if(cmpTokType(cToken, TOKEN_Assign)){
+
+                    if((cToken = nextToken()) == NULL)
+                        return false;
+                    if(cmpTokType(cToken, TOKEN_ID)){
+                        item = symGetItem(table, cToken->content.str, scope);
+                        if(item->type == FUNC_ID){
+                            int index = symstackCount(symStack);
+                            if(index > item->returnAmount){
+                                fprintf(stderr,"5"); //TODO - add error code
+                                freeToken(cToken);
+                                return false;
+                            }
+                            symstackItem *tmp;
+                            while(!symstackIsEmpty(symStack)){
+                                symstackPop(symStack, tmp);
+                                if(tmp->item->type != item->returnTypes[--index]){
+                                    fprintf(stderr,"5"); //TODO - add error code
+                                    freeToken(cToken);
+                                    return false;
+                                }
+                            }
+                        }
+                        else{
+                            //call other parser
+                        }
+                    }
+                    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+                        //call other parser
+                    }
+                    else{
+                        fprintf(stderr,"5"); //TODO - add error code
+                        freeToken(cToken);
+                        return false;
+                    }
+                    
+                }
+                else{
+                    fprintf(stderr,"3"); //TODO - add error code
+                    freeToken(cToken);
+                    return false;
+                }
+            }
             if(!pStatement())
                 return false;
             break;
 
         case TOKEN_Key_return:
+            int index = 0;
+            tableItem *item = symGetItem(table, tokenID, 0);
+            if(item == NULL){
+                fprintf(stderr,"99"); //TODO - add error code
+                freeToken(cToken);
+                return false;
+            }
+            while(index < item->returnAmount){
+                tableItem newItem = { 
+                    .name = "retval",
+                    .type = item->returnTypes[index++],
+                    .isInit = true,
+                    .isUsed = false,
+                    .paramAmount = 0,
+                    .returnAmount = 0,
+                    .paramTypes = NULL,
+                    .returnTypes = NULL,
+                    .scope = scope,
+                    .next = NULL };
+                symstackPush(symStack, &newItem);
+            }
             //call other parser
             break;
 
@@ -668,75 +817,56 @@ bool pStatement(){
     return true;
 }
 
-bool pAfter_ID(){
-    token *cToken;
-    if((cToken = nextToken()) == NULL){
-        return false;
-    }
-    if(cmpTokType(cToken, TOKEN_LeftPar)){
-        if(!pArgs)
-            return false;
-        if((cToken = nextToken()) == NULL){
-            return false;
-        }
-        if(!cmpTokType(cToken, TOKEN_RightPar)){
-            fprintf(stderr,"2"); //TODO - add error code
-            freeToken(cToken);
-            return false;
-        }
-    }
-    if(!pID(true)) //TODO tu ma byt false
-        return false;
-    if((cToken = nextToken()) == NULL){
-        return false;
-    }
-    if(!cmpTokType(cToken, TOKEN_Assign)){
-        fprintf(stderr,"2"); //TODO - add error code
-        freeToken(cToken);
-        return false;
-    }
-    if(!pAfter_EQ)
-        return false;
-    return true;
-}
-
-bool pAfter_EQ(){
-    token *cToken;
-    if((cToken = nextToken()) == NULL){
-        return false;
-    }
-    if(cmpTokType(cToken, TOKEN_ID)){
-        //symtable check TODO
-        //if function -> call <call>
-        //else call other parser
-    }
-    return true;
-}
-
 bool pInit(){
     token *cToken;
     if((cToken = nextToken()) == NULL){
         return false;
     }
-    if(cmpTokType(cToken, TOKEN_ID)){
-        //symtable check TODO
-        //if function -> call <call>
-        //else call other parser
-    }
-    else
-        returnToken = cToken;
-    return true;
-}
-
-bool pID(bool semCheck){
-    token *cToken;
-    if((cToken = nextToken()) == NULL){
-        return false;
-    }
-    if(!cmpTokType(cToken, TOKEN_Comma)){
+    if(!cmpTokType(cToken, TOKEN_Assign)){
         returnToken = cToken;
         return true;
     }
+    tableItem *item;
+
+    if((cToken = nextToken()) == NULL)
+        return false;
+    if(cmpTokType(cToken, TOKEN_ID)){
+        item = symGetItem(table, cToken->content.str, scope);
+        if(item->type == FUNC_ID){
+            int index = symstackCount(symStack);
+            if(index > item->returnAmount){
+                fprintf(stderr,"5"); //TODO - add error code
+                freeToken(cToken);
+                return false;
+            }
+            symstackItem *tmp;
+            while(!symstackIsEmpty(symStack)){
+                symstackPop(symStack, tmp);
+                if(tmp->item->type != item->returnTypes[--index]){
+                    fprintf(stderr,"5"); //TODO - add error code
+                    freeToken(cToken);
+                    return false;
+                }
+            }
+        }
+        else{
+            //call other parser
+        }
+    }
+    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+        //call other parser
+    }
+    else{
+        fprintf(stderr,"5"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+    return true;
+}
+
+bool pID(){
+    token *cToken;
+    
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -745,7 +875,24 @@ bool pID(bool semCheck){
         freeToken(cToken);
         return false;
     }
-    if(!pID(false)) //tu uz asi ma byt false
+    tableItem *item = symGetItem(table, cToken->content.str, scope);
+    if(item->type == FUNC_ID){
+        fprintf(stderr,"7"); //TODO - add error code
+        freeToken(cToken);
+        return false;
+    }
+
+    symstackPush(symStack, item);
+
+    if((cToken = nextToken()) == NULL){
+        return false;
+    }
+    if(!cmpTokType(cToken, TOKEN_Comma)){
+        returnToken = cToken;
+        return true;
+    }
+
+    if(!pID())
         return false;
     return true;
 }
@@ -758,16 +905,27 @@ int main(){
         free(table);
         return 1;
     }
+    if((symStack = malloc(sizeof(stack))) == NULL){
+        free(argStack);
+        free(table);
+        return 1;
+    }
     symInit(table);
     stackInit(argStack);
+    symstackInit(symStack);
     bool isCorrect = pBody();
     int dump;
+    tableItem *ptrDump;
     symDeleteAll(table);
     while(!stackIsEmpty(argStack)){
         stackPop(argStack, &dump);
     }
+    while(!symstackIsEmpty(symStack)){
+        symstackPop(symStack, ptrDump);
+    }
     free(table);
     free(argStack);
+    free(symStack);
     if (!isCorrect)
         return 1;
     return 0;

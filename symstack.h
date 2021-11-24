@@ -21,18 +21,21 @@ typedef struct symstackItem{
 
 //Structure for stack
 typedef struct symstack{
+    int count;
     symstackItem *top;
 }symstack;
 
-void symstackInit( symstackItem*);
+void symstackInit( symstack*);
 
-bool symstackPush( symstackItem*, tableItem*);
+bool symstackPush( symstack*, tableItem*);
 
-bool symstackTop( symstackItem*, tableItem**);
+bool symstackTop( symstack*, tableItem**);
 
-bool symstackPop( symstackItem*, tableItem**);
+bool symstackPop( symstack*, tableItem**);
 
-bool symstackIsEmpty( symstackItem*);
+int symstackCount( symstack*);
+
+bool symstackIsEmpty( symstack*);
 
 #endif
 

@@ -14,14 +14,16 @@
 14. <args> -> eps
 15. <arg> -> , [id] : <type> <arg>
 16. <arg> -> eps
-
 17. <callArgs> -> [id] <id>
 18. <callArgs> -> eps
 17. <statement> -> if <expression> then <statement> else <statement> end <statement>
+
+//funkcie a return mozu mat ako parametre aj konstanty, treba to pridat do kodu a tu vytvorit pravidla //TODOOOOoloooooo
+
 18. <statement> -> while <expression> do <statement> end <statement>
 19. <statement> -> local [id] : <type> <init> <statement>
 20. <statement> -> [id] <after_id> <statement>
-//21. <statement> -> <expression> <statement>
+
 22. <statement> -> return <expression>
 23. <statement> -> eps
 24. <after_id> -> (<args>)

@@ -30,15 +30,18 @@ int symGetHash( char *id){
     return sum % SYMTABLE_SIZE;
 }
 //Function searches for item based on given id and scope value
-//Function returns pointer to item if found, otherwise returns null 
+//Function returns pointer to item if found, otherwise returns null
 tableItem *symGetItem( symTable *table, char *id, unsigned short scope){
     int index = symGetHash(id);
     tableItem *item;
-    item = (*table)[index];
-    while(item != NULL){
-        if((!strcmp(item->name, id)) && (item->scope == scope))
-            return item;
-        item = item->next;
+    while (scope > 0){
+        item = (*table)[index];
+        while(item != NULL){
+            if((!strcmp(item->name, id)) && (item->scope == scope))
+                return item;
+            item = item->next;
+        }
+        scope--;
     }
     return NULL;
 }
