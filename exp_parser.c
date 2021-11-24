@@ -14,17 +14,25 @@
 #include "exp_parser.h"
 
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
- // | #      | *,/,// | +,-   | ..    | Rel   | (     | )     | i     | $
-    { EQ,       GR,     GR,     GR,     GR,     GR,     GR,     GR,     GR },    //| #
-    { LE,       GR,     GR,     GR,     GR,     LE,     GR,     LE,     GR },    //| *, /, //
-    { LE,       LE,     GR,     GR,     GR,     LE,     GR,     LE,     GR },    //| +, -
-    { LE,       LE,     LE,     LE,     LE,     LE,     GR,     LE,     GR },    //| ..
-    { LE,       LE,     LE,     GR,     ER,     LE,     GR,     LE,     GR },    //| Rel
-    { LE,       LE,     LE,     LE,     LE,     LE,     EQ,     LE,     ER },    //| (
-    { LE,       GR,     GR,     GR,     GR,     ER,     GR,     ER,     GR },    //| )
-    { LE,       GR,     GR,     GR,     GR,     ER,     GR,     ER,     GR },    //| i
-    { LE,       LE,     LE,     LE,     LE,     LE,     ER,     LE,     ER },    //| $
+//  | 0  | 1   | 2  | 3   | 4  | 5   | 6 | 7 | 8      | 9      | 10     | 11
+//  | #  | *,/ | // | +,- | .. | Rel | ( | ) | i(int) | i(num) | i(str) | $
+    { EQ,  GR,   GR,  GR,   GR,  GR,  GR, GR,  GR,      GR,      GR,      GR },    //| #      | 0
+    { LE,  GR,   GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| *, /   | 1
+    { LE,  GR,   GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| //     | 2
+    { LE,  LE,   LE,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| +, -   | 3
+    { LE,  LE,   LE,  LE,   LE,  LE,  LE, GR,  LE,      LE,      LE,      GR },    //| ..     | 4
+    { LE,  LE,   LE,  LE,   GR,  ER,  LE, GR,  LE,      LE,      LE,      GR },    //| Rel    | 5
+    { LE,  LE,   LE,  LE,   LE,  LE,  LE, EQ,  LE,      LE,      LE,      ER },    //| (      | 6
+    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| )      | 7
+    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(int) | 8
+    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(num) | 9
+    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(str) | 10
+    { LE,  LE,   LE,  LE,   LE,  LE,  LE, ER,  LE,      LE,      LE,      ER },    //| $      | 11
 };
+
+
+
+
 
 int tokConversion(token *cToken){
     switch (cToken->type){
@@ -72,8 +80,82 @@ int tokConversion(token *cToken){
     }
 }
 
+bool pHelp(stack *stack, int token){
+    int tmp_top = 0; 
+    int tmp = 0;
+    // pop top (char) 
+    stackPop(stack, &tmp_top);
+    // - check na top == "<"
+    stackTop(stack, &tmp);
+    //  == pop
+    if(tmp == LE)
+        stackPop(stack, &tmp);
+    //  =! error
+    else
+        printf("ERROR");
+        return false;
+
+    // check top < vstup
+    //  == push(<), push(char), push(vstup)
+    if(prec_table[tmp_top][token] == LE){
+        stackPush(stack, tmp_top);
+        if(token != T_DOLLAR)
+            stackPush(stack, token);
+    }
+    //  =! ??
+    return true;
+}
+
+bool pAlgo(stack *stack, int token){
+    int tmp = 0;
+    stackTop(stack, &tmp);
+
+    if(token == T_DOLLAR){
+        // TODO: chceck na to či je to error alebo koniec vstupného reťazcu
+        int tmp_top = 0;
+        int tmp_pop = 0;
+
+        while(tmp_top != T_DOLLAR){
+            if(!pHelp(stack, token)){
+                printf("ERROR");
+                return false;
+            }
+
+            stackPop(stack, &tmp_pop);
+            stackTop(stack, &tmp_top);
+            stackPush(stack, tmp_pop);
+        }
+        return true;
+    }
+
+    switch(prec_table[tmp][token]){
+        case EQ:
+            stackPush(stack, token);
+            return true;
+        case LE:
+            stackPush(stack, LE);
+            stackPush(stack, token);
+            return true;
+        case GR:
+            if(pHelp(stack, token))
+                return true;
+            else{
+                printf("ERROR");
+                return false;
+            }
+        case ER:
+            // TODO: ERROR print ?
+            printf("ERROR");
+            return false;
+    }
+}
+
 bool pExpression(){
     bool stringValid = true;
+
+    stack *stack = malloc(sizeof(stack));   //TODO: nezabudnúť uvoľniť
+    stackInit(stack);
+    stackPush(stack, T_DOLLAR);
 
     while(stringValid){
         token *cToken;
@@ -90,16 +172,9 @@ bool pExpression(){
                 return false;   // TODO:
             }
         }
-
-
+        pAlgo(stack, tokConversion(cToken));
 
     }
-
-
-
-
-
-
     return true;
 }
 

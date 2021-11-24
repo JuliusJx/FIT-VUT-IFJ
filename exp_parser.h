@@ -25,12 +25,20 @@
 #define T_STRING 10     //| i -> string (variable)
 #define T_DOLLAR 11     //| $
 
-#define LE 1            // <
-#define GR 2            // >
-#define EQ 3            // =
-#define ER 0            // ERROR
+#define LE 45            // <
+#define GR 44            // >
+#define EQ 43            // =
+#define ER 42            // ERROR
 
-#define PREC_TAB_SIZE 9
+#define PREC_TAB_SIZE 12
+
+int tokConversion( token*);
+
+bool phelp( stack*, int);
+
+bool pAlgo( stack*, int);
+
+bool pExpression();
 
 #endif
 
