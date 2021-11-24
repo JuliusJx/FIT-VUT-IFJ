@@ -1,0 +1,40 @@
+a = 5 + 3
+a = 8 * 3 + 2
+a = (5 + 3) * 6
+a = 4 / 3
+a = 25 // 7
+a = 5 / 0
+a = (8 + 3 - 2 * 3) - 2 + #"abc"
+a = "abcd" .. "efgh" + 3
+a = "abcd" .. "efgh" + "3"
+a = 5 + + 3
+a = "abc" * 3
+a = 5 + 3 * 5
+a = 5 * 5 + 3
+a = 5 * + 3
+a = (5 + 3) * 3
+a = (+ +) *
+a = () + 3
+a = 3 * ( 8 + 3
+a = 5 + 3 a = 3 * 2
+a = "abcd" .. + "efgh"
+a = (5 + 3 - 7 * 8 / 8 ) * 0 + 5 // 4 + #"abcd" .. "efgh"
+--------------------------------------------------------------
+a = var1 + var2
+a = var1 + 5
+a = var1 + "abcd"
+a = varStr .. "abcd"
+a = var1 + var2 * var3
+a = var1 * * var2
+a = var1 var1 = var2
+a = (var1 + * var2) * var3
+a = (var1 + var2) * var2
+a = varStr .. varStr
+a = #varStr + 5
+a = #varStr .. "abcd"
+a = #varStr + #varStr
+a = varStr + 5 * 3
+a = #varStr + #(varStr .. varStr) * 3 // 5
+a = #(varStr .. varStr) / 0
+a = var1 * var1 + var2 * (var2 + var2) / 3 + #"abcd" * #(varStr .. varStr)
+-----------------TODO relačne operatory-----------------------
