@@ -36,6 +36,8 @@ token *nextToken();
 
 void freeToken( token*);
 
+bool insertBuiltIn();
+
 bool pProgram();
 
 bool pBody();

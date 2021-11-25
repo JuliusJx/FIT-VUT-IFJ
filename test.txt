@@ -4,16 +4,13 @@ global func : function(integer) : integer
 function func(y : integer) : integer
 
 local x : integer
+local z : number
 
 if then
  local x : integer = func(x)
  x = func(x)
 else
- x = func()
-end
-
-while do
- x = func(x)
+ write("as")
 end
 
 end
