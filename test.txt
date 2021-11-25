@@ -1,14 +1,19 @@
 require "ifj21"
 
-function func() : integer
+global func : function(integer) : integer
+function func(y : integer) : integer
 
 local x : integer
 
 if then
- local x : integer
- x = func()
+ local x : integer = func(x)
+ x = func(x)
 else
  x = func()
 end
-local func : integer
+
+while do
+ x = func(x)
+end
+
 end

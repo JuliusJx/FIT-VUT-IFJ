@@ -155,7 +155,7 @@ token *GetToken(){
             case FSM_String:
                 if(c == '"'){
                     if((NewToken->content.str = malloc(strlen(newInput.str) + 1)) == NULL)
-                        error = true;
+                        MemError = true;
                     else{
                         NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
                         NewToken->type = TOKEN_String;
@@ -262,7 +262,7 @@ token *GetToken(){
                     NewToken->type = isKeyWord(&newInput);
                     if(NewToken->type == TOKEN_ID){
                         if((NewToken->content.str = malloc((strlen(newInput.str)) + 1)) == NULL)
-                            error = true;
+                            MemError = true;
                         else{
                             NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
                         }

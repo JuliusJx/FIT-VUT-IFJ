@@ -16,6 +16,7 @@
 #include "stack.h"
 #include "symstack.h"
 #include "exp_parser.h"
+#include "err_handler.h"
 
 #define P_PARAM 0
 #define P_RETURN 1
