@@ -14,8 +14,8 @@
 #include "parser.h"
 
 #define STR_LEN 0       //| #
-#define MUL 1       //| *, / 
-#define DIV 2
+#define MUL 1           //| *
+#define DIV 2           //| / 
 #define INT_DIV 3       //| //
 #define PLUS_MINUS 4    //| +, -
 #define STR_CONC 5      //| ..
@@ -23,9 +23,10 @@
 #define LEFT_PAR 7      //| (
 #define RIGHT_PAR 8     //| )
 #define T_INT 9         //| i -> int (variable)
-#define T_NUM 10         //| i -> float (variable)
+#define T_NUM 10        //| i -> float (variable)
 #define T_STR 11        //| i -> string (variable)
 #define T_DOLLAR 12     //| $
+#define T_BOOL 13       //| bool type
 
 #define LE 45            // <
 #define GR 44            // >
