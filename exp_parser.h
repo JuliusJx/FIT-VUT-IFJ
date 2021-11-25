@@ -14,24 +14,25 @@
 #include "parser.h"
 
 #define STR_LEN 0       //| #
-#define MUL_DIV 1       //| *, / 
-#define INT_DIV 2       //| //
-#define PLUS_MINUS 3    //| +, -
-#define STR_CONC 4      //| ..
-#define REL_COMP 5      //| ==, ~=, <, >, <=, >=
-#define LEFT_PAR 6      //| (
-#define RIGHT_PAR 7     //| )
-#define T_INT 8         //| i -> int (variable)
-#define T_NUM 9         //| i -> float (variable)
-#define T_STR 10        //| i -> string (variable)
-#define T_DOLLAR 11     //| $
+#define MUL 1       //| *, / 
+#define DIV 2
+#define INT_DIV 3       //| //
+#define PLUS_MINUS 4    //| +, -
+#define STR_CONC 5      //| ..
+#define REL_COMP 6      //| ==, ~=, <, >, <=, >=
+#define LEFT_PAR 7      //| (
+#define RIGHT_PAR 8     //| )
+#define T_INT 9         //| i -> int (variable)
+#define T_NUM 10         //| i -> float (variable)
+#define T_STR 11        //| i -> string (variable)
+#define T_DOLLAR 12     //| $
 
 #define LE 45            // <
 #define GR 44            // >
 #define EQ 43            // =
 #define ER 42            // ERROR
 
-#define PREC_TAB_SIZE 12
+#define PREC_TAB_SIZE 13
 
 int tokConversion( token*);
 

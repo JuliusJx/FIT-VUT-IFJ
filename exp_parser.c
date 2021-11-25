@@ -14,20 +14,21 @@
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
-//  | 0  | 1   | 2  | 3   | 4  | 5   | 6 | 7 | 8      | 9      | 10     | 11
-//  | #  | *,/ | // | +,- | .. | Rel | ( | ) | i(int) | i(num) | i(str) | $
-    { EQ,  GR,   GR,  GR,   GR,  GR,  GR, GR,  GR,      GR,      GR,      GR },    //| #      | 0
-    { LE,  GR,   GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| *, /   | 1
-    { LE,  GR,   GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| //     | 2
-    { LE,  LE,   LE,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| +, -   | 3
-    { LE,  LE,   LE,  LE,   LE,  LE,  LE, GR,  LE,      LE,      LE,      GR },    //| ..     | 4
-    { LE,  LE,   LE,  LE,   GR,  ER,  LE, GR,  LE,      LE,      LE,      GR },    //| Rel    | 5
-    { LE,  LE,   LE,  LE,   LE,  LE,  LE, EQ,  LE,      LE,      LE,      ER },    //| (      | 6
-    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| )      | 7
-    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(int) | 8
-    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(num) | 9
-    { LE,  GR,   GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(str) | 10
-    { LE,  LE,   LE,  LE,   LE,  LE,  LE, ER,  LE,      LE,      LE,      ER },    //| $      | 11
+//  | 0  | 1  | 2  | 3 | 4   | 5  | 6   | 7 | 8 | 9      | 10      | 11     | 12
+//  | #  | *  | /  |// | +,- | .. | Rel | ( | ) | i(int) | i(num) | i(str) | $
+    { EQ,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  GR,      GR,      GR,      GR },    //| #      | 0
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| *      | 1
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| /      | 2
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| //     | 3
+    { LE,  LE,  LE, LE,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| +, -   | 4
+    { LE,  LE,  LE, LE,  LE,   LE,  LE,  LE, GR,  LE,      LE,      LE,      GR },    //| ..     | 5
+    { LE,  LE,  LE, LE,  LE,   GR,  ER,  LE, GR,  LE,      LE,      LE,      GR },    //| Rel    | 6
+    { LE,  LE,  LE, LE,  LE,   LE,  LE,  LE, EQ,  LE,      LE,      LE,      ER },    //| (      | 7
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| )      | 8
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(int) | 9
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(num) | 10
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR },    //| i(str) | 11
+    { LE,  LE,  LE, LE,  LE,   LE,  LE,  LE, ER,  LE,      LE,      LE,      ER },    //| $      | 12
 };
 
 int tokConversion(token *cToken){
@@ -36,8 +37,9 @@ int tokConversion(token *cToken){
         case TOKEN_StrLen:
             return STR_LEN;
         case TOKEN_Mul:
+            return MUL;
         case TOKEN_Div:
-            return MUL_DIV;
+            return DIV;
         case TOKEN_DivInt:
             return INT_DIV;
         case TOKEN_Plus:
@@ -129,7 +131,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
         if(tmp_top2 == LE){
             stackPop(e_stack, &tmp_top2);
             // spojiť podľa pravidla
-            if( (tmp_top == T_INT || tmp_top == T_NUM) && (tmp_pop2 == MUL_DIV || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_NUM) ){
+            if( (tmp_top == T_INT || tmp_top == T_NUM) && (tmp_pop2 == MUL || tmp_pop2 == DIV || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_NUM) ){
                 // int;float | +;-;*;/ | int;float  => tmp_top
                 if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
                     return true;
