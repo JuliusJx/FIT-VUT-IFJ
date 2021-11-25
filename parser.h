@@ -15,6 +15,7 @@
 #include "symtable.h"
 #include "stack.h"
 #include "symstack.h"
+#include "exp_parser.h"
 
 #define P_PARAM 0
 #define P_RETURN 1

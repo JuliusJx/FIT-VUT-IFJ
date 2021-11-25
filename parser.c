@@ -12,6 +12,7 @@
 #include <string.h>
 #include "parser.h"
 
+
 token *returnToken = NULL;
 symTable *table;
 stack *argStack;
@@ -652,7 +653,8 @@ bool pStatement(){
         case TOKEN_Key_if:
 
             freeToken(cToken);
-            //call other parser
+            if(!pExpression())
+                return false;
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -702,7 +704,8 @@ bool pStatement(){
         case TOKEN_Key_while:
             
             freeToken(cToken);
-            //call other parser
+            if(!pExpression())
+                return false;
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -870,12 +873,14 @@ bool pStatement(){
                         }
                         else{
                             returnToken = cToken;
-                            //call other parser
+                            if(!pExpression())
+                                return false;
                         }
                     }
                     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
                         returnToken = cToken;
-                        //call other parser
+                        if(!pExpression())
+                            return false;
                     }
                     else{
                         fprintf(stderr,"5f"); //TODO - add error code
@@ -918,7 +923,8 @@ bool pStatement(){
                     .next = NULL };
                 symstackPush(symStack, &newItem);
             }
-            //call other parser
+            if(!pExpression())
+                return false;
             break;
 
         default:
@@ -966,12 +972,14 @@ bool pInit(){
         }
         else{
             returnToken = cToken;
-            //call other parser
+            if(!pExpression())
+                return false;
         }
     }
     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
         returnToken = cToken;
-        //call other parser
+        if(!pExpression())
+            return false;
     }
     else{
         fprintf(stderr,"5i"); //TODO - add error code
