@@ -39,7 +39,7 @@ int tokConversion(token *cToken){
         case TOKEN_Div:
             return MUL_DIV;
         case TOKEN_DivInt:
-            return MOD;
+            return INT_DIV;
         case TOKEN_Plus:
         case TOKEN_Minus:
             return PLUS_MINUS;
@@ -61,7 +61,7 @@ int tokConversion(token *cToken){
         case TOKEN_Num:
             return T_NUM;
         case TOKEN_String:
-            return T_STRING;
+            return T_STR;
         case TOKEN_ID:
             item = symGetItem(table, cToken->content.str, scope);
             if(item == NULL)
@@ -71,9 +71,26 @@ int tokConversion(token *cToken){
             if(item->type == TYPE_NUM)
                 return T_NUM;
             if(item->type == TYPE_STR)
-                return T_STRING;
+                return T_STR;
         default:
             return T_DOLLAR;
+    }
+}
+
+bool phCheck(stack *e_stack, stack *h_stack, int tmp_top, int *tmp_top2, int token){
+    stackTop(e_stack, tmp_top2);
+    if(prec_table[*tmp_top2][token] == LE){
+        stackPush(e_stack, LE);
+        stackPush(e_stack, tmp_top);
+        stackPush(e_stack, token);
+        return true;
+    }
+    else{
+        stackPush(e_stack, tmp_top);
+        if(pHelp(e_stack, h_stack, token))
+            return true;
+        else
+            return false;
     }
 }
 
@@ -106,7 +123,6 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
         }
     }
     else{
-        // $ < E + < E *    <- tu to nefunguje
         stackPop(e_stack, &tmp_pop2);
         stackPop(e_stack, &tmp_top);
         stackTop(e_stack, &tmp_top2);
@@ -115,59 +131,29 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
             // spojiť podľa pravidla
             if( (tmp_top == T_INT || tmp_top == T_NUM) && (tmp_pop2 == MUL_DIV || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_NUM) ){
                 // int;float | +;-;*;/ | int;float  => tmp_top
-                stackTop(e_stack, &tmp_top2);
-                if(prec_table[tmp_top2][token] == LE){
-                    stackPush(e_stack, LE);
-                    stackPush(e_stack, tmp_top);
-                    stackPush(e_stack, token);
+                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
                     return true;
-                }
                 else{
-                    stackPush(e_stack, tmp_top);
-                    if(pHelp(e_stack, h_stack, token))
-                        return true;
-                    else{
-                        printf("ERROR-10\n");
-                        return false;
-                    }
+                    printf("ERROR-12\n");
+                    return false;
                 }
             }
-            else if ( (tmp_top == T_INT) && (tmp_pop2 == MOD) && (tmp_pop == T_INT) ){
+            else if ( (tmp_top == T_INT) && (tmp_pop2 == INT_DIV) && (tmp_pop == T_INT) ){
                 // int | // | int   => tmp_top
-                stackTop(e_stack, &tmp_top2);
-                if(prec_table[tmp_top2][token] == LE){
-                    stackPush(e_stack, LE);
-                    stackPush(e_stack, tmp_top);
-                    stackPush(e_stack, token);
+                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
                     return true;
-                }
                 else{
-                    stackPush(e_stack, tmp_top);
-                    if(pHelp(e_stack, h_stack, token))
-                        return true;
-                    else{
-                        printf("ERROR-11\n");
-                        return false;
-                    }
+                    printf("ERROR-12\n");
+                    return false;
                 }
             }
-            else if ( (tmp_top == T_STRING) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STRING) ){
+            else if ( (tmp_top == T_STR) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR) ){
                 // str | .. | str   => tmp_top
-                stackTop(e_stack, &tmp_top2);
-                if(prec_table[tmp_top2][token] == LE){
-                    stackPush(e_stack, LE);
-                    stackPush(e_stack, tmp_top);
-                    stackPush(e_stack, token);
+                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
                     return true;
-                }
                 else{
-                    stackPush(e_stack, tmp_top);
-                    if(pHelp(e_stack, h_stack, token))
-                        return true;
-                    else{
-                        printf("ERROR-12\n");
-                        return false;
-                    }
+                    printf("ERROR-12\n");
+                    return false;
                 }
             }
             else{
@@ -224,7 +210,7 @@ bool pExpression(){
     bool stringValid = true;
 
     stack *e_stack = malloc(sizeof(stack));   //TODO: nezabudnúť uvoľniť
-    stack *h_stack = malloc(sizeof(stack));
+    stack *h_stack = malloc(sizeof(stack));     // TODO tento stack preč ak nebude treba
     stackInit(e_stack);
     stackPush(e_stack, T_DOLLAR);
 

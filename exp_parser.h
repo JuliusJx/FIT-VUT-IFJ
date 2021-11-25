@@ -15,7 +15,7 @@
 
 #define STR_LEN 0       //| #
 #define MUL_DIV 1       //| *, / 
-#define MOD 2           //| //
+#define INT_DIV 2       //| //
 #define PLUS_MINUS 3    //| +, -
 #define STR_CONC 4      //| ..
 #define REL_COMP 5      //| ==, ~=, <, >, <=, >=
@@ -23,7 +23,7 @@
 #define RIGHT_PAR 7     //| )
 #define T_INT 8         //| i -> int (variable)
 #define T_NUM 9         //| i -> float (variable)
-#define T_STRING 10     //| i -> string (variable)
+#define T_STR 10        //| i -> string (variable)
 #define T_DOLLAR 11     //| $
 
 #define LE 45            // <
@@ -35,7 +35,9 @@
 
 int tokConversion( token*);
 
-bool phelp( stack*, stack*, int);
+bool phCheck( stack*, stack*, int, int*, int);
+
+bool pHelp( stack*, stack*, int);
 
 bool pAlgo( stack*, stack*, int);
 
