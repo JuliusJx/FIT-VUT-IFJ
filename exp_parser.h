@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include "parser.h"
 
 #define STR_LEN 0       //| #
 #define MUL_DIV 1       //| *, / 
@@ -34,9 +35,9 @@
 
 int tokConversion( token*);
 
-bool phelp( stack*, int);
+bool phelp( stack*, stack*, int);
 
-bool pAlgo( stack*, int);
+bool pAlgo( stack*, stack*, int);
 
 bool pExpression();
 
