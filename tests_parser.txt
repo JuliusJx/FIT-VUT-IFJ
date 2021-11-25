@@ -160,7 +160,7 @@ require "ifj21"
 global func : function() : string
 function func() : int end
 
---------------------------------HERE
+--------------------------------
 
 require "ifj21"
 
@@ -214,7 +214,7 @@ func(x)
 require "ifj21"
 
 global func : function()
-func(x
+func(
 
 --------------------------------
 
@@ -332,3 +332,452 @@ function func() : integer
     
  end
 end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ whle do
+    
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ while do
+    
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ while do
+    func()
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ while do
+    xd()
+ end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+ while do
+    
+ end
+ xd()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd() : integer end
+function func() : integer
+ while do
+    
+ end
+ xd()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd() : integer end
+function func() : integer
+ while do
+    xd()
+ end
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer = func()
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer = func()
+x = y
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer end
+function func() : integer
+
+local x : integer = func()
+xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer end
+function func() : integer
+
+local x : integer = func()
+x = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer end
+function func() : integer
+
+local x : integer = func()
+local y : integer = func()
+x = xd(x,y)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer end
+function func() : integer
+
+local x : integer = func()
+local y : integer = func()
+x,y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer, integer end
+function func() : integer
+
+local x : integer = func()
+local y : integer = func()
+x,y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer, integer end
+function func() : integer
+
+local x : integer = func()
+local y : string = func()
+x,y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : integer, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+x,y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+x,y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+y,x = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+y = xd(x)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(z : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+x,y = xd(x,y)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(x : integer, y : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+x,y = xd(x,y)
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function xd(z : integer, c : integer) : number, integer end
+function func() : integer
+
+local x : number = func()
+local y : integer = func()
+x,y = xd(x,y)
+ 
+end
+
+--------------------------------HERE
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ x = func()
+else
+
+end
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ x = func()
+else
+ x = func()
+end
+ 
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ x = func()
+else
+ x = func()
+end
+x = func()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local y : integer
+ y = func()
+else
+ x = func()
+end
+x = func()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local y : integer
+ y = func()
+else
+ y = func()
+end
+x = func()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local y : integer
+ y = func()
+else
+ y = func()
+end
+y = func()
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local y : integer
+ y = func()
+else
+ y = func()
+end
+
+while do
+ y = func()
+end
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local x : integer
+ x = func()
+else
+ x = func()
+end
+
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+if then
+ local x : integer
+ x = func()
+else
+ x = func()
+end
+
+end
+
+--------------------------------
+
+require "ifj21"
+
+function func() : integer
+
+local x : integer
+
+if then
+ local x : integer
+ x = func()
+else
+ x = func()
+end
+
+end
+
+function foo()
+
+ x = func()
+
+end
+
+--------------------------------

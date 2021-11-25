@@ -47,7 +47,7 @@ void symDelete( symTable*, char*, unsigned short);
 //add final check (is used, is init)
 void symDeleteAll( symTable*);
 
-//delete all entries with certain scope
+void symDeleteScope( symTable*, int);
 
 bool symInsert( symTable*, char*, unsigned short, bool, unsigned short);
 

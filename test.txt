@@ -1,3 +1,14 @@
 require "ifj21"
 
-function func(x : string, y : integer) end
+function func() : integer
+
+local x : integer
+
+if then
+ local x : integer
+ x = func()
+else
+ x = func()
+end
+local func : integer
+end

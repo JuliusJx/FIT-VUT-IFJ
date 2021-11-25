@@ -54,7 +54,7 @@ bool pProgram(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_Key_require)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2a"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -64,13 +64,13 @@ bool pProgram(){
     }
     if(cmpTokType(cToken, TOKEN_String)){
         if(strcmp(cToken->content.str, "ifj21")){
-            fprintf(stderr,"2"); //TODO - add error code
+            fprintf(stderr,"2b"); //TODO - add error code
             freeToken(cToken);
             return false;
         }
     }
     else{
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2c"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -100,12 +100,12 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_ID)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2d"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
             if(symGetItem(table, cToken->content.str, 0) != NULL){
-                fprintf(stderr,"3"); //TODO - add error code
+                fprintf(stderr,"3a"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -119,7 +119,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Colon)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"e"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -128,7 +128,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_function)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2f"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -137,7 +137,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_LeftPar)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2g"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -158,7 +158,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_RightPar)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2h"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -186,14 +186,14 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_ID)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2i"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
             item = symGetItem(table, cToken->content.str, 0);
             if(item != NULL){
                 if(item->isInit){
-                    fprintf(stderr,"3"); //TODO - add error code
+                    fprintf(stderr,"3b"); //TODO - add error code
                     freeToken(cToken);
                     return false;
                 }
@@ -208,7 +208,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_LeftPar)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2j"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -231,7 +231,7 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_RightPar)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2k"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -246,7 +246,7 @@ bool pBody(){
             }
             else{
                 if(item->returnAmount > 0){
-                    fprintf(stderr,"3"); //TODO - add error code
+                    fprintf(stderr,"3c"); //TODO - add error code
                     freeToken(cToken);
                     return false;
                 }
@@ -262,11 +262,11 @@ bool pBody(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_end)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2l"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
-            //remove variables at scope 1
+            symDeleteScope(table, scope);
             scope--;
             if(!pBody()){
                 return false;
@@ -284,7 +284,7 @@ bool pBody(){
             }
             freeToken(cToken);
             break;
-        default: 
+        default:
             returnToken = cToken;
         break;
     }
@@ -297,32 +297,32 @@ bool pCall(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_ID)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2m"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     tableItem *item = symGetItem(table, cToken->content.str, 0);
     if(item == NULL){
-        fprintf(stderr,"3"); //TODO - add error code
+        fprintf(stderr,"3d"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     if(item->type != FUNC_ID){
-        fprintf(stderr,"3"); //TODO - add error code
+        fprintf(stderr,"3e"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     symToggleUsed(table, cToken->content.str, 0); //all functions are defined at scope 0
     int i = item->paramAmount - 1;
     while (i >= 0){
-        stackPush(argStack, item->paramTypes[i--]);
+        stackPush(argStack, item->paramTypes[i--] - '0');
     }
     symToggleUsed(table, cToken->content.str, 0);
     if((cToken = nextToken()) == NULL){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_LeftPar)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2n"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -336,6 +336,11 @@ bool pCall(){
             return false;
     }
     else{
+        if(item->paramAmount > 0){
+            fprintf(stderr,"5a"); //TODO - add error code
+            freeToken(cToken);
+            return false;
+        }
         returnToken = cToken;
     }
     
@@ -343,7 +348,7 @@ bool pCall(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_RightPar)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2o"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -372,7 +377,7 @@ bool pParams(){
             type = TYPE_NUM;
             break;
         default:
-            fprintf(stderr,"2"); //TODO - add error code
+            fprintf(stderr,"2p"); //TODO - add error code
             free(cToken);
             return false;
     }
@@ -417,19 +422,19 @@ bool pReturns(){
             type = TYPE_NUM;
             break;
         default:
-            fprintf(stderr,"2"); //TODO - add error code
+            fprintf(stderr,"2q"); //TODO - add error code
             free(cToken);
             return false;
     }
     tableItem *item = symGetItem(table, tokenID, 0);
     if(item->isInit){
         if(returnIndex >= item->returnAmount){
-            fprintf(stderr,"3"); //TODO - add error code
+            fprintf(stderr,"3f"); //TODO - add error code
             free(cToken);
             return false;
         }
-        if(type != atoi(&(item->returnTypes[returnIndex++]))){
-            fprintf(stderr,"3"); //TODO - add error code
+        if(type != item->returnTypes[returnIndex++] - '0'){
+            fprintf(stderr,"3g"); //TODO - add error code
             free(cToken);
             return false;
         }
@@ -466,12 +471,12 @@ bool pArgs(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_ID)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2r"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     if(symGetItem(table, cToken->content.str, scope) != NULL){
-        fprintf(stderr,"3a"); //TODO - add error code
+        fprintf(stderr,"3h"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -482,7 +487,7 @@ bool pArgs(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_Colon)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2s"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -506,19 +511,19 @@ bool pArgs(){
             type = TYPE_NUM;
             break;
         default:
-            fprintf(stderr,"2"); //TODO - add error code
+            fprintf(stderr,"2t"); //TODO - add error code
             free(cToken);
             return false;
     }
 
     if(item->isInit){
         if(paramIndex >= item->paramAmount){
-            fprintf(stderr,"3b"); //TODO - add error code
+            fprintf(stderr,"3i"); //TODO - add error code
             free(cToken);
             return false;
         }
-        if(type != atoi(&(item->paramTypes[paramIndex++]))){
-            fprintf(stderr,"3c"); //TODO - add error code
+        if(type != item->returnTypes[paramIndex++] - '0'){
+            fprintf(stderr,"3j"); //TODO - add error code
             free(cToken);
             return false;
         }
@@ -553,19 +558,19 @@ bool pCallArgs(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_ID)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2u"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     tableItem *item = symGetItem(table, cToken->content.str, scope);
     if(item == NULL){
-        fprintf(stderr,"3"); //TODO - add error code
+        fprintf(stderr,"3k"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
     int type;
     if(!stackPop(argStack, &type)){ //more params than expected
-        fprintf(stderr,"5"); //TODO - add error code
+        fprintf(stderr,"5b"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -581,7 +586,7 @@ bool pCallArgs(){
     if(!cmpTokType(cToken, TOKEN_Comma)){
         returnToken = cToken;
         if(!stackIsEmpty(argStack)){ //less params than expected
-            fprintf(stderr,"5"); //TODO - add error code
+            fprintf(stderr,"5c"); //TODO - add error code
             freeToken(cToken);
             return false;
         }
@@ -608,21 +613,22 @@ bool pStatement(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_then)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2v"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
             scope++;
             if(!pStatement())
                 return false;
-            //remove variables at scope
+            
+            symDeleteScope(table, scope);
             scope--;
 
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_else)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2w"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -630,14 +636,14 @@ bool pStatement(){
             scope++;
             if(!pStatement())
                 return false;
-            //remove variables at scope
+            symDeleteScope(table, scope);
             scope--;
 
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_end)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2x"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -652,7 +658,7 @@ bool pStatement(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_do)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2y"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -660,14 +666,14 @@ bool pStatement(){
             scope++;
             if(!pStatement())
                 return false;
-            //TODO remove all variables at scope
+            symDeleteScope(table, scope);
             scope--;
             
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Key_end)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2z"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -681,7 +687,7 @@ bool pStatement(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_ID)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2aa"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -689,7 +695,7 @@ bool pStatement(){
             item = symGetItem(table, cToken->content.str, scope);
             if(item != NULL){
                 if((item->scope == scope) || (item->type == FUNC_ID)){
-                    fprintf(stderr,"3"); //TODO - add error code
+                    fprintf(stderr,"3l"); //TODO - add error code
                     freeToken(cToken);
                     return false;
                 }
@@ -700,7 +706,7 @@ bool pStatement(){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Colon)){
-                fprintf(stderr,"2"); //TODO - add error code
+                fprintf(stderr,"2bb"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -711,19 +717,19 @@ bool pStatement(){
             int type;
             switch(cToken->type){
                 
-                case TOKEN_String:
+                case TOKEN_Key_string:
                     type = TYPE_STR;
                     break;
                 
-                case TOKEN_Int:
+                case TOKEN_Key_integer:
                     type = TYPE_INT;
                     break;
 
-                case TOKEN_Num:
+                case TOKEN_Key_number:
                     type = TYPE_NUM;
                     break;
                 default:
-                    fprintf(stderr,"2"); //TODO - add error code
+                    fprintf(stderr,"2cc"); //TODO - add error code
                     free(cToken);
                     return false;
             }
@@ -732,7 +738,7 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
-            item = symGetItem(table, cToken->content.str, scope);
+            item = symGetItem(table, tmp, scope);
             symstackPush(symStack, item);
             if(!pInit())
                 return false;
@@ -745,7 +751,7 @@ bool pStatement(){
 
             item = symGetItem(table, cToken->content.str, scope);
             if(item == NULL){
-                fprintf(stderr,"3"); //TODO - add error code
+                fprintf(stderr,"3m"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
@@ -759,32 +765,46 @@ bool pStatement(){
                 
                 if((cToken = nextToken()) == NULL)
                     return false;
-                if(cmpTokType(cToken, TOKEN_Colon)){
+                if(cmpTokType(cToken, TOKEN_Comma)){
                     if(!pID())
                         return false;
                 }
-                else if(cmpTokType(cToken, TOKEN_Assign)){
+                else{
+                    returnToken = cToken;
+                }
+                
+                if((cToken = nextToken()) == NULL)
+                    return false;
+                if(cmpTokType(cToken, TOKEN_Assign)){
 
                     if((cToken = nextToken()) == NULL)
                         return false;
                     if(cmpTokType(cToken, TOKEN_ID)){
                         item = symGetItem(table, cToken->content.str, scope);
+                        if(item == NULL){
+                            fprintf(stderr,"3n"); //TODO - add error code
+                            freeToken(cToken);
+                            return false;
+                        }
                         if(item->type == FUNC_ID){
                             index = symstackCount(symStack);
                             if(index > item->returnAmount){
-                                fprintf(stderr,"5"); //TODO - add error code
+                                fprintf(stderr,"5d"); //TODO - add error code
                                 freeToken(cToken);
                                 return false;
                             }
                             tableItem *tmp;
                             while(!symstackIsEmpty(symStack)){
                                 symstackPop(symStack, &tmp);
-                                if(tmp->type != atoi(&(item->returnTypes[--index]))){
-                                    fprintf(stderr,"5"); //TODO - add error code
+                                if(tmp->type != item->returnTypes[--index] - '0'){
+                                    fprintf(stderr,"5e"); //TODO - add error code
                                     freeToken(cToken);
                                     return false;
                                 }
                             }
+                            returnToken = cToken;
+                            if(!pCall())
+                                return false;
                         }
                         else{
                             //call other parser
@@ -794,14 +814,14 @@ bool pStatement(){
                         //call other parser
                     }
                     else{
-                        fprintf(stderr,"5"); //TODO - add error code
+                        fprintf(stderr,"5f"); //TODO - add error code
                         freeToken(cToken);
                         return false;
                     }
                     
                 }
                 else{
-                    fprintf(stderr,"3"); //TODO - add error code
+                    fprintf(stderr,"3o"); //TODO - add error code
                     freeToken(cToken);
                     return false;
                 }
@@ -835,7 +855,7 @@ bool pStatement(){
             //call other parser
             break;
 
-        default: 
+        default:
             returnToken = cToken;
             break;
     }
@@ -852,7 +872,7 @@ bool pInit(){
         return true;
     }
     tableItem *item;
-
+    
     if((cToken = nextToken()) == NULL)
         return false;
     if(cmpTokType(cToken, TOKEN_ID)){
@@ -860,19 +880,22 @@ bool pInit(){
         if(item->type == FUNC_ID){
             int index = symstackCount(symStack);
             if(index > item->returnAmount){
-                fprintf(stderr,"5"); //TODO - add error code
+                fprintf(stderr,"5g"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
             tableItem *tmp;
             while(!symstackIsEmpty(symStack)){
                 symstackPop(symStack, &tmp);
-                if(tmp->type != atoi(&(item->returnTypes[--index]))){
-                    fprintf(stderr,"5"); //TODO - add error code
+                if(tmp->type != item->returnTypes[--index] - '0'){
+                    fprintf(stderr,"5h"); //TODO - add error code
                     freeToken(cToken);
                     return false;
                 }
             }
+            returnToken = cToken;
+            if(!pCall())
+                return false;
         }
         else{
             //call other parser
@@ -882,7 +905,7 @@ bool pInit(){
         //call other parser
     }
     else{
-        fprintf(stderr,"5"); //TODO - add error code
+        fprintf(stderr,"5i"); //TODO - add error code
         freeToken(cToken);
         return false;
     }
@@ -896,7 +919,7 @@ bool pID(){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_ID)){
-        fprintf(stderr,"2"); //TODO - add error code
+        fprintf(stderr,"2dd"); //TODO - add error code
         freeToken(cToken);
         return false;
     }

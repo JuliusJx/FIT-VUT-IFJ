@@ -91,6 +91,41 @@ void symDeleteAll( symTable *table){
         }
     }
 }
+
+
+void symDeleteScope( symTable *table, int scope){
+    tableItem *tmp0, *tmp1;
+    for(int i = 0; i < SYMTABLE_SIZE; i++){
+        tmp0 = (*table)[i];
+        if(tmp0 == NULL)
+            continue;
+        if(tmp0->scope == scope){
+            (*table)[i] = tmp0->next;
+            if(tmp0->paramAmount > 0)
+                free(tmp0->paramTypes);
+            if(tmp0->returnAmount > 0)
+                free(tmp0->returnTypes);
+            free(tmp0->name);
+            free(tmp0);
+            i--;
+            continue;
+        }
+        while (tmp0->next != NULL){
+            if(tmp0->next->scope == scope){
+                tmp1 = tmp0->next;
+                tmp0->next = tmp0->next->next;
+                if(tmp1->paramAmount > 0)
+                    free(tmp1->paramTypes);
+                if(tmp1->returnAmount > 0)
+                    free(tmp1->returnTypes);
+                free(tmp1->name);
+                free(tmp1);
+            }
+            else
+                tmp0 = tmp0->next;
+        }
+    }
+}
 //Function creates new item, sets its values and adds new item to the table
 //Function returns true if insert was successful, otherwise returns false
 bool symInsert( symTable *table, char *id, unsigned short type, bool isInit, unsigned short scope){
