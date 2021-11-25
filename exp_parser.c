@@ -229,9 +229,12 @@ bool pExpression(){
                 printf("ERROR3\n");
                 return false;
             }
-            if(item->type == FUNC_ID){
-                printf("ERROR2\n");
-                return false;
+            if(item->type == FUNC_ID){  //TODO: prerobiť s čekom či je to akčualy error alebo úspešné ukončenie
+                free(e_stack);
+                free(h_stack);
+                
+                returnToken = cToken;
+                return true;
             }
         }
         if(!pAlgo(e_stack, h_stack, tokConversion(cToken))){
