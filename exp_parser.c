@@ -14,7 +14,7 @@
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
-//  | 0  | 1  | 2  | 3 | 4   | 5  | 6   | 7 | 8 | 9      | 10      | 11     | 12
+//  | 0  | 1  | 2  | 3 | 4   | 5  | 6   | 7 | 8 | 9      | 10      | 11    | 12
 //  | #  | *  | /  |// | +,- | .. | Rel | ( | ) | i(int) | i(num) | i(str) | $
     { EQ,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  GR,      GR,      GR,      GR },    //| #      | 0
     { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR },    //| *      | 1
@@ -79,7 +79,7 @@ int tokConversion(token *cToken){
     }
 }
 
-bool phCheck(stack *e_stack, stack *h_stack, int tmp_top, int *tmp_top2, int token){
+bool phCheck(stack *e_stack, stack *h_stack, int tmp_top, int *tmp_top2, int token){        // TODO: prepísať tie tmp_topy na niečo rozumnejšie
     stackTop(e_stack, tmp_top2);
     if(prec_table[*tmp_top2][token] == LE){
         stackPush(e_stack, LE);
@@ -131,27 +131,36 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
         if(tmp_top2 == LE){
             stackPop(e_stack, &tmp_top2);
             // spojiť podľa pravidla
-            if( (tmp_top == T_INT || tmp_top == T_NUM) && (tmp_pop2 == MUL || tmp_pop2 == DIV || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_NUM) ){
-                // int;float | +;-;*;/ | int;float  => tmp_top
-                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
+            // T_INT && MUL || DIV    && T_INT    = T_NUM;
+            if( (tmp_top == T_INT) && (tmp_pop2 == MUL || tmp_pop2 == DIV) && (tmp_pop == T_INT) ){
+                if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
                     printf("ERROR-12\n");
                     return false;
                 }
             }
-            else if ( (tmp_top == T_INT) && (tmp_pop2 == INT_DIV) && (tmp_pop == T_INT) ){
-                // int | // | int   => tmp_top
-                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
+            // T_NUM && PLUS_MINUS && T_INT    = T_NUM;
+            else if ( (tmp_top == T_NUM) && (tmp_pop2 == PLUS_MINUS || tmp_pop2 == MUL || tmp_pop2 == DIV) && (tmp_pop == T_INT) ){
+                if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
                     printf("ERROR-12\n");
                     return false;
                 }
             }
-            else if ( (tmp_top == T_STR) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR) ){
-                // str | .. | str   => tmp_top
-                if(phCheck(e_stack, h_stack, tmp_top, &tmp_top2, token))
+            // T_NUM || T_INT && MUL || DIV || PLUS_MINUS && T_NUM     = T_NUM
+            else if ( (tmp_top == T_NUM || tmp_top == T_INT) && (tmp_pop2 == MUL || tmp_pop2 == DIV || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM) ){
+                if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
+                    return true;
+                else{
+                    printf("ERROR-12\n");
+                    return false;
+                }
+            }
+            // T_INT && PLUS_MINUS || INT || DIV && T_INT    = T_INT;
+            else if ( (tmp_top == T_INT) && (tmp_pop2 == INT_DIV || PLUS_MINUS) && (tmp_pop == T_INT) ){
+                if(phCheck(e_stack, h_stack, T_INT, &tmp_top2, token))
                     return true;
                 else{
                     printf("ERROR-12\n");
