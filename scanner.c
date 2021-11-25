@@ -22,7 +22,10 @@ void InsertChar(contentInput *cInput, char c, bool *MemErr){
             *MemErr = true;
     }
     cInput->str[cInput->index] = c;
-    cInput->index += 1;
+    cInput->index++;
+    for(int i = cInput->index; i < cInput->length; i++){
+        cInput->str[i] = '\0';
+    }
 }
 
 //Function checks if string is keyword
@@ -72,16 +75,13 @@ token *GetToken(){
     if((NewToken = malloc(sizeof(token))) == NULL)
         return NULL;
     //Initializes newInput with starting size of 8 (to avoid unnecessary reallocations with small arrays)
-    contentInput newInput = {.index = 0, .length = 8};
+    contentInput newInput = {.str = NULL, .index = 0, .length = 8};
     if((newInput.str = malloc(newInput.length)) == NULL){
         free(NewToken);
         return NULL;
     }
-    if(newInput.index == 0)
-        for(int i = 0; i < newInput.length; i++)
-            newInput.str[i] = '\0';
-    else
-        newInput.str[0] = '\0';
+    for(int i = 0; i < newInput.length; i++)
+        newInput.str[i] = '\0';
     //Stores read character from stdin
     char c;
     bool done = false, error = false, MemError = false;

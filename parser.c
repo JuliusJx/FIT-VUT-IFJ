@@ -42,7 +42,8 @@ token *nextToken(){
 
 void freeToken( token *token){
     if((token->type == TOKEN_ID) || (token->type == TOKEN_String)){
-        free(token->content.str);
+        if(tokenID != token->content.str)
+            free(token->content.str);
     }
     free(token);
 }
@@ -58,7 +59,8 @@ bool pProgram(){
         freeToken(cToken);
         return false;
     }
-
+    
+    freeToken(cToken);
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -74,12 +76,15 @@ bool pProgram(){
         freeToken(cToken);
         return false;
     }
+    //this sounds better than free(null) lol
+    tokenID = cToken->content.str;
+    freeToken(cToken);
     //scope 0 represents scope, where all functions are defined
     scope = 0;
     if(!pBody()){
         return false;
     }
-
+    
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -95,7 +100,8 @@ bool pBody(){
     tableItem *item;
     switch(cToken->type){
         case TOKEN_Key_global:
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -109,21 +115,25 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
+            free(tokenID);
             tokenID = cToken->content.str;
             if(!symInsert(table, cToken->content.str, FUNC_ID, false, 0)){
                 fprintf(stderr,"99t"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
+
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(!cmpTokType(cToken, TOKEN_Colon)){
-                fprintf(stderr,"e"); //TODO - add error code
+                fprintf(stderr,"2e"); //TODO - add error code
                 freeToken(cToken);
                 return false;
             }
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -132,7 +142,8 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -141,7 +152,8 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -162,11 +174,13 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(cmpTokType(cToken, TOKEN_Colon)){
+                freeToken(cToken);
                 if(!pReturns())
                     return false;
             }
@@ -177,11 +191,11 @@ bool pBody(){
             if(!pBody()){
                 return false;
             }
-            //freeToken(cToken);
             break;
 
         case TOKEN_Key_function:
-
+            
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -202,7 +216,9 @@ bool pBody(){
             else{
                 symInsert(table, cToken->content.str, FUNC_ID, false, 0);
             }
+            free(tokenID);
             tokenID = cToken->content.str;
+            freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -212,6 +228,7 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
+            freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -236,11 +253,13 @@ bool pBody(){
                 return false;
             }
             item = symGetItem(table, tokenID, 0);
+            freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
             }
             if(cmpTokType(cToken, TOKEN_Colon)){
+                freeToken(cToken);
                 if(!pReturns())
                     return false;
             }
@@ -257,7 +276,7 @@ bool pBody(){
             scope++;
             if(!pStatement())
                 return false;
-            
+            //TODO maybe add free
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -268,10 +287,10 @@ bool pBody(){
             }
             symDeleteScope(table, scope);
             scope--;
+            freeToken(cToken);
             if(!pBody()){
                 return false;
             }
-            freeToken(cToken);
             break;
 
         case TOKEN_ID:
@@ -282,7 +301,6 @@ bool pBody(){
             if(!pBody()){
                 return false;
             }
-            freeToken(cToken);
             break;
         default:
             returnToken = cToken;
@@ -318,6 +336,8 @@ bool pCall(){
         stackPush(argStack, item->paramTypes[i--] - '0');
     }
     symToggleUsed(table, cToken->content.str, 0);
+    freeToken(cToken);
+
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -326,6 +346,7 @@ bool pCall(){
         freeToken(cToken);
         return false;
     }
+    freeToken(cToken);
 
     if((cToken = nextToken()) == NULL){
         return false;
@@ -387,6 +408,8 @@ bool pParams(){
         freeToken(cToken);
         return false;
     }
+    freeToken(cToken);
+
     //if next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
         return false;
@@ -395,6 +418,9 @@ bool pParams(){
         returnToken = cToken;
         return true;
     }
+    else
+        freeToken(cToken);
+    
     if(!pParams())
         return false;
     return true;
@@ -446,6 +472,8 @@ bool pReturns(){
             return false;
         }
     }
+    freeToken(cToken);
+
     //if next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
         return false;
@@ -455,6 +483,9 @@ bool pReturns(){
         returnIndex = 0;
         return true;
     }
+    else
+        freeToken(cToken);
+    
     if(!pReturns())
         return false;
     return true;
@@ -482,6 +513,7 @@ bool pArgs(){
     }
     
     char *tmp = cToken->content.str; //maybe future error TODO something
+    free(cToken); //freeToken() would also free content.str, which we need in tmp
 
     if((cToken = nextToken()) == NULL){
         return false;
@@ -491,7 +523,8 @@ bool pArgs(){
         freeToken(cToken);
         return false;
     }
-
+    
+    freeToken(cToken);
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -536,17 +569,21 @@ bool pArgs(){
         }
     }
     symInsert(table, tmp, type, true, scope);
-    
+    freeToken(cToken);
+
     //if next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
         return false;
     }
-    
+    free(tmp);
     if(!cmpTokType(cToken, TOKEN_Comma)){
         returnToken = cToken;
         paramIndex = 0;
         return true;
     }
+    else
+        freeToken(cToken);
+
     if(!pArgs())
         return false;
     return true;
@@ -554,6 +591,7 @@ bool pArgs(){
 
 bool pCallArgs(){
     token *cToken;
+
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -579,6 +617,8 @@ bool pCallArgs(){
         freeToken(cToken);
         return false;
     }
+    freeToken(cToken);
+
     //if next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
         return false;
@@ -592,6 +632,9 @@ bool pCallArgs(){
         }
         return true;
     }
+    else
+        freeToken(cToken);
+    
     if(!pCallArgs())
         return false;
     return true;
@@ -607,6 +650,8 @@ bool pStatement(){
     int index;
     switch(cToken->type){
         case TOKEN_Key_if:
+
+            freeToken(cToken);
             //call other parser
 
             if((cToken = nextToken()) == NULL){
@@ -623,6 +668,7 @@ bool pStatement(){
             
             symDeleteScope(table, scope);
             scope--;
+            freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -638,6 +684,7 @@ bool pStatement(){
                 return false;
             symDeleteScope(table, scope);
             scope--;
+            freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -647,11 +694,14 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+            freeToken(cToken);
             if(!pStatement())
                 return false;
             break;
 
         case TOKEN_Key_while:
+            
+            freeToken(cToken);
             //call other parser
 
             if((cToken = nextToken()) == NULL){
@@ -668,7 +718,8 @@ bool pStatement(){
                 return false;
             symDeleteScope(table, scope);
             scope--;
-            
+            freeToken(cToken);
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -677,12 +728,14 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+            freeToken(cToken);
             if(!pStatement())
                 return false;
             break;
         
         case TOKEN_Key_local:
 
+            freeToken(cToken);
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -701,6 +754,7 @@ bool pStatement(){
                 }
             }
             char *tmp = cToken->content.str;
+            free(cToken);
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -710,7 +764,8 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
-            
+            freeToken(cToken);
+
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -738,17 +793,21 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+            freeToken(cToken);
+
             item = symGetItem(table, tmp, scope);
             symstackPush(symStack, item);
             if(!pInit())
                 return false;
             symstackPop(symStack, &item);
+            
+            free(tmp);
             if(!pStatement())
                 return false;
             break;
 
         case TOKEN_ID:
-
+            
             item = symGetItem(table, cToken->content.str, scope);
             if(item == NULL){
                 fprintf(stderr,"3m"); //TODO - add error code
@@ -762,10 +821,12 @@ bool pStatement(){
             }
             else{
                 symstackPush(symStack, item);
-                
+                freeToken(cToken);
+
                 if((cToken = nextToken()) == NULL)
                     return false;
                 if(cmpTokType(cToken, TOKEN_Comma)){
+                    freeToken(cToken);
                     if(!pID())
                         return false;
                 }
@@ -776,6 +837,7 @@ bool pStatement(){
                 if((cToken = nextToken()) == NULL)
                     return false;
                 if(cmpTokType(cToken, TOKEN_Assign)){
+                    freeToken(cToken);
 
                     if((cToken = nextToken()) == NULL)
                         return false;
@@ -807,10 +869,12 @@ bool pStatement(){
                                 return false;
                         }
                         else{
+                            returnToken = cToken;
                             //call other parser
                         }
                     }
                     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+                        returnToken = cToken;
                         //call other parser
                     }
                     else{
@@ -826,6 +890,7 @@ bool pStatement(){
                     return false;
                 }
             }
+            //TODO - maybe leak here
             if(!pStatement())
                 return false;
             break;
@@ -838,6 +903,7 @@ bool pStatement(){
                 freeToken(cToken);
                 return false;
             }
+            freeToken(cToken);
             while(index < item->returnAmount){
                 tableItem newItem = { 
                     .name = "retval",
@@ -872,7 +938,8 @@ bool pInit(){
         return true;
     }
     tableItem *item;
-    
+    freeToken(cToken);
+
     if((cToken = nextToken()) == NULL)
         return false;
     if(cmpTokType(cToken, TOKEN_ID)){
@@ -898,10 +965,12 @@ bool pInit(){
                 return false;
         }
         else{
+            returnToken = cToken;
             //call other parser
         }
     }
     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+        returnToken = cToken;
         //call other parser
     }
     else{
@@ -931,6 +1000,7 @@ bool pID(){
     }
 
     symstackPush(symStack, item);
+    freeToken(cToken);
 
     if((cToken = nextToken()) == NULL){
         return false;
@@ -939,7 +1009,7 @@ bool pID(){
         returnToken = cToken;
         return true;
     }
-
+    freeToken(cToken);
     if(!pID())
         return false;
     return true;
@@ -953,7 +1023,7 @@ int main(){
         free(table);
         return 1;
     }
-    if((symStack = malloc(sizeof(stack))) == NULL){
+    if((symStack = malloc(sizeof(symstack))) == NULL){
         free(argStack);
         free(table);
         return 1;
@@ -970,10 +1040,12 @@ int main(){
     }
     while(!symstackIsEmpty(symStack)){
         symstackPop(symStack, &ptrDump);
+        free(ptrDump);
     }
     free(table);
     free(argStack);
     free(symStack);
+    free(tokenID);
     if (!isCorrect){
         printf("\ntest run failed\n");
         return 1;
