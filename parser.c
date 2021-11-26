@@ -226,6 +226,12 @@ bool pProgram(){
     if((cToken = nextToken()) == NULL){
         return false;
     }
+    if(!cmpTokType(cToken, TOKEN_EOF)){
+        fprintf(stderr,"2asd"); //TODO - add error code
+        errPrint(2, cToken);
+        freeToken(cToken);
+        return false;
+    }
     freeToken(cToken);
     return true;
 }
@@ -888,9 +894,8 @@ bool pStatement(){
         case TOKEN_Key_if:
 
             freeToken(cToken);
-            /*if(!pExpression())
+            if(!pExpression())
                 return false;
-            */
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -1127,7 +1132,7 @@ bool pStatement(){
                                 return false;
                         }
                     }
-                    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+                    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar)){
                         returnToken = cToken;
                         if(!pExpression())
                             return false;
@@ -1231,7 +1236,7 @@ bool pInit(){
                 return false;
         }
     }
-    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String)){
+    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar)){
         returnToken = cToken;
         if(!pExpression())
             return false;
