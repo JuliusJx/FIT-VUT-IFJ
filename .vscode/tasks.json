@@ -14,7 +14,12 @@
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "${file}",
-                "../symtable.c"
+                "exp_parser.c",
+                "scanner.c",
+                "stack.c",
+                "symstack.c",
+                "symtable.c",
+                "err_handler.c"
             ],
             "options": {
                 "cwd": "${fileDirname}"
