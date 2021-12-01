@@ -307,7 +307,7 @@ bool pBody(){
             if((cToken = nextToken()) == NULL){
                 return false;
             }
-            if((cmpTokType(cToken, TOKEN_Key_string)) || (cmpTokType(cToken, TOKEN_Key_integer)) || (cmpTokType(cToken, TOKEN_Key_number))){
+            if((cmpTokType(cToken, TOKEN_Key_string)) || (cmpTokType(cToken, TOKEN_Key_integer)) || (cmpTokType(cToken, TOKEN_Key_number)) || (cmpTokType(cToken, TOKEN_Key_nil))){
                 returnToken = cToken;
                 if(!pParams())
                     return false;
@@ -451,7 +451,7 @@ bool pBody(){
             break;
 
         case TOKEN_ID:
-            
+
             returnToken = cToken;
             if(!pCall())
                 return false;
@@ -512,7 +512,7 @@ bool pCall(){
     if((cToken = nextToken()) == NULL){
         return false;
     }
-    if(cmpTokType(cToken, TOKEN_ID) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num)){
+    if(cmpTokType(cToken, TOKEN_ID) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
         returnToken = cToken;
         if(!pCallArgs())
             return false;
@@ -566,6 +566,11 @@ bool pParams(){
         case TOKEN_Key_number:
             type = TYPE_NUM;
             break;
+
+        case TOKEN_Key_nil:
+            type = TYPE_NIL;
+            break;
+
         default:
             fprintf(stderr,"2p"); //TODO - add error code
             errPrint(2, cToken);
@@ -618,6 +623,11 @@ bool pReturns(){
         case TOKEN_Key_number:
             type = TYPE_NUM;
             break;
+
+        case TOKEN_Key_nil:
+            type = TYPE_NIL;
+            break;
+
         default:
             fprintf(stderr,"2q"); //TODO - add error code
             errPrint(2, cToken);
@@ -721,6 +731,11 @@ bool pArgs(){
         case TOKEN_Key_number:
             type = TYPE_NUM;
             break;
+
+        case TOKEN_Key_nil:
+            type = TYPE_NIL;
+            break;
+
         default:
             fprintf(stderr,"2t"); //TODO - add error code
             errPrint(2, cToken);
@@ -779,7 +794,7 @@ bool pCallArgs(){
     }
     int type;
     if(!cmpTokType(cToken, TOKEN_ID)){
-        if(cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num)){
+        if(cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
             if(strcmp(callFuncID->name,"write")){
                 if(!stackPop(argStack, &type)){ //more params than expected
                     fprintf(stderr,"5bxy"); //TODO - add error code
@@ -797,12 +812,15 @@ bool pCallArgs(){
                     case TYPE_NUM:
                         type = TOKEN_Num;
                         break;
+                    case TYPE_NIL:
+                        type = TOKEN_Key_nil;
+                        break;
                     default: break;
                 }
 
                 if(cToken->type != type){
-                    fprintf(stderr,"4x"); //TODO - add error code
-                    errPrint(4, cToken);
+                    fprintf(stderr,"5x4"); //TODO - add error code
+                    errPrint(5, cToken);
                     freeToken(cToken);
                     return false;
                 }
@@ -824,7 +842,7 @@ bool pCallArgs(){
             return false;
         }
         if(!strcmp(callFuncID->name,"write")){
-            if((item->type == TYPE_INT) || (item->type == TYPE_NUM)){
+            if((item->type == TYPE_INT) || (item->type == TYPE_NUM) || (item->type == TYPE_STR)){
                 type = item->type;
             }
             else{
@@ -1026,6 +1044,11 @@ bool pStatement(){
                 case TOKEN_Key_number:
                     type = TYPE_NUM;
                     break;
+
+                case TOKEN_Key_nil:
+                    type = TYPE_NIL;
+                    break;
+
                 default:
                     fprintf(stderr,"2cc"); //TODO - add error code
                     errPrint(2, cToken);
@@ -1124,7 +1147,7 @@ bool pStatement(){
                                 return false;
                         }
                     }
-                    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar)){
+                    else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar) || cmpTokType(cToken, TOKEN_Key_nil)){
                         returnToken = cToken;
                         if(!pExpression())
                             return false;
@@ -1193,7 +1216,7 @@ bool pInit(){
         returnToken = cToken;
         return true;
     }
-    tableItem *item;
+    tableItem *item, *tmp;
     freeToken(cToken);
 
     if((cToken = nextToken()) == NULL)
@@ -1208,7 +1231,6 @@ bool pInit(){
                 freeToken(cToken);
                 return false;
             }
-            tableItem *tmp;
             while(!symstackIsEmpty(symStack)){
                 symstackPop(symStack, &tmp);
                 if(tmp->type != item->returnTypes[--index] - '0'){
@@ -1221,23 +1243,30 @@ bool pInit(){
             returnToken = cToken;
             if(!pCall())
                 return false;
+            tmp->isInit = true;
         }
         else{
             returnToken = cToken;
+            symstackTop(symStack, &tmp);
             if(!pExpression())
                 return false;
+            tmp->isInit = true;
         }
     }
     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar)){
         returnToken = cToken;
         if(!pExpression())
             return false;
+        symstackTop(symStack, &tmp);
+        tmp->isInit = true;
     }
     else{
-        fprintf(stderr,"5i"); //TODO - add error code
-        errPrint(5, cToken);
-        freeToken(cToken);
-        return false;
+        if(!cmpTokType(cToken, TOKEN_Key_nil)){
+            fprintf(stderr,"5i"); //TODO - add error code
+            errPrint(5, cToken);
+            freeToken(cToken);
+            return false;
+        }
     }
     return true;
 }

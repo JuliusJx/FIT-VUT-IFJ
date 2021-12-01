@@ -18,10 +18,11 @@
 #include "exp_parser.h"
 #include "err_handler.h"
 
-#define P_PARAM 0
+//no idea what this is for
+/*#define P_PARAM 0
 #define P_RETURN 1
 #define P_ARG 2
-#define P_STATEMENT 3
+#define P_STATEMENT 3*/
 
 extern token *returnToken;
 extern symTable *table;

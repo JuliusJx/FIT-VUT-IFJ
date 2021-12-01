@@ -18,6 +18,7 @@
 #define TYPE_INT 1
 #define TYPE_NUM 2
 #define TYPE_STR 3
+#define TYPE_NIL 4
 
 //Structure for symbol table items
 typedef struct tableItem{
