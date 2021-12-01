@@ -16,22 +16,30 @@ token *cToken;
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
-//  | 0  | 1  | 2  | 3 | 4   | 5  | 6   | 7 | 8 | 9      | 10      | 11     | 12   | 13
-//  | #  | *  | /  |// | +,- | .. | Rel | ( | ) | i(int) | i(num)  | i(str) | $    | Nil
-    { EQ,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  GR,      GR,      GR,      GR,    ER},    //| #      | 0
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR,    ER},    //| *      | 1
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR,    ER},    //| /      | 2
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR,    ER},    //| //     | 3
-    { LE,  LE,  LE, LE,  GR,   GR,  GR,  LE, GR,  LE,      LE,      LE,      GR,    ER},    //| +, -   | 4
-    { LE,  LE,  LE, LE,  LE,   LE,  GR,  LE, GR,  LE,      LE,      LE,      GR,    ER},    //| ..     | 5
-    { LE,  LE,  LE, LE,  LE,   GR,  ER,  LE, GR,  LE,      LE,      LE,      GR,    LE},    //| Rel    | 6
-    { LE,  LE,  LE, LE,  LE,   LE,  LE,  LE, EQ,  LE,      LE,      LE,      ER,    LE},    //| (      | 7
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR,    LE},    //| )      | 8
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR,    LE},    //| i(int) | 9
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR,    LE},    //| i(num) | 10
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,  ER, GR,  ER,      ER,      ER,      GR,    LE},    //| i(str) | 11
-    { LE,  LE,  LE, LE,  LE,   LE,  LE,  LE, ER,  LE,      LE,      LE,      ER,    LE},    //| $      | 12
-    { ER,  ER,  ER, ER,  ER,   ER,  GR,  ER, GR,  ER,      ER,      ER,      GR,    ER},    //| Nil    | 13
+//  | 0  | 1  | 2  | 3 | 4   | 5  |  6   |   7  | 8 | 9 | 10     | 11      | 12    | 13   | 14   | 15   | 16   | 17
+//  | #  | *  | /  |// | +,- | .. | Rel1 | Rel2 | ( | ) | i(int) | i(num)  |i(str) |i(i-v)|i(n-v)|i(s-v)| $    | Nil
+    { EQ,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  GR,      GR,      GR,       GR,   GR,   GR,    GR,    ER},    //| #      | 0
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    ER},    //| *      | 1
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    ER},    //| /      | 2
+    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    ER},    //| //     | 3
+    { LE,  LE,  LE, LE,  GR,   GR,  GR,    GR,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    ER},    //| +, -   | 4
+    { LE,  LE,  LE, LE,  LE,   LE,  GR,    GR,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    ER},    //| ..     | 5
+    { LE,  LE,  LE, LE,  LE,   GR,  ER,    ER,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    LE},    //| Rel1   | 6
+    //########################################################################################################################
+    { LE,  LE,  LE, LE,  LE,   GR,  ER,    ER,   LE, GR,  LE,      LE,      LE,       LE,   LE,   LE,    GR,    LE},    //| Rel2   | 7
+    //------------------------------------------------------------------------------------------------------------------------
+    { LE,  LE,  LE, LE,  LE,   LE,  LE,    LE,   LE, EQ,  LE,      LE,      LE,       LE,   LE,   LE,    ER,    LE},    //| (      | 8
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE},    //| )      | 9
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER},    //| i(int) | 10
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER},    //| i(num) | 11
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER},    //| i(str) | 12
+    //########################################################################################################################
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE},    //| i(i-v) | 13
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE},    //| i(n-v) | 14
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE},    //| i(s-v) | 15
+    //------------------------------------------------------------------------------------------------------------------------
+    { LE,  LE,  LE, LE,  LE,   LE,  LE,    LE,   LE, ER,  LE,      LE,      LE,       LE,   LE,   LE,    ER,    LE},    //| $      | 16
+    { ER,  ER,  ER, ER,  ER,   ER,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER},    //| Nil    | 17
 };
 
 int tokConversion(token *cToken){
@@ -54,9 +62,10 @@ int tokConversion(token *cToken){
         case TOKEN_GreatEQ:
         case TOKEN_Less:
         case TOKEN_LessEQ:
+            return REL_COMP_2;
         case TOKEN_EQ:
         case TOKEN_NotEQ:
-            return REL_COMP;
+            return REL_COMP_1;
         case TOKEN_LeftPar:
             return LEFT_PAR;
         case TOKEN_RightPar:
@@ -74,11 +83,11 @@ int tokConversion(token *cToken){
             if(item == NULL)
                 return T_DOLLAR;
             if(item->type == TYPE_INT)
-                return T_INT;
+                return T_INT_V;
             if(item->type == TYPE_NUM)
-                return T_NUM;
+                return T_NUM_V;
             if(item->type == TYPE_STR)
-                return T_STR;
+                return T_STR_V;
         default:
             return T_DOLLAR;
     }
@@ -136,7 +145,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
         if(tmp_top2 == LE){
             stackPop(e_stack, &tmp_top2);
             // T_STR && STR_CONC && T_STR = T_STR
-            if( (tmp_top == T_STR) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR) ){
+            if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 if(phCheck(e_stack, h_stack, T_STR, &tmp_top2, token))
                     return true;
                 else{
@@ -145,7 +154,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT && INT_DIV || MUL || PLUS_MINUS && T_INT      = T_INT
-            else if( (tmp_top == T_INT) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_INT, &tmp_top2, token))
                     return true;
                 else{
@@ -154,7 +163,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT && MUL || PLUS_MINUS && T_NUM = T_NUM
-            else if( (tmp_top == T_INT) && (tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -163,7 +172,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NUM && MUL && T_INT || T_NUM     = T_NUM
-            else if( (tmp_top == T_NUM) && (tmp_pop2 == MUL) && (tmp_pop == T_INT || tmp_pop == T_NUM) ){
+            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == MUL) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -172,7 +181,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT || T_NUM && DIV && T_INT || T_NUM = T_NUM
-            else if( (tmp_top == T_INT || tmp_top == T_NUM) && (tmp_pop2 == DIV) && (tmp_pop == T_INT) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V || tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == DIV) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -181,7 +190,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NUM && PLUS_MINUS && T_NUM || T_INT = T_NUM
-            else if( (tmp_top == T_NUM) && (tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM || tmp_pop == T_INT) ){
+            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -190,7 +199,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NUM || T_INT &&  REL_COMP && T_NUM || T_INT = T_BOOL
-            else if( (tmp_top == T_NUM || tmp_top == T_INT) && (tmp_pop2 == REL_COMP) && (tmp_pop == T_NUM || tmp_pop == T_INT) ){
+            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V || tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == REL_COMP_1 || tmp_pop2 == REL_COMP_2) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -199,7 +208,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_STR && REL_COMP && T_STR = T_BOOL
-            else if( (tmp_top == T_STR) && (tmp_pop2 == REL_COMP) && (tmp_pop == T_STR) ){
+            else if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == REL_COMP_1 || tmp_pop2 == REL_COMP_2) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -209,6 +218,14 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
             }
 
             // Variable && ==, ~= && nil -> T_BOOL  //TODO:
+            else if( (tmp_top == T_INT_V || tmp_top == T_NUM_V || tmp_top == T_STR_V) && tmp_pop2 == REL_COMP_1 && tmp_pop == T_NIL){
+                if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
+                    return true;
+                else{
+                    printf("ERROR-12\n");
+                    return false;
+                }
+            }
 
             else{
                 printf("ERROR9\n");
@@ -219,7 +236,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
         }
         else{
             if(tmp_pop2 == STR_LEN && tmp_top == LE){
-                if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR))
+                if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V))
                     if(phCheck(e_stack, h_stack, T_INT, &tmp_top2, token))
                         return true;
                     else{

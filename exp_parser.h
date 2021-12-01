@@ -19,23 +19,26 @@
 #define INT_DIV 3       //| //
 #define PLUS_MINUS 4    //| +, -
 #define STR_CONC 5      //| ..
-#define REL_COMP 6      //| ==, ~=, <, >, <=, >=
-#define LEFT_PAR 7      //| (
-#define RIGHT_PAR 8     //| )
-#define T_INT 9         //| i -> int (variable)
-#define T_NUM 10        //| i -> float (variable)
-#define T_STR 11        //| i -> string (variable)
-#define T_DOLLAR 12     //| $
-#define T_NIL 13        //| nil
-#define T_BOOL 14       //| bool type
-
+#define REL_COMP_1 6    //| ==, ~=
+#define REL_COMP_2 7    //| <, >, <=, >=
+#define LEFT_PAR 8      //| (
+#define RIGHT_PAR 9     //| )
+#define T_INT 10        //| i -> int
+#define T_NUM 11        //| i -> float
+#define T_STR 12        //| i -> string
+#define T_INT_V 13      //| i -> int (variable)
+#define T_NUM_V 14      //| i -> int (variable)
+#define T_STR_V 15      //| i -> int (variable)
+#define T_DOLLAR 16     //| $
+#define T_NIL 17        //| nil
+#define T_BOOL 18       //| bool type
 
 #define LE 45            // <
 #define GR 44            // >
 #define EQ 43            // =
 #define ER 42            // ERROR
 
-#define PREC_TAB_SIZE 14
+#define PREC_TAB_SIZE 18
 
 int tokConversion( token*);
 
