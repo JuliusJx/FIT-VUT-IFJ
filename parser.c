@@ -780,15 +780,7 @@ bool pCallArgs(){
     int type;
     if(!cmpTokType(cToken, TOKEN_ID)){
         if(cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num)){
-            if(!strcmp(callFuncID->name,"write")){
-                if(cToken->type == TOKEN_String){
-                    fprintf(stderr,"5bxx"); //TODO - add error code
-                    errPrint(5, cToken);
-                    freeToken(cToken);
-                    return false;
-                }
-            }
-            else{
+            if(strcmp(callFuncID->name,"write")){
                 if(!stackPop(argStack, &type)){ //more params than expected
                     fprintf(stderr,"5bxy"); //TODO - add error code
                     errPrint(5, cToken);
@@ -1170,7 +1162,7 @@ bool pStatement(){
             while(index < item->returnAmount){
                 tableItem newItem = { 
                     .name = "retval",
-                    .type = item->returnTypes[index++],
+                    .type = item->returnTypes[index++]-'0',
                     .isInit = true,
                     .isUsed = false,
                     .paramAmount = 0,
