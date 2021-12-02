@@ -31,15 +31,17 @@
 #define T_STR_V 15      //| i -> string (variable)
 #define T_DOLLAR 16     //| $
 #define T_NIL 17        //| nil
-#define T_VAL_NIL 18    //| variable (int, float, str) nill
-#define T_BOOL 19       //| bool type
+#define T_INT_V_NIL 18  //| variable int nill
+#define T_NUM_V_NIL 19  //| variable str nill
+#define T_STR_V_NIL 20  //| variable str nill
+#define T_BOOL 21       //| bool type
 
 #define LE 45            // <
 #define GR 44            // >
 #define EQ 43            // =
 #define ER 42            // ERROR
 
-#define PREC_TAB_SIZE 19
+#define PREC_TAB_SIZE 21
 
 int tokConversion( token*);
 
