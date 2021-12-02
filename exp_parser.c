@@ -202,7 +202,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT || T_NUM && DIV && T_INT || T_NUM = T_NUM
-            else if( (tmp_top == T_INT || tmp_top == T_INT_V || tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == DIV) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V || tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == DIV) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -377,7 +377,7 @@ bool pAlgo(stack *e_stack, stack *h_stack, int token){
 
 bool pExpression(){
     stringValid = true;
-    int value = 0;
+    int value = -1;
     tableItem *sym_value;
 
     stack *e_stack = malloc(sizeof(stack));   //TODO: nezabudnúť uvoľniť
@@ -453,12 +453,14 @@ bool pExpression(){
         case T_STR_V:
             value = TYPE_STR;
             break;
+        case T_NIL:
+            break;
         default:
             printf("BOIII ERROR\n");
             break;
         }
 
-        if(value == sym_value->type || (sym_value->type == TYPE_NUM && (value == TYPE_INT || value == TYPE_NUM) ) ){
+        if(value == sym_value->type || (sym_value->type == TYPE_NUM && (value == TYPE_INT || value == TYPE_NUM) )){
             return true;
         }
         else if(value == T_NIL){    //TODO: ček na toto a pozrieť kedy sa má initnúť
