@@ -202,8 +202,8 @@ bool pProgram(){
     }
     if(cmpTokType(cToken, TOKEN_String)){
         if(strcmp(cToken->content.str, "ifj21")){
-            fprintf(stderr,"2b"); //TODO - add error code
-            errPrint(2, cToken);
+            fprintf(stderr,"7b"); //TODO - add error code
+            errPrint(7, cToken);
             freeToken(cToken);
             return false;
         }
@@ -487,6 +487,12 @@ bool pCall(){
     if(item->type != FUNC_ID){
         fprintf(stderr,"3e"); //TODO - add error code
         errPrint(3, cToken);
+        freeToken(cToken);
+        return false;
+    }
+    if((item->returnAmount > 0) && (scope == 0)){
+        fprintf(stderr,"5xe"); //TODO - add error code
+        errPrint(5, cToken);
         freeToken(cToken);
         return false;
     }
@@ -817,12 +823,13 @@ bool pCallArgs(){
                         break;
                     default: break;
                 }
-
-                if(cToken->type != type){
-                    fprintf(stderr,"5x4"); //TODO - add error code
-                    errPrint(5, cToken);
-                    freeToken(cToken);
-                    return false;
+                if(cToken->type != TOKEN_Key_nil){
+                    if(cToken->type != type){
+                        fprintf(stderr,"5x4"); //TODO - add error code
+                        errPrint(5, cToken);
+                        freeToken(cToken);
+                        return false;
+                    }
                 }
             }
         }
@@ -842,7 +849,7 @@ bool pCallArgs(){
             return false;
         }
         if(!strcmp(callFuncID->name,"write")){
-            if((item->type == TYPE_INT) || (item->type == TYPE_NUM) || (item->type == TYPE_STR)){
+            if((item->type == TYPE_INT) || (item->type == TYPE_NUM) || (item->type == TYPE_STR) || (item->type == TYPE_NIL)){
                 type = item->type;
             }
             else{
@@ -861,10 +868,12 @@ bool pCallArgs(){
             }
         }
         if(item->type != type){
-            fprintf(stderr,"4"); //TODO - add error code
-            errPrint(4, cToken);
-            freeToken(cToken);
-            return false;
+            if((item->type != TYPE_INT) || (type != TYPE_NUM)){
+                fprintf(stderr,"4x"); //TODO - add error code
+                errPrint(4, cToken);
+                freeToken(cToken);
+                return false;
+            }
         }
     }
     
@@ -1223,6 +1232,12 @@ bool pInit(){
         return false;
     if(cmpTokType(cToken, TOKEN_ID)){
         item = symGetItem(table, cToken->content.str, scope);
+        if(item == NULL){
+            fprintf(stderr,"3gyy"); //TODO - add error code
+            errPrint(3, cToken);
+            freeToken(cToken);
+            return false;
+        }
         if(item->type == FUNC_ID){
             int index = symstackCount(symStack);
             if(index > item->returnAmount){
@@ -1309,6 +1324,7 @@ bool pID(){
 
 // ---------------
 int main(){
+    fprintf(stderr,"test\n");
     if((table = malloc(sizeof(symTable))) == NULL){
         fprintf(stderr, "ERROR: -- code: %d\n", errCode);
         return errCode;
