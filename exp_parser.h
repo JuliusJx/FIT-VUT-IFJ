@@ -27,8 +27,8 @@
 #define T_NUM 11        //| i -> float
 #define T_STR 12        //| i -> string
 #define T_INT_V 13      //| i -> int (variable)
-#define T_NUM_V 14      //| i -> int (variable)
-#define T_STR_V 15      //| i -> int (variable)
+#define T_NUM_V 14      //| i -> float (variable)
+#define T_STR_V 15      //| i -> string (variable)
 #define T_DOLLAR 16     //| $
 #define T_NIL 17        //| nil
 #define T_BOOL 18       //| bool type

@@ -13,6 +13,7 @@
 #include "exp_parser.h"
 
 token *cToken;
+bool stringValid = true;
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
@@ -82,6 +83,10 @@ int tokConversion(token *cToken){
             item = symGetItem(table, cToken->content.str, scope);
             if(item == NULL)
                 return T_DOLLAR;
+            if(item->type == FUNC_ID){
+                stringValid = false;
+                return T_DOLLAR;
+            }
             if(item->type == TYPE_INT)
                 return T_INT_V;
             if(item->type == TYPE_NUM)
@@ -263,6 +268,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
             }
 
             else if(tmp_top == T_DOLLAR && token == T_DOLLAR){
+                stackPush(e_stack, tmp_top);
                 stackPush(e_stack, tmp_pop);
                 return true;
                 }
@@ -313,7 +319,7 @@ bool pAlgo(stack *e_stack, stack *h_stack, int token){
 }
 
 bool pExpression(){
-    bool stringValid = true;
+    stringValid = true;
     int value = 0;
     tableItem *sym_value;
 
@@ -323,7 +329,6 @@ bool pExpression(){
     stackPush(e_stack, T_DOLLAR);
 
     while(stringValid){
-        
         if((cToken = nextToken()) == NULL){
             printf("ERROR4\n");
             return false;   // TODO: Asi nejaké uvolenenie zásobníku ? idk čo všetko sa tu bude robiť ešte a error ?
@@ -332,8 +337,8 @@ bool pExpression(){
         if((cToken->type >= TOKEN_Int && cToken->type <= TOKEN_LessEQ) || cToken->type == TOKEN_EQ || cToken->type == TOKEN_NotEQ || cToken->type == TOKEN_LeftPar || cToken->type == TOKEN_RightPar || cToken->type == TOKEN_String || cToken->type == TOKEN_ID || cToken->type == TOKEN_Key_nil){
             //spracujem     TOKEN_Comma 34  - , cToken->type == TOKEN_Comma
             if(!pAlgo(e_stack, h_stack, tokConversion(cToken))){
-                printf("ERROR99\n");
-                return false;
+                stringValid = false;
+                break;
             }
         }
         else{
@@ -353,33 +358,54 @@ bool pExpression(){
             }
         }
     }
+
     if(cToken->type == TOKEN_Comma)
         pExpression();
     else
         returnToken = cToken;
 
     if(!symstackIsEmpty(symStack)){
+
+        if(!stackIsEmpty(e_stack)){
+            if(pAlgo(e_stack, h_stack, T_DOLLAR)){
+                stackPop(e_stack, &value);
+            }
+            else{
+                printf("ERROR4444\n");
+            }
+        }
+        else{
+            printf("ERROR456546\n");
+        }
+
         symstackPop(symStack, &sym_value);
         switch (value){
         case T_INT:
+        case T_INT_V:
             value = TYPE_INT;
             break;
         case T_NUM:
+        case T_NUM_V:
             value = TYPE_NUM;
             break;
         case T_STR:
+        case T_STR_V:
             value = TYPE_STR;
             break;
         default:
-            printf("BOIII ERROR");
+            printf("BOIII ERROR\n");
             break;
         }
 
         if(value == (sym_value->type)){
             return true;
         }
+        else if(value == T_NIL){
+            sym_value->isInit = false;
+            return true;
+        }
         else{
-            printf("ERROR-987");
+            printf("ERROR-987\n");
             errCode = 4;
             return false;
         }
