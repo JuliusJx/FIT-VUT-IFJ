@@ -35,9 +35,9 @@ int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
     { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| i(num) | 11
     { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| i(str) | 12
     //########################################################################################################################
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE,     LE},    //| i(i-v) | 13
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE,     LE},    //| i(n-v) | 14
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    LE,     LE},    //| i(s-v) | 15
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| i(i-v) | 13
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| i(n-v) | 14
+    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| i(s-v) | 15
     //------------------------------------------------------------------------------------------------------------------------
     { LE,  LE,  LE, LE,  LE,   LE,  LE,    LE,   LE, ER,  LE,      LE,      LE,       LE,   LE,   LE,    ER,    LE,     LE},    //| $      | 16
     { ER,  ER,  ER, ER,  ER,   ER,  GR,    ER,   ER, GR,  ER,      ER,      ER,       ER,   ER,   ER,    GR,    ER,     ER},    //| Nil    | 17
@@ -90,6 +90,7 @@ int tokConversion(token *cToken){
             }
             if(item->type == TYPE_NIL)
                 return T_NIL;
+
             if(item->isInit){
                 if(item->type == TYPE_INT)
                     return T_INT_V;
@@ -230,7 +231,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
             }
 
             // Variable && ==, ~= && nil -> T_BOOL  //TODO:
-            else if( (tmp_top == T_INT_V || tmp_top == T_NUM_V || tmp_top == T_STR_V) && tmp_pop2 == REL_COMP_1 && tmp_pop == T_NIL){
+            else if( (tmp_top == T_INT_V || tmp_top == T_NUM_V || tmp_top == T_STR_V || tmp_top == T_NIL) && tmp_pop2 == REL_COMP_1 && tmp_pop == T_NIL){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
