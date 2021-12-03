@@ -17,6 +17,7 @@
 #include "symstack.h"
 #include "exp_parser.h"
 #include "err_handler.h"
+#include "generator.h"
 
 //no idea what this is for
 /*#define P_PARAM 0

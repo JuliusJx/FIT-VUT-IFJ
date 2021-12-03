@@ -214,6 +214,7 @@ bool pProgram(){
         freeToken(cToken);
         return false;
     }
+    insertString(&finalBuffer, ".IFJcode21\n");
     //this sounds better than free(null) lol
     tokenID = cToken->content.str;
     freeToken(cToken);
@@ -520,8 +521,20 @@ bool pCall(){
     }
     if(cmpTokType(cToken, TOKEN_ID) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
         returnToken = cToken;
+        if(strcmp(callFuncID,"write")){
+            insertString(&callBuffer,"\
+            \nPUSHFRAME\
+            \nCREATEFRAME");
+        }
         if(!pCallArgs())
             return false;
+        if(strcmp(callFuncID,"write")){
+            insertString(&defBuffer,"\
+            \nPUSHFRAME\
+            \nCALL ");
+            insertString(&defBuffer,callFuncID);
+        }
+        
     }
     else{
         if(!strcmp(item->name, "write")){
@@ -535,6 +548,20 @@ bool pCall(){
             errPrint(5, cToken);
             freeToken(cToken);
             return false;
+        }
+        if(scope == 0){
+            insertString(&callBuffer,"\nCALL ");
+            insertString(&callBuffer,callFuncID);
+        }
+        else{
+            if(strcmp(callFuncID,"reads") && strcmp(callFuncID,"readi") && strcmp(callFuncID,"readn")){ //if not read-s/i/n
+                insertString(&defBuffer,"\
+                \nPUSHFRAME\
+                \nCRATEFRAME\
+                \nPUSHFRAME\
+                \nCALL ");
+                insertString(&defBuffer,callFuncID);
+            }
         }
         returnToken = cToken;
     }
@@ -794,6 +821,7 @@ bool pArgs(){
 
 bool pCallArgs(){
     token *cToken;
+    static int paramCounter = 1;
 
     if((cToken = nextToken()) == NULL){
         return false;
@@ -825,11 +853,17 @@ bool pCallArgs(){
                 }
                 if(cToken->type != TOKEN_Key_nil){
                     if(cToken->type != type){
-                        fprintf(stderr,"5x4"); //TODO - add error code
-                        errPrint(5, cToken);
-                        freeToken(cToken);
-                        return false;
+                        if((cToken->type != TYPE_INT) || (type != TYPE_NUM)){
+                            fprintf(stderr,"54x"); //TODO - add error code
+                            errPrint(5, cToken);
+                            freeToken(cToken);
+                            return false;
+                        }
                     }
+                }
+                if(scope == 0){
+                    
+
                 }
             }
         }
@@ -840,7 +874,7 @@ bool pCallArgs(){
             return false;
         }
     }
-    else{
+    else{//if arg is ID
         tableItem *item = symGetItem(table, cToken->content.str, scope);
         if(item == NULL){
             fprintf(stderr,"3k"); //TODO - add error code
@@ -891,11 +925,13 @@ bool pCallArgs(){
             freeToken(cToken);
             return false;
         }
+        paramCounter = 1;
         return true;
     }
     else
         freeToken(cToken);
-    
+
+    paramCounter++;
     if(!pCallArgs())
         return false;
     return true;
@@ -1344,6 +1380,14 @@ int main(){
     stackInit(argStack);
     symstackInit(symStack);
     
+    //TODO REMOVE THIS AFTER TESTING 
+    mallocBuffers();
+    genToInteger();
+    printf("%s\n",defBuffer.str);
+    freeBuffers();
+    printf("%a\n",2.3);
+    printf("%a\n",5.3);
+
     insertBuiltIn();
     pProgram();
     int dump;
