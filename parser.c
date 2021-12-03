@@ -12,7 +12,6 @@
 #include <string.h>
 #include "parser.h"
 
-
 token *returnToken = NULL;
 symTable *table;
 stack *argStack;
@@ -214,7 +213,8 @@ bool pProgram(){
         freeToken(cToken);
         return false;
     }
-    insertString(&finalBuffer, ".IFJcode21\n");
+    //###### CODEGEN ######
+    GEN_CALL(".IFJcode21\n")
     //this sounds better than free(null) lol
     tokenID = cToken->content.str;
     freeToken(cToken);
@@ -521,18 +521,20 @@ bool pCall(){
     }
     if(cmpTokType(cToken, TOKEN_ID) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
         returnToken = cToken;
-        if(strcmp(callFuncID,"write")){
+        //###### CODEGEN ######
+        if(strcmp(callFuncID->name,"write")){
             insertString(&callBuffer,"\
             \nPUSHFRAME\
             \nCREATEFRAME");
         }
         if(!pCallArgs())
             return false;
-        if(strcmp(callFuncID,"write")){
+        //###### CODEGEN ######
+        if(strcmp(callFuncID->name,"write")){
             insertString(&defBuffer,"\
             \nPUSHFRAME\
             \nCALL ");
-            insertString(&defBuffer,callFuncID);
+            insertString(&defBuffer,callFuncID->name);
         }
         
     }
@@ -549,18 +551,19 @@ bool pCall(){
             freeToken(cToken);
             return false;
         }
+        //###### CODEGEN ######
         if(scope == 0){
             insertString(&callBuffer,"\nCALL ");
-            insertString(&callBuffer,callFuncID);
+            insertString(&callBuffer,callFuncID->name);
         }
         else{
-            if(strcmp(callFuncID,"reads") && strcmp(callFuncID,"readi") && strcmp(callFuncID,"readn")){ //if not read-s/i/n
+            if(strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){ //if not read-s/i/n
                 insertString(&defBuffer,"\
                 \nPUSHFRAME\
                 \nCRATEFRAME\
                 \nPUSHFRAME\
                 \nCALL ");
-                insertString(&defBuffer,callFuncID);
+                insertString(&defBuffer,callFuncID->name);
             }
         }
         returnToken = cToken;
@@ -861,9 +864,12 @@ bool pCallArgs(){
                         }
                     }
                 }
+                //###### CODEGEN ######
                 if(scope == 0){
-                    
-
+                    genCallArg(&callBuffer, paramCounter, cToken);
+                }
+                else{
+                    genCallArg(&defBuffer, paramCounter, cToken);
                 }
             }
         }
@@ -908,6 +914,13 @@ bool pCallArgs(){
                 freeToken(cToken);
                 return false;
             }
+        }
+        //###### CODEGEN ######
+        if(strcmp(callFuncID->name,"write")){
+            genCallArg(&defBuffer, paramCounter, cToken);
+        }
+        else{
+            //insertString(&defBuffer, "\nWRITE")
         }
     }
     

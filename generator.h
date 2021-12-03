@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "scanner.h"
+#include "err_handler.h"
+
+#define GEN_DEF(_code) if(!insertString(&defBuffer,(_code))){errCode = 99; return false;}
+#define GEN_CALL(_code) if(!insertString(&callBuffer,(_code))){errCode = 99; return false;}
 
 extern contentInput defBuffer;
 extern contentInput finalBuffer;

@@ -156,16 +156,41 @@ bool genChr(){
 
 bool genCallArg( contentInput *buffer, int counter, token *cToken){
     insertString(buffer, "\nDEFVAR TF@param");
-    char *tmp;
+    char *tmp = "";
     sprintf(tmp, "%d", counter);
     insertString(buffer, tmp);
     insertString(buffer, "\nMOVE TF@param");
     insertString(buffer, tmp);
     switch(cToken->type){
         case TOKEN_String:
+            insertString(buffer, " string@");
             insertString(buffer, cToken->content.str);
+            break;
+
+        case TOKEN_Int:
+            insertString(buffer, " int@");
+            sprintf(tmp, "%d", cToken->content.i);
+            insertString(buffer, tmp);
+            break;
+
+        case TOKEN_Num:
+            insertString(buffer, " float@");
+            sprintf(tmp, "%a", cToken->content.f);
+            insertString(buffer, tmp);
+            break;
+
+        case TOKEN_Key_nil:
+            insertString(buffer, " nil@nil");
+            break;
+
+        case TOKEN_ID:
+            insertString(buffer, " LF@");
             insertString(buffer, cToken->content.str);
+            break;
+        
+        default: return false;
     }
+    return true;
 }
 
 // --End of file-
