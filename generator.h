@@ -14,8 +14,7 @@
 #include "scanner.h"
 #include "err_handler.h"
 
-#define GEN_DEF(_code) if(!insertString(&defBuffer,(_code))){errCode = 99; return false;}
-#define GEN_CALL(_code) if(!insertString(&callBuffer,(_code))){errCode = 99; return false;}
+#define GEN_CODE(buffer,string) if(!insertString((buffer),(string))){errCode = 99; return false;}
 
 extern contentInput defBuffer;
 extern contentInput finalBuffer;
@@ -41,6 +40,8 @@ bool genOrd();
 bool genChr();
 
 bool genCallArg( contentInput*, int, token*);
+
+bool genWrite( contentInput*, token*);
 
 #endif
 

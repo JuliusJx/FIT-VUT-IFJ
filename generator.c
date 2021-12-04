@@ -155,39 +155,75 @@ bool genChr(){
 }
 
 bool genCallArg( contentInput *buffer, int counter, token *cToken){
-    insertString(buffer, "\nDEFVAR TF@param");
-    char *tmp = "";
+    GEN_CODE(buffer, "\nDEFVAR TF@param")
+    char tmp[25];
+    float ftmp;
     sprintf(tmp, "%d", counter);
-    insertString(buffer, tmp);
-    insertString(buffer, "\nMOVE TF@param");
-    insertString(buffer, tmp);
+    GEN_CODE(buffer, tmp)
+    GEN_CODE(buffer, "\nMOVE TF@param")
+    GEN_CODE(buffer, tmp)
     switch(cToken->type){
         case TOKEN_String:
-            insertString(buffer, " string@");
-            insertString(buffer, cToken->content.str);
+            GEN_CODE(buffer, " string@")
+            GEN_CODE(buffer, cToken->content)
             break;
 
         case TOKEN_Int:
-            insertString(buffer, " int@");
-            sprintf(tmp, "%d", cToken->content.i);
-            insertString(buffer, tmp);
+            GEN_CODE(buffer, " int@")
+            GEN_CODE(buffer, cToken->content)
             break;
 
         case TOKEN_Num:
-            insertString(buffer, " float@");
-            sprintf(tmp, "%a", cToken->content.f);
-            insertString(buffer, tmp);
+            GEN_CODE(buffer, " float@")
+            ftmp = atof(cToken->content);
+            snprintf(tmp, 25,"%a", ftmp);
+            GEN_CODE(buffer, tmp)
             break;
 
         case TOKEN_Key_nil:
-            insertString(buffer, " nil@nil");
+            GEN_CODE(buffer, " nil@nil")
             break;
 
         case TOKEN_ID:
-            insertString(buffer, " LF@");
-            insertString(buffer, cToken->content.str);
+            GEN_CODE(buffer, " LF@")
+            GEN_CODE(buffer, cToken->content)
             break;
         
+        default: return false;
+    }
+    return true;
+}
+
+bool genWrite( contentInput *buffer, token *cToken){
+    char tmp[25];
+    float ftmp;
+    switch(cToken->type){
+        case TOKEN_ID:
+            GEN_CODE(buffer,"\nWRITE TF@")
+            GEN_CODE(buffer, cToken->content);
+            break;
+
+        case TOKEN_Int:
+            GEN_CODE(buffer,"\nWRITE int@")
+            GEN_CODE(buffer, cToken->content);
+            break;
+
+        case TOKEN_Num:
+            GEN_CODE(buffer,"\nWRITE float@")
+            ftmp = atof(cToken->content);
+            snprintf(tmp, 25,"%a", ftmp);
+            GEN_CODE(buffer, tmp);
+            break;
+        
+        case TOKEN_Key_nil:
+            GEN_CODE(buffer,"\nWRITE nil@nil")
+            break;
+            
+        case TOKEN_String:
+            GEN_CODE(buffer,"\nWRITE string@")
+            GEN_CODE(buffer, cToken->content);
+            break;
+
         default: return false;
     }
     return true;

@@ -45,8 +45,8 @@ token *nextToken(){
 
 void freeToken( token *token){
     if((token->type == TOKEN_ID) || (token->type == TOKEN_String) || (token->type == TOKEN_Err)){
-        if(tokenID != token->content.str)
-            free(token->content.str);
+        if(tokenID != token->content)
+            free(token->content);
     }
     free(token);
 }
@@ -200,7 +200,7 @@ bool pProgram(){
         return false;
     }
     if(cmpTokType(cToken, TOKEN_String)){
-        if(strcmp(cToken->content.str, "ifj21")){
+        if(strcmp(cToken->content, "ifj21")){
             fprintf(stderr,"7b"); //TODO - add error code
             errPrint(7, cToken);
             freeToken(cToken);
@@ -214,9 +214,9 @@ bool pProgram(){
         return false;
     }
     //###### CODEGEN ######
-    GEN_CALL(".IFJcode21\n")
+    GEN_CODE(&callBuffer,".IFJcode21\n")
     //this sounds better than free(null) lol
-    tokenID = cToken->content.str;
+    tokenID = cToken->content;
     freeToken(cToken);
     //scope 0 represents scope, where all functions are defined
     scope = 0;
@@ -256,15 +256,15 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
-            if(symGetItem(table, cToken->content.str, 0) != NULL){
+            if(symGetItem(table, cToken->content, 0) != NULL){
                 fprintf(stderr,"3a"); //TODO - add error code
                 errPrint(3, cToken);
                 freeToken(cToken);
                 return false;
             }
             free(tokenID);
-            tokenID = cToken->content.str;
-            if(!symInsert(table, cToken->content.str, FUNC_ID, false, 0)){
+            tokenID = cToken->content;
+            if(!symInsert(table, cToken->content, FUNC_ID, false, 0)){
                 fprintf(stderr,"99t"); //TODO - add error code
                 errPrint(99, cToken);
                 freeToken(cToken);
@@ -357,7 +357,7 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
-            item = symGetItem(table, cToken->content.str, 0);
+            item = symGetItem(table, cToken->content, 0);
             if(item != NULL){
                 if(item->isInit){
                     fprintf(stderr,"3b"); //TODO - add error code
@@ -365,13 +365,13 @@ bool pBody(){
                     freeToken(cToken);
                     return false;
                 }
-                symToggleInit(table, cToken->content.str, 0);
+                symToggleInit(table, cToken->content, 0);
             }
             else{
-                symInsert(table, cToken->content.str, FUNC_ID, false, 0);
+                symInsert(table, cToken->content, FUNC_ID, false, 0);
             }
             free(tokenID);
-            tokenID = cToken->content.str;
+            tokenID = cToken->content;
             freeToken(cToken);
 
             if((cToken = nextToken()) == NULL){
@@ -478,7 +478,7 @@ bool pCall(){
         freeToken(cToken);
         return false;
     }
-    tableItem *item = symGetItem(table, cToken->content.str, 0);
+    tableItem *item = symGetItem(table, cToken->content, 0);
     if(item == NULL){
         fprintf(stderr,"3d"); //TODO - add error code
         errPrint(3, cToken);
@@ -498,7 +498,7 @@ bool pCall(){
         return false;
     }
     callFuncID = item;
-    symToggleUsed(table, cToken->content.str, 0); //all functions are defined at scope 0
+    symToggleUsed(table, cToken->content, 0); //all functions are defined at scope 0
     int i = item->paramAmount - 1;
     while (i >= 0){
         stackPush(argStack, item->paramTypes[i--] - '0');
@@ -523,18 +523,18 @@ bool pCall(){
         returnToken = cToken;
         //###### CODEGEN ######
         if(strcmp(callFuncID->name,"write")){
-            insertString(&callBuffer,"\
+            GEN_CODE(&callBuffer,"\
             \nPUSHFRAME\
-            \nCREATEFRAME");
+            \nCREATEFRAME")
         }
         if(!pCallArgs())
             return false;
         //###### CODEGEN ######
         if(strcmp(callFuncID->name,"write")){
-            insertString(&defBuffer,"\
+            GEN_CODE(&defBuffer,"\
             \nPUSHFRAME\
-            \nCALL ");
-            insertString(&defBuffer,callFuncID->name);
+            \nCALL ")
+            GEN_CODE(&defBuffer,callFuncID->name)
         }
         
     }
@@ -553,17 +553,17 @@ bool pCall(){
         }
         //###### CODEGEN ######
         if(scope == 0){
-            insertString(&callBuffer,"\nCALL ");
-            insertString(&callBuffer,callFuncID->name);
+            GEN_CODE(&callBuffer,"\nCALL ")
+            GEN_CODE(&callBuffer,callFuncID->name)
         }
         else{
             if(strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){ //if not read-s/i/n
-                insertString(&defBuffer,"\
+                GEN_CODE(&defBuffer,"\
                 \nPUSHFRAME\
                 \nCRATEFRAME\
                 \nPUSHFRAME\
-                \nCALL ");
-                insertString(&defBuffer,callFuncID->name);
+                \nCALL ")
+                GEN_CODE(&defBuffer,callFuncID->name)
             }
         }
         returnToken = cToken;
@@ -728,15 +728,15 @@ bool pArgs(){
         freeToken(cToken);
         return false;
     }
-    if(symGetItem(table, cToken->content.str, scope) != NULL){
+    if(symGetItem(table, cToken->content, scope) != NULL){
         fprintf(stderr,"3h"); //TODO - add error code
         errPrint(3, cToken);
         freeToken(cToken);
         return false;
     }
     
-    char *tmp = cToken->content.str; //maybe future error TODO something
-    free(cToken); //freeToken() would also free content.str, which we need in tmp
+    char *tmp = cToken->content; //maybe future error TODO something
+    free(cToken); //freeToken() would also free content, which we need in tmp
 
     if((cToken = nextToken()) == NULL){
         return false;
@@ -866,10 +866,28 @@ bool pCallArgs(){
                 }
                 //###### CODEGEN ######
                 if(scope == 0){
-                    genCallArg(&callBuffer, paramCounter, cToken);
+                    if(!genCallArg(&callBuffer, paramCounter, cToken)){
+                        fprintf(stderr,"99xa"); //TODO - add error code
+                        errPrint(99, cToken);
+                        freeToken(cToken);
+                        return false;
+                    }
                 }
                 else{
-                    genCallArg(&defBuffer, paramCounter, cToken);
+                    if(!genCallArg(&defBuffer, paramCounter, cToken)){
+                        fprintf(stderr,"99xb"); //TODO - add error code
+                        errPrint(99, cToken);
+                        freeToken(cToken);
+                        return false;
+                    }
+                }
+            }
+            else{
+                if(!genWrite(&callBuffer,cToken)){
+                    fprintf(stderr,"99xc"); //TODO - add error code
+                    errPrint(99, cToken);
+                    freeToken(cToken);
+                    return false;
                 }
             }
         }
@@ -881,7 +899,7 @@ bool pCallArgs(){
         }
     }
     else{//if arg is ID
-        tableItem *item = symGetItem(table, cToken->content.str, scope);
+        tableItem *item = symGetItem(table, cToken->content, scope);
         if(item == NULL){
             fprintf(stderr,"3k"); //TODO - add error code
             errPrint(3, cToken);
@@ -917,10 +935,20 @@ bool pCallArgs(){
         }
         //###### CODEGEN ######
         if(strcmp(callFuncID->name,"write")){
-            genCallArg(&defBuffer, paramCounter, cToken);
+            if(!genCallArg(&defBuffer, paramCounter, cToken)){
+                fprintf(stderr,"99ya"); //TODO - add error code
+                errPrint(99, cToken);
+                freeToken(cToken);
+                return false;
+            }
         }
         else{
-            //insertString(&defBuffer, "\nWRITE")
+            if(!genWrite(&defBuffer, cToken)){
+                fprintf(stderr,"99yb"); //TODO - add error code
+                errPrint(99, cToken);
+                freeToken(cToken);
+                return false;
+            }
         }
     }
     
@@ -1062,7 +1090,7 @@ bool pStatement(){
                 return false;
             }
             //Add entry to symtable
-            item = symGetItem(table, cToken->content.str, scope);
+            item = symGetItem(table, cToken->content, scope);
             if(item != NULL){
                 if((item->scope == scope) || (item->type == FUNC_ID)){
                     fprintf(stderr,"3l"); //TODO - add error code
@@ -1071,7 +1099,7 @@ bool pStatement(){
                     return false;
                 }
             }
-            char *tmp = cToken->content.str;
+            char *tmp = cToken->content;
             free(cToken);
 
             if((cToken = nextToken()) == NULL){
@@ -1134,7 +1162,7 @@ bool pStatement(){
 
         case TOKEN_ID:
             
-            item = symGetItem(table, cToken->content.str, scope);
+            item = symGetItem(table, cToken->content, scope);
             if(item == NULL){
                 fprintf(stderr,"3m"); //TODO - add error code
                 errPrint(3, cToken);
@@ -1169,7 +1197,7 @@ bool pStatement(){
                     if((cToken = nextToken()) == NULL)
                         return false;
                     if(cmpTokType(cToken, TOKEN_ID)){
-                        item = symGetItem(table, cToken->content.str, scope);
+                        item = symGetItem(table, cToken->content, scope);
                         if(item == NULL){
                             fprintf(stderr,"3n"); //TODO - add error code
                             errPrint(3, cToken);
@@ -1280,7 +1308,7 @@ bool pInit(){
     if((cToken = nextToken()) == NULL)
         return false;
     if(cmpTokType(cToken, TOKEN_ID)){
-        item = symGetItem(table, cToken->content.str, scope);
+        item = symGetItem(table, cToken->content, scope);
         if(item == NULL){
             fprintf(stderr,"3gyy"); //TODO - add error code
             errPrint(3, cToken);
@@ -1347,7 +1375,7 @@ bool pID(){
         freeToken(cToken);
         return false;
     }
-    tableItem *item = symGetItem(table, cToken->content.str, scope);
+    tableItem *item = symGetItem(table, cToken->content, scope);
     if(item->type == FUNC_ID){
         fprintf(stderr,"7"); //TODO - add error code
         errPrint(7, cToken);
@@ -1392,17 +1420,19 @@ int main(){
     symInit(table);
     stackInit(argStack);
     symstackInit(symStack);
-    
+
     //TODO REMOVE THIS AFTER TESTING 
     mallocBuffers();
-    genToInteger();
-    printf("%s\n",defBuffer.str);
-    freeBuffers();
-    printf("%a\n",2.3);
-    printf("%a\n",5.3);
+    
 
     insertBuiltIn();
     pProgram();
+    
+    //TODO REMOVE THIS AFTER TESTING 
+    printf("%s\n",callBuffer.str);
+    freeBuffers();
+
+
     int dump;
     tableItem *ptrDump;
     symDeleteAll(table);

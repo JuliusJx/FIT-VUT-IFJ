@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -std=c11 -pedantic -lm
-FILES=scanner.c parser.c stack.c symstack.c symtable.c tests/scanner_token_test.c exp_parser.c
+FILES=scanner.c parser.c stack.c symstack.c symtable.c tests/scanner_token_test.c exp_parser.c err_handler.c generator.c
 
 .PHONY: build clean run test_stack test_scanner
 

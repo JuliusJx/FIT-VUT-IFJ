@@ -107,8 +107,9 @@ token *GetToken(){
                     NewToken->type = TOKEN_Plus;
                     done = true;
                 }
-                else if(c == '-')
+                else if(c == '-'){
                     FSM_State = FSM_Minus;
+                }
                 else if(c == '*'){
                     NewToken->type = TOKEN_Mul;
                     done = true;
@@ -154,10 +155,10 @@ token *GetToken(){
                 break;
             case FSM_String:
                 if(c == '"'){
-                    if((NewToken->content.str = malloc(strlen(newInput.str) + 1)) == NULL)
+                    if((NewToken->content = malloc(strlen(newInput.str) + 1)) == NULL)
                         MemError = true;
                     else{
-                        NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+                        NewToken->content = strcpy(NewToken->content, newInput.str);
                         NewToken->type = TOKEN_String;
                     }
                     done = true;
@@ -261,10 +262,10 @@ token *GetToken(){
                     ungetc(c, stdin);
                     NewToken->type = isKeyWord(&newInput);
                     if(NewToken->type == TOKEN_ID){
-                        if((NewToken->content.str = malloc((strlen(newInput.str)) + 1)) == NULL)
+                        if((NewToken->content = malloc((strlen(newInput.str)) + 1)) == NULL)
                             MemError = true;
                         else{
-                            NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+                            NewToken->content = strcpy(NewToken->content, newInput.str);
                         }
                     }
                     done = true;
@@ -285,7 +286,11 @@ token *GetToken(){
                 else{
                     ungetc(c, stdin);
                     NewToken->type = TOKEN_Int;
-                    NewToken->content.i = atoi(newInput.str);
+                    if((NewToken->content = malloc((strlen(newInput.str)) + 1)) == NULL)
+                        MemError = true;
+                    else{
+                        NewToken->content = strcpy(NewToken->content, newInput.str);
+                    }
                     done = true;
                 }
                 break;
@@ -308,7 +313,11 @@ token *GetToken(){
                 else{
                     ungetc(c, stdin);
                     NewToken->type = TOKEN_Num;
-                    NewToken->content.f = strtof(newInput.str, '\0');
+                    if((NewToken->content = malloc((strlen(newInput.str)) + 1)) == NULL)
+                        MemError = true;
+                    else{
+                        NewToken->content = strcpy(NewToken->content, newInput.str);
+                    }
                     done = true;
                 }
                 break;
@@ -339,13 +348,18 @@ token *GetToken(){
                 else{
                     ungetc(c, stdin);
                     NewToken->type = TOKEN_Num;
-                    NewToken->content.f = strtof(newInput.str, '\0');
+                    if((NewToken->content = malloc((strlen(newInput.str)) + 1)) == NULL)
+                        MemError = true;
+                    else{
+                        NewToken->content = strcpy(NewToken->content, newInput.str);
+                    }
                     done = true;
                 }
                 break;
             case FSM_Minus:
-                if(c == '-')
+                if(c == '-'){
                     FSM_State = FSM_OneLineC;
+                }
                 else{
                     ungetc(c, stdin);
                     NewToken->type = TOKEN_Minus;
@@ -452,10 +466,10 @@ token *GetToken(){
         }
     }
     if(error){
-        if((NewToken->content.str = malloc(strlen(newInput.str) + 1)) == NULL)
+        if((NewToken->content = malloc(strlen(newInput.str) + 1)) == NULL)
             MemError = true;
         else
-            NewToken->content.str = strcpy(NewToken->content.str, newInput.str);
+            NewToken->content = strcpy(NewToken->content, newInput.str);
         ungetc(c, stdin);
         NewToken->type = TOKEN_Err;
     }

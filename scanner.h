@@ -86,16 +86,9 @@
 #define TOKEN_Err 37
 #define TOKEN_EOF 38
 
-//Union structure for token's attributes
-typedef union content{
-    int i;
-    float f;
-    char *str;
-} content;
-
 //Token structure
 typedef struct token{
-    content content;
+    char *content;
     unsigned short type;
     unsigned line;
 } token;
