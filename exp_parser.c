@@ -17,33 +17,37 @@ bool stringValid = true;
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
-//  | 0  | 1  | 2  | 3 | 4   | 5  |  6   |   7  | 8 | 9 | 10   | 11   | 12   | 13   | 14   | 15   | 16 | 17 | 18  | 19  | 20
-//  | #  | *  | /  |// | +,- | .. | Rel1 | Rel2 | ( | ) |i(int)|i(num)|i(str)|i(i-v)|i(n-v)|i(s-v)|$   |Nil |i-i-n|i-n-n|i-s-n|
-    { EQ,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  GR,   GR,    GR,    GR,   GR,     GR,    GR,  ER,  ER,   ER,   ER},    //| #      | 0
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| *      | 1
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| /      | 2
-    { LE,  GR,  GR, GR,  GR,   GR,  GR,    GR,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| //     | 3
-    { LE,  LE,  LE, LE,  GR,   GR,  GR,    GR,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| +, -   | 4
-    { LE,  LE,  LE, LE,  LE,   LE,  GR,    GR,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| ..     | 5
-    { LE,  LE,  LE, LE,  LE,   GR,  ER,    ER,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  LE,  LE,   LE,   LE},    //| Rel1   | 6
-    //########################################################################################################################
-    { LE,  LE,  LE, LE,  LE,   GR,  ER,    ER,   LE, GR,  LE,   LE,    LE,    LE,   LE,     LE,    GR,  ER,  ER,   ER,   ER},    //| Rel2   | 7
-    //----------------------------------------------------------------------------------------------------------------------
-    { LE,  LE,  LE, LE,  LE,   LE,  LE,    LE,   LE, EQ,  LE,   LE,    LE,    LE,   LE,     LE,    ER,  LE,  LE,   LE,   LE},    //| (      | 8
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  LE,  LE,   LE,   LE},    //| )      | 9
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(int) | 10
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(num) | 11
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(str) | 12
-    //########################################################################################################################
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(i-v) | 13
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(n-v) | 14
-    { GR,  GR,  GR, GR,  GR,   GR,  GR,    GR,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i(s-v) | 15
-    //------------------------------------------------------------------------------------------------------------------------
-    { LE,  LE,  LE, LE,  LE,   LE,  LE,    LE,   LE, ER,  LE,   LE,    LE,    LE,   LE,     LE,    ER,  LE,  LE,   LE,   LE},    //| $      | 16
-    { ER,  ER,  ER, ER,  ER,   ER,  GR,    ER,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| Nil    | 17
-    { ER,  ER,  ER, ER,  ER,   ER,  GR,    ER,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i-int-nil| 18
-    { ER,  ER,  ER, ER,  ER,   ER,  GR,    ER,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER},    //| i-num-nil| 19
-    { ER,  ER,  ER, ER,  ER,   ER,  GR,    ER,   ER, GR,  ER,   ER,    ER,    ER,   ER,     ER,    GR,  ER,  ER,   ER,   ER}     //| i-str-nil| 20
+//                                                |int     |int-var       |int-var-nil
+//                                                |  |num  |  |num-var    |  |num-var-nil
+//                                                |  |  |str  |  |str-var |  |  |str-var-nil
+//   |0 |1 |2 |3 |4 |5 |6 |7 |8 |9 |10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|
+//   |# |* |/ |//|+ |- |..|==|~=|< |> |<=|>=|( |) |i |i |i |iv|iv|iv|$|Nil|in|in|in|
+    { EQ,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,GR,GR,GR,GR,GR,GR,GR,ER,ER,ER,ER},   //| #        | 0
+    { LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| *        | 1
+    { LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| /        | 2
+    { LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| //       | 3
+    { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| +        | 4
+    { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| -        | 5
+    { LE,LE,LE,LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| ..       | 6
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ==       | 7
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ~=       | 8
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| <        | 9
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| >        | 10
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| <=       | 11
+    { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| >=       | 12
+    { LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,EQ,LE,LE,LE,LE,LE,LE,ER,LE,LE,LE,LE},   //| (        | 13
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,LE,LE,LE,LE},   //| )        | 14
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(int)   | 15
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(num)   | 16
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(str)   | 17
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(i-v)   | 18
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(n-v)   | 19
+    { GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i(s-v)   | 20
+    { LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,LE,ER,LE,LE,LE,LE,LE,LE,ER,LE,LE,LE,LE},   //| $        | 21
+    { ER,ER,ER,ER,ER,ER,ER,GR,GR,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| Nil      | 22
+    { ER,ER,ER,ER,ER,ER,ER,GR,GR,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i-int-nil| 23
+    { ER,ER,ER,ER,ER,ER,ER,GR,GR,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER},   //| i-num-nil| 24
+    { ER,ER,ER,ER,ER,ER,ER,GR,GR,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER,ER,ER,GR,ER,ER,ER,ER}    //| i-str-nil| 25
 };
 
 int tokConversion(token *cToken){
@@ -58,18 +62,23 @@ int tokConversion(token *cToken){
         case TOKEN_DivInt:
             return INT_DIV;
         case TOKEN_Plus:
+            return PLUS;
         case TOKEN_Minus:
-            return PLUS_MINUS;
+            return MINUS;
         case TOKEN_Concat:
             return STR_CONC;
         case TOKEN_Greater:
+            return R_GR;
         case TOKEN_GreatEQ:
+            return R_GRQ;
         case TOKEN_Less:
+            return R_LE;
         case TOKEN_LessEQ:
-            return REL_COMP_2;
+            return R_LEQ;
         case TOKEN_EQ:
+            return R_EQ;
         case TOKEN_NotEQ:
-            return REL_COMP_1;
+            return R_NEQ;
         case TOKEN_LeftPar:
             return LEFT_PAR;
         case TOKEN_RightPar:
@@ -83,7 +92,7 @@ int tokConversion(token *cToken){
         case TOKEN_Key_nil:
             return T_NIL;
         case TOKEN_ID:
-            item = symGetItem(table, cToken->content.str, scope);
+            item = symGetItem(table, cToken->content.str, scope);   //TODO: Kubo robí čári a povie mi čo tam potom dať
             if(item == NULL)
                 return T_DOLLAR;
             if(item->type == FUNC_ID){
@@ -175,7 +184,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT && INT_DIV || MUL || PLUS_MINUS && T_INT      = T_INT
-            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_INT, &tmp_top2, token))
                     return true;
                 else{
@@ -184,7 +193,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT && MUL || PLUS_MINUS && T_NUM = T_NUM
-            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == MUL || tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
+            else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -211,7 +220,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NUM && PLUS_MINUS && T_NUM || T_INT = T_NUM
-            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == PLUS_MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
+            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -220,7 +229,9 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NUM || T_INT &&  REL_COMP && T_NUM || T_INT = T_BOOL
-            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V || tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == REL_COMP_1 || tmp_pop2 == REL_COMP_2) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
+            else if( (tmp_top == T_NUM || tmp_top == T_NUM_V || tmp_top == T_INT || tmp_top == T_INT_V) && \
+                     (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ || tmp_pop2 == R_LE || tmp_pop2 == R_GR || tmp_pop2 == R_LEQ || tmp_pop2 == R_GRQ) && \
+                     (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -229,7 +240,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_STR && REL_COMP && T_STR = T_BOOL
-            else if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == REL_COMP_1 || tmp_pop2 == REL_COMP_2) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
+            else if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ || tmp_pop2 == R_LE || tmp_pop2 == R_GR || tmp_pop2 == R_LEQ || tmp_pop2 == R_GRQ) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -240,7 +251,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
 
             // NIL RULES
             // T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL || T_STR_V || T_STR_V_NIL && REL_COMP_1 && T_NIL = T_BOOL
-            else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL || tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && tmp_pop2 == REL_COMP_1 && tmp_pop == T_NIL){
+            else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL || tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -249,7 +260,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NIL && REL_COMP_1 && T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL || T_STR_V || T_STR_V_NIL = T_BOOL   // ? TODO: týmto som si nie úplne istý
-            else if(tmp_top == T_NIL && tmp_pop2 == REL_COMP_1 && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL || tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL)){
+            else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL || tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL)){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -258,7 +269,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL   &&   REL_COMP_1   &&   T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL = T_BOOL
-            else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL) && tmp_pop2 == REL_COMP_1 && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL) ){
+            else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -267,7 +278,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_STR_V || T_STR_V_NIL   &&   REL_COMP_1   &&   T_STR_V || T_STR_V_NIL = T_BOOL
-            else if( (tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && tmp_pop2 == REL_COMP_1 && (tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL) ){
+            else if( (tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL) ){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -276,7 +287,7 @@ bool pHelp(stack *e_stack, stack *h_stack, int token){
                 }
             }
             // T_NIL   &&   REL_COMP_1   &&   T_NIL = T_BOOL
-            else if(tmp_top == T_NIL && tmp_pop2 == REL_COMP_1 && tmp_pop == T_NIL){
+            else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
                 if(phCheck(e_stack, h_stack, T_BOOL, &tmp_top2, token))
                     return true;
                 else{
@@ -461,9 +472,11 @@ bool pExpression(){
         }
 
         if(value == sym_value->type || (sym_value->type == TYPE_NUM && (value == TYPE_INT || value == TYPE_NUM) )){
+            if(!sym_value->isInit)
+                sym_value->isInit = true;
             return true;
         }
-        else if(value == T_NIL){    //TODO: ček na toto a pozrieť kedy sa má initnúť
+        else if(value == T_NIL){
             sym_value->isInit = false;
             return true;
         }
