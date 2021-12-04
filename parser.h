@@ -31,6 +31,7 @@ extern stack *argStack;
 extern symstack *symStack;
 extern char *tokenID; //maybe rename to functionID
 extern int scope;
+extern stack *blockStack;
 
 bool cmpTokType( token*, int);
 

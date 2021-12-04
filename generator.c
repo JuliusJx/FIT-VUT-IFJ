@@ -13,7 +13,7 @@
 
 
 contentInput defBuffer = {.str = NULL, .index = 0, .length = 1};
-contentInput finalBuffer = {.str = NULL, .index = 0, .length = 1};
+contentInput blockBuffer = {.str = NULL, .index = 0, .length = 1};
 contentInput callBuffer = {.str = NULL, .index = 0, .length = 1};
 contentInput postCallBuffer = {.str = NULL, .index = 0, .length = 1};
 
@@ -28,7 +28,7 @@ bool mallocBuffer( contentInput *buffer){
 bool mallocBuffers(){
     if(!mallocBuffer(&defBuffer))
         return false;
-    if(!mallocBuffer(&finalBuffer))
+    if(!mallocBuffer(&blockBuffer))
         return false;
     if(!mallocBuffer(&callBuffer))
         return false;
@@ -46,7 +46,7 @@ void freeBuffer( contentInput *buffer){
 
 void freeBuffers(){
     freeBuffer(&defBuffer);
-    freeBuffer(&finalBuffer);
+    freeBuffer(&blockBuffer);
     freeBuffer(&callBuffer);
     freeBuffer(&postCallBuffer);
 }
@@ -227,6 +227,39 @@ bool genWrite( contentInput *buffer, token *cToken){
         default: return false;
     }
     return true;
+}
+
+bool genVar( contentInput *buffer, tableItem *item){
+    if(item->scope == 1){
+        GEN_CODE(buffer, item->name)
+    }
+    else{
+        GEN_CODE(buffer, item->name)
+        GEN_CODE(buffer, "%")
+        int blockIndex;
+        if(item->scope == scope){
+            stackTop(blockStack, &blockIndex);
+        }
+        else{
+            int cScope = scope;
+            int cIndex;
+            stack storeStack;
+            stackInit(&storeStack);
+            while(cScope != item->scope){
+                stackPop(blockStack, &cIndex);
+                stackPush(&storeStack, cIndex);
+                cScope--;
+            }
+            stackTop(blockStack, &blockIndex);
+            while(!stackIsEmpty(&storeStack)){
+                stackPop(&storeStack, &cIndex);
+                stackPush(blockStack, cIndex);
+            }
+        }
+        char tmp[10];
+        sprintf(tmp, "%d", blockIndex);
+        GEN_CODE(buffer, tmp)
+    }
 }
 
 // --End of file-

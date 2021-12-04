@@ -13,11 +13,13 @@
 #include <stdbool.h>
 #include "scanner.h"
 #include "err_handler.h"
+#include "symtable.h"
+#include "parser.h"
 
 #define GEN_CODE(buffer,string) if(!insertString((buffer),(string))){errCode = 99; return false;}
 
 extern contentInput defBuffer;
-extern contentInput finalBuffer;
+extern contentInput blockBuffer;
 extern contentInput callBuffer;
 extern contentInput postCallBuffer;
 
@@ -42,6 +44,8 @@ bool genChr();
 bool genCallArg( contentInput*, int, token*);
 
 bool genWrite( contentInput*, token*);
+
+bool genVar( contentInput*, tableItem*);
 
 #endif
 
