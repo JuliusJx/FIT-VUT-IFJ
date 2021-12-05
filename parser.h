@@ -51,11 +51,9 @@ bool pParams();
 
 bool pParam();
 
-bool pReturns();
+bool pReturns( bool);
 
 bool pArgs();
-
-bool pArg();
 
 bool pCallArgs();
 

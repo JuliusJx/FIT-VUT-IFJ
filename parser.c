@@ -338,7 +338,7 @@ bool pBody(){
             }
             if(cmpTokType(cToken, TOKEN_Colon)){
                 freeToken(cToken);
-                if(!pReturns())
+                if(!pReturns(false))
                     return false;
             }
             else{
@@ -378,6 +378,11 @@ bool pBody(){
             free(tokenID);
             tokenID = cToken->content;
             freeToken(cToken);
+            
+            //###### CODEGEN ######
+            GEN_CODE(&defBuffer, "\n\nLABEL ")
+            GEN_CODE(&defBuffer, tokenID)
+            GEN_CODE(&defBuffer, "\nCREATEFRAME")
 
             if((cToken = nextToken()) == NULL){
                 return false;
@@ -421,7 +426,7 @@ bool pBody(){
             }
             if(cmpTokType(cToken, TOKEN_Colon)){
                 freeToken(cToken);
-                if(!pReturns())
+                if(!pReturns(true))
                     return false;
             }
             else{
@@ -448,6 +453,11 @@ bool pBody(){
                 freeToken(cToken);
                 return false;
             }
+
+            //###### CODEGEN ######
+            GEN_CODE(&defBuffer, "\nPOPFRAME")
+            GEN_CODE(&defBuffer, "\nRETURN")
+
             symDeleteScope(table, scope);
             scope--;
             freeToken(cToken);
@@ -548,7 +558,7 @@ bool pCall(){
         if(!pCallArgs())
             return false;
         //###### CODEGEN ######
-        if(strcmp(callFuncID->name,"write")){
+        if(strcmp(callFuncID->name,"write") && strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){
             if(scope == 1){
                 GEN_CODE(&defBuffer,"\
                 \nPUSHFRAME\
@@ -674,7 +684,7 @@ bool pParams(){
     return true;
 }
 
-bool pReturns(){
+bool pReturns( bool definition){
     token *cToken;
     if((cToken = nextToken()) == NULL){
         return false;
@@ -722,6 +732,7 @@ bool pReturns(){
         }
     }
     else{
+        returnIndex++;
         if(!symAddReturn(item, type)){
             fprintf(stderr,"99"); //TODO - add error code
             errPrint(99, cToken);
@@ -729,6 +740,17 @@ bool pReturns(){
             return false;
         }
     }
+    if(definition){
+        //###### CODEGEN ######
+        GEN_CODE(&defBuffer, "\n\nDEFVAR LF@retval%")
+        char tmp[10];
+        sprintf(tmp, "%d", returnIndex);
+        GEN_CODE(&defBuffer, tmp)
+        GEN_CODE(&defBuffer, "\nMOVE LF@retval%")
+        GEN_CODE(&defBuffer, tmp)
+        GEN_CODE(&defBuffer, " nil@nil")
+    }
+
     freeToken(cToken);
 
     //if next token is comma, recursive call
@@ -743,7 +765,7 @@ bool pReturns(){
     else
         freeToken(cToken);
     
-    if(!pReturns())
+    if(!pReturns(definition))
         return false;
     return true;
 }
@@ -830,6 +852,7 @@ bool pArgs(){
         }
     }
     else{
+        paramIndex++;
         if(!symAddParam(item, type)){
             fprintf(stderr,"99"); //TODO - add error code
             errPrint(99, cToken);
@@ -839,6 +862,16 @@ bool pArgs(){
     }
     symInsert(table, tmp, type, true, scope);
     freeToken(cToken);
+    
+    //###### CODEGEN ######
+    GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
+    GEN_CODE(&defBuffer, tmp)
+    GEN_CODE(&defBuffer, "\nMOVE TF@")
+    GEN_CODE(&defBuffer, tmp)
+    char argTmp[10];
+    sprintf(argTmp, "%d", paramIndex);
+    GEN_CODE(&defBuffer, " LF@param%")
+    GEN_CODE(&defBuffer, argTmp)
 
     //if next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
@@ -1103,7 +1136,7 @@ bool pStatement(){
             }
             strcat(newItem.name, iftmp);
             //###### CODEGEN ######
-            GEN_CODE(&defBuffer, "\nDEFVAR TF@")
+            GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
             GEN_CODE(&defBuffer, newItem.name)
             
             symstackPush(symStack, &newItem);
@@ -1147,7 +1180,7 @@ bool pStatement(){
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMP ENDIF%")
             GEN_CODE(&blockBuffer, iftmp);
-            GEN_CODE(&blockBuffer, "\nLABEL ELSE%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL ELSE%")
             GEN_CODE(&blockBuffer, iftmp);
 
             scope++;
@@ -1167,7 +1200,7 @@ bool pStatement(){
                 return false;
             }
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\nLABEL ENDIF%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL ENDIF%")
             GEN_CODE(&blockBuffer, iftmp);
 
             if(scope == 1){
@@ -1214,9 +1247,9 @@ bool pStatement(){
             }
             strcat(newWhileItem.name, whtmp);
             //###### CODEGEN ######
-            GEN_CODE(&defBuffer, "\nDEFVAR TF@")
+            GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
             GEN_CODE(&defBuffer, newWhileItem.name)
-            GEN_CODE(&blockBuffer, "\nLABEL LOOP%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%")
             GEN_CODE(&blockBuffer, whtmp);
             symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
@@ -1259,7 +1292,7 @@ bool pStatement(){
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMP LOOP%")
             GEN_CODE(&blockBuffer, whtmp);
-            GEN_CODE(&blockBuffer, "\nLABEL LOOP_END%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP_END%")
             GEN_CODE(&blockBuffer, whtmp);
 
             if(scope == 1){
@@ -1267,7 +1300,6 @@ bool pStatement(){
                 freeBuffer(&blockBuffer);
                 mallocBuffer(&blockBuffer);
             }
-
             freeToken(cToken);
             if(!pStatement())
                 return false;
@@ -1347,7 +1379,7 @@ bool pStatement(){
 
             item = symGetItem(table, tmp, scope);
             //###### CODEGEN ######
-            GEN_CODE(&defBuffer,"\nDEFVAR TF@")
+            GEN_CODE(&defBuffer,"\n\nDEFVAR TF@")
             genVar(&defBuffer, item);
             symstackPush(symStack, item);
             if(!pInit())
@@ -1404,17 +1436,16 @@ bool pStatement(){
                             return false;
                         }
                         if(item->type == FUNC_ID){
+                            tableItem *tmp;
+                            
                             index = symstackCount(symStack);
                             if(index > item->returnAmount){
-                                fprintf(stderr, "%d---%d\n", index, item->returnAmount); //TODO remove checks
-                                fprintf(stderr, "%s\n", symStack->top->item->name);
-                                fprintf(stderr, "%s\n", symStack->top->next->item->name);
                                 fprintf(stderr,"5d"); //TODO - add error code
                                 errPrint(5, cToken);
                                 freeToken(cToken);
                                 return false;
                             }
-                            tableItem *tmp;
+                            
                             while(!symstackIsEmpty(symStack)){
                                 symstackPop(symStack, &tmp);
                                 if(tmp->type != item->returnTypes[index - 1] - '0'){
@@ -1423,17 +1454,49 @@ bool pStatement(){
                                     freeToken(cToken);
                                     return false;
                                 }
-                                //###### CODEGEN ######
-                                GEN_CODE(&postCallBuffer, "\nMOVE LF@")
-                                genVar(&postCallBuffer, tmp);
-                                GEN_CODE(&postCallBuffer, " TF@retval");
-                                char buf[10]; //max number of return values is 999 999 999 lol
-                                sprintf(buf, "%d", index);
-                                GEN_CODE(&postCallBuffer, buf);
+                                if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
+                                    //###### CODEGEN ######
+                                    GEN_CODE(&postCallBuffer, "\nMOVE LF@")
+                                    genVar(&postCallBuffer, tmp);
+                                    GEN_CODE(&postCallBuffer, " TF@retval%");
+                                    char buf[10]; //max number of return values is 999 999 999 lol
+                                    sprintf(buf, "%d", index);
+                                    GEN_CODE(&postCallBuffer, buf);
+                                }
+                                else{
+                                    if(scope == 1){
+                                        GEN_CODE(&defBuffer, "\nREAD TF@")
+                                        genVar(&defBuffer, tmp);
+                                        if(!strcmp(item->name,"reads")){
+                                            GEN_CODE(&defBuffer, " string")
+                                        }
+                                        else if(!strcmp(item->name,"readi")){
+                                            GEN_CODE(&defBuffer, " int")
+                                        }
+                                        else{
+                                            GEN_CODE(&defBuffer, " float")
+                                        }
+                                    }
+                                    else{
+                                        GEN_CODE(&blockBuffer, "\nREAD TF@")
+                                        genVar(&blockBuffer, tmp);
+                                        if(!strcmp(item->name,"reads")){
+                                            GEN_CODE(&blockBuffer, " string")
+                                        }
+                                        else if(!strcmp(item->name,"readi")){
+                                            GEN_CODE(&blockBuffer, " int")
+                                        }
+                                        else{
+                                            GEN_CODE(&blockBuffer, " float")
+                                        }
+                                    }
+                                }
                                 index--;
                             }
-                            //###### CODEGEN ######
-                            GEN_CODE(&postCallBuffer, "\nPOPFRAME");
+                            if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
+                                //###### CODEGEN ######
+                                GEN_CODE(&postCallBuffer, "\nPOPFRAME");
+                            }
                             returnToken = cToken;
                             if(!pCall()){
                                 return false;
@@ -1491,7 +1554,6 @@ bool pStatement(){
             freeToken(cToken);
             while(index < item->returnAmount){
                 tableItem newItem = { 
-                    .name = "retval",
                     .type = item->returnTypes[index++]-'0',
                     .isInit = true,
                     .isUsed = false,
@@ -1501,6 +1563,22 @@ bool pStatement(){
                     .returnTypes = NULL,
                     .scope = scope,
                     .next = NULL };
+                char rettmp[10];
+                sprintf(rettmp, "%d", index);
+                if((newItem.name = malloc(8 * sizeof(char))) == NULL){ //8 characters for retval% + terminal character
+                    fprintf(stderr,"99zxca"); //TODO - add error code
+                    errPrint(99, cToken);
+                    freeToken(cToken);
+                    return false;
+                }
+                strcpy(newItem.name, "retval%\0");
+                if((newItem.name = realloc(newItem.name, strlen(newItem.name) + strlen(rettmp) + 1)) == NULL){
+                    fprintf(stderr,"99zca"); //TODO - add error code
+                    errPrint(99, cToken);
+                    freeToken(cToken);
+                    return false;
+                }
+                strcat(newItem.name, rettmp);
                 symstackPush(symStack, &newItem);
             }
             if(!pExpression(0))
@@ -1556,15 +1634,30 @@ bool pInit(){
                 freeToken(cToken);
                 return false;
             }
-            //###### CODEGEN ######
-            GEN_CODE(&postCallBuffer, "\nMOVE LF@")
-            genVar(&defBuffer, item);
-            GEN_CODE(&postCallBuffer, " TF@retval1");
-            GEN_CODE(&postCallBuffer, "\nPOPFRAME")
-
             returnToken = cToken;
-            if(!pCall())
-                return false;
+            if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
+                //###### CODEGEN ######
+                GEN_CODE(&postCallBuffer, "\nMOVE LF@")
+                genVar(&postCallBuffer, tmp);
+                GEN_CODE(&postCallBuffer, " TF@retval%1");
+                GEN_CODE(&postCallBuffer, "\nPOPFRAME")
+                if(!pCall())
+                    return false;
+            }
+            else{
+                //###### CODEGEN ######
+                GEN_CODE(&defBuffer, "\nREAD TF@")
+                genVar(&defBuffer, tmp);
+                if(!strcmp(item->name,"reads")){
+                    GEN_CODE(&defBuffer, " string")
+                }
+                else if(!strcmp(item->name,"readi")){
+                    GEN_CODE(&defBuffer, " int")
+                }
+                else{
+                    GEN_CODE(&defBuffer, " float")
+                }
+            }
             tmp->isInit = true;
             //###### CODEGEN ######
             GEN_CODE(&defBuffer, postCallBuffer.str)
@@ -1635,7 +1728,6 @@ bool pID(){
 
 // ---------------
 int main(){
-    fprintf(stderr,"test\n");
     if((table = malloc(sizeof(symTable))) == NULL){
         errCode = 99;
         fprintf(stderr, "ERROR: -- code: %d\n", errCode);
@@ -1667,10 +1759,7 @@ int main(){
     symstackInit(symStack);
     stackInit(blockStack);
 
-    //TODO REMOVE THIS AFTER TESTING 
     mallocBuffers();
-    
-
     insertBuiltIn();
     pProgram();
     
@@ -1678,7 +1767,6 @@ int main(){
     printf("%s\n",callBuffer.str);
     printf("%s\n",defBuffer.str);
     freeBuffers();
-
 
     int dump;
     tableItem *ptrDump;

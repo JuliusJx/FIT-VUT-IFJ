@@ -67,10 +67,10 @@ bool genToInteger(){
     if(!insertString(&defBuffer,"\
     \nLABEL tointeger\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval1\
-    \nMOVE LF@retval1 nil@nil\
-    \nJUMPIFEQ tointeger_end LF@param1 nil@nil\
-    \nFLOAT2INT LF@retval1 LF@param1\
+    \nDEFVAR LF@retval%1\
+    \nMOVE LF@retval%1 nil@nil\
+    \nJUMPIFEQ tointeger_end LF@param%1 nil@nil\
+    \nFLOAT2INT LF@retval%1 LF@param%1\
     \nLABEL tointeger_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -82,30 +82,30 @@ bool genSubstr(){
     if(!insertString(&defBuffer, "\
     \nLABEL substr\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval1\
-    \nMOVE LF@retval1 string@\
-    \nFLOAT2INT LF@param2 LF@param2\
-    \nFLOAT2INT LF@param3 LF@param3\
+    \nDEFVAR LF@retval%1\
+    \nMOVE LF@retval%1 string@\
+    \nFLOAT2INT LF@param%2 LF@param%2\
+    \nFLOAT2INT LF@param%3 LF@param%3\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param2 int@1\
+    \nLT TF@cond LF@param%2 int@1\
     \nJUMPIFEQ substr_end TF@cond bool@true\
-    \nGT TF@cond LF@param2 LF@param3\
+    \nGT TF@cond LF@param%2 LF@param%3\
     \nJUMPIFEQ substr_end TF@cond bool@true\
     \nDEFVAR TF@strlen\
-    \nSTRLEN TF@strlen LF@param1\
-    \nGT TF@cond LF@param3 TF@strlen\
+    \nSTRLEN TF@strlen LF@param%1\
+    \nGT TF@cond LF@param%3 TF@strlen\
     \nJUMPIFEQ substr_end TF@cond bool@true\
     \nDEFVAR TF@counter\
     \nDEFVAR TF@tmp\
     \nMOVE TF@tmp string@\
     \nMOVE TF@counter int@0\
-    \nSUB LF@param2 LF@param2 int@1\
+    \nSUB LF@param%2 LF@param%2 int@1\
     \nLABEL substr_loop\
-    \nGETCHAR TF@tmp LF@param1 LF@param2\
-    \nCONCAT LF@retval1 LF@retval1 TF@tmp\
+    \nGETCHAR TF@tmp LF@param%1 LF@param%2\
+    \nCONCAT LF@retval%1 LF@retval%1 TF@tmp\
     \nADD TF@counter TF@counter int@1\
-    \nADD LF@param2 LF@param2 int@1\
-    \nJUMPIFNEQ substr_loop LF@param2 lf@param3\
+    \nADD LF@param%2 LF@param%2 int@1\
+    \nJUMPIFNEQ substr_loop LF@param%2 lf@param%3\
     \nLABEL substr_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -117,17 +117,17 @@ bool genOrd(){
     if(!insertString(&defBuffer,"\
     \nLABEL ord\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval1\
-    \nMOVE LF@retval1 nil@nil\
+    \nDEFVAR LF@retval%1\
+    \nMOVE LF@retval%1 nil@nil\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param2 int@1\
+    \nLT TF@cond LF@param%2 int@1\
     \nJUMPIFEQ ord_end TF@cond bool@true\
     \nDEFVAR TF@strlen\
-    \nSTRLEN TF@strlen LF@param1\
-    \nGT TF@cond LF@param2 TF@strlen\
+    \nSTRLEN TF@strlen LF@param%1\
+    \nGT TF@cond LF@param%2 TF@strlen\
     \nJUMPIFEQ ord_end TF@cond bool@true\
-    \nSUB LF@param2 LF@param2 int@1\
-    \nSTRI2INT LF@retval1 LF@param1 LF@param2\
+    \nSUB LF@param%2 LF@param%2 int@1\
+    \nSTRI2INT LF@retval%1 LF@param%1 LF@param%2\
     \nLABEL ord_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -139,14 +139,14 @@ bool genChr(){
     if(!insertString(&defBuffer, "\
     LABEL chr\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval1\
-    \nMOVE LF@retval1 nil@nil\
+    \nDEFVAR LF@retval%1\
+    \nMOVE LF@retval%1 nil@nil\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param1 int@0\
+    \nLT TF@cond LF@param%1 int@0\
     \nJUMPIFEQ chr_end TF@cond bool@true\
-    \nGT TF@cond LF@param1 int@255\
+    \nGT TF@cond LF@param%1 int@255\
     \nJUMPIFEQ chr_end TF@cond bool@true\
-    \nINT2CHAR LF@retval1 LF@param1\
+    \nINT2CHAR LF@retval%1 LF@param%1\
     \nLABEL chr_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -155,12 +155,12 @@ bool genChr(){
 }
 
 bool genCallArgLit( contentInput *buffer, int counter, token *cToken){
-    GEN_CODE(buffer, "\nDEFVAR TF@param")
+    GEN_CODE(buffer, "\nDEFVAR TF@param%")
     char tmp[25];
     float ftmp;
     sprintf(tmp, "%d", counter);
     GEN_CODE(buffer, tmp)
-    GEN_CODE(buffer, "\nMOVE TF@param")
+    GEN_CODE(buffer, "\nMOVE TF@param%")
     GEN_CODE(buffer, tmp)
     switch(cToken->type){
         case TOKEN_String:
@@ -220,11 +220,11 @@ bool genWriteLit( contentInput *buffer, token *cToken){
 }
 
 bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
-    GEN_CODE(buffer, "\nDEFVAR TF@param")
+    GEN_CODE(buffer, "\nDEFVAR TF@param%")
     char tmp[25];
     sprintf(tmp, "%d", counter);
     GEN_CODE(buffer, tmp)
-    GEN_CODE(buffer, "\nMOVE TF@param")
+    GEN_CODE(buffer, "\nMOVE TF@param%")
     GEN_CODE(buffer, tmp)
     GEN_CODE(buffer, " TF@")
     if(!genVar(buffer, item))

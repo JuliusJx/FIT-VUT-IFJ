@@ -299,6 +299,10 @@ token *GetToken(){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_NumDot;
                 }
+                else if((c == 'e') || (c == 'E')){
+                    InsertChar(&newInput, c, &MemError);
+                    FSM_State = FSM_NumEA;
+                }
                 else
                     error = true;
                 break;
