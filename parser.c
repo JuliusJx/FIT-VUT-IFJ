@@ -1336,7 +1336,11 @@ bool pInit(){
             }
             tmp->isInit = true;
             //###### CODEGEN ######
-            GEN_CODE(&defBuffer, postCallBuffer.str)
+            if (scope == 1){
+                GEN_CODE(&defBuffer, postCallBuffer.str)
+            }else{
+                GEN_CODE(&blockBuffer, postCallBuffer.str)
+            }
             freeBuffer(&postCallBuffer);
             mallocBuffer(&postCallBuffer);
         }
