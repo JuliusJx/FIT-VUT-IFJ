@@ -14,6 +14,7 @@
 
 token *cToken;
 bool stringValid = true;
+int gTmp = -1;
 int plvl = 0;
 
                 // TOP          // VSTUP
@@ -29,7 +30,7 @@ int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
     { LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| //       | 3
     { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| +        | 4
     { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| -        | 5
-    { LE,LE,LE,LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| ..       | 6
+    { LE,LE,LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| ..       | 6
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ==       | 7
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ~=       | 8
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| <        | 9
@@ -531,13 +532,20 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
         }
         else{
             if(tmp_pop2 == STR_LEN && tmp_top == LE){   //TODO: PLS SPRAV TO
-                if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V))
+                if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
+                    s_stackPop(str_stack, &str1);
+                    s_stackPush(str_stack, "STR_LEN");
+                    s_stackTop(str_stack, &str_top);
+                    printf("[%s %s]\n", str1, str_top);
+
+
                     if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
                         return true;
                     else{
                         printf("ERROR-364");
                         return false;
                     }
+                }
                 else{
                     printf("ERROR-12\n");
                     errCode = 6;
@@ -625,7 +633,10 @@ bool pExpression(int lvl){
     s_stackInit(str_stack);
 
     // ### CODE GEN ###
-    printf("DEFVAR TF@%%%dtemp1\nDEFVAR TF@%%%dtemp2\n",plvl,plvl);
+    if(lvl > gTmp){
+        printf("DEFVAR TF@%%%dtemp1\nDEFVAR TF@%%%dtemp2\n",plvl,plvl);
+        gTmp += 1;
+    }
 
     while(stringValid){
         if((cToken = nextToken()) == NULL){
@@ -633,7 +644,8 @@ bool pExpression(int lvl){
             return false;   // TODO: Asi nejaké uvolenenie zásobníku ? idk čo všetko sa tu bude robiť ešte a error ?
         }
 
-        if((cToken->type >= TOKEN_Int && cToken->type <= TOKEN_LessEQ) || cToken->type == TOKEN_EQ || cToken->type == TOKEN_NotEQ || cToken->type == TOKEN_LeftPar || cToken->type == TOKEN_RightPar || cToken->type == TOKEN_String || cToken->type == TOKEN_ID || cToken->type == TOKEN_Key_nil){
+        if((cToken->type >= TOKEN_Int && cToken->type <= TOKEN_LessEQ) || cToken->type == TOKEN_EQ || cToken->type == TOKEN_NotEQ || cToken->type == TOKEN_LeftPar || cToken->type == TOKEN_RightPar \
+            || cToken->type == TOKEN_String || cToken->type == TOKEN_ID || cToken->type == TOKEN_Key_nil || cToken->type == TOKEN_StrLen){
             //spracujem     TOKEN_Comma 34  - , cToken->type == TOKEN_Comma
             if(!pAlgo(e_stack, str_stack, tokConversion(cToken, str_stack))){
                 stringValid = false;
@@ -659,7 +671,7 @@ bool pExpression(int lvl){
     }
 
     if(cToken->type == TOKEN_Comma)
-        pExpression(lvl+1);                  //TODO: pri generovaní treba temp zanorenia aby sa neprepísali pred returnom
+        pExpression(lvl+1);
     else
         returnToken = cToken;
 
@@ -705,6 +717,10 @@ bool pExpression(int lvl){
         if(value == sym_value->type || (sym_value->type == TYPE_NUM && (value == TYPE_INT || value == TYPE_NUM) )){
             if(!sym_value->isInit)
                 sym_value->isInit = true;
+
+            // ### CODE GEN ###
+            printf("POPS TF@[X]\n");
+
             return true;
         }
         else if(value == T_NIL){
