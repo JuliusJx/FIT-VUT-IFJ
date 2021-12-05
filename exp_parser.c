@@ -748,7 +748,6 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
 
             if(token == T_NIL || token == T_INT_V_NIL || token == T_NUM_V_NIL || token == T_STR_V_NIL){
                 errCode = 8;
-                return false;
             }
             return false;
     }
@@ -869,10 +868,12 @@ bool pExpression(int lvl){
                 GEN_CODE(&blockBuffer, "\nPOPS TF@");
                 genVar(&blockBuffer, sym_value);
             }
+            errCode = 0;
             return true;
         }
         else if(value == T_NIL){
             sym_value->isInit = false;
+            errCode = 0;
             return true;
         }
         else if(value == TYPE_NUM && sym_value->type == TYPE_INT){
