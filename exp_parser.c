@@ -119,7 +119,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
             item = symGetItem(table, cToken->content, scope);
             strcpy(temp_str, "\nPUSHS TF@%s");
             sprintf(temp_str, temp_str, item->name);
-            
+
             if(item == NULL)
                 return T_DOLLAR;
             if(item->type == FUNC_ID){
@@ -142,7 +142,6 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     // ### CODE GEN ###
                     if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
                     else{ GEN_CODE(&blockBuffer, temp_str);}
-                    s_stackPush(str_stack, item->name);
                     return T_NUM_V;
                 }
                 if(item->type == TYPE_STR){
@@ -150,7 +149,6 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     // ### CODE GEN ###
                     if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
                     else{ GEN_CODE(&blockBuffer, temp_str);}
-                    s_stackPush(str_stack, item->name);
                     return T_STR_V;
                 }
             }
@@ -160,7 +158,6 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     // ### CODE GEN ###
                     if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
                     else{ GEN_CODE(&blockBuffer, temp_str);}
-                    s_stackPush(str_stack, item->name);
                     return T_INT_V_NIL;
                 }
                 if(item->type == TYPE_NUM){
@@ -168,7 +165,6 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     // ### CODE GEN ###
                     if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
                     else{ GEN_CODE(&blockBuffer, temp_str);}
-                    s_stackPush(str_stack, item->name);
                     return T_NUM_V_NIL;
                 }
                 if(item->type == TYPE_STR){
@@ -176,7 +172,6 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     // ### CODE GEN ###
                     if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
                     else{ GEN_CODE(&blockBuffer, temp_str);}
-                    s_stackPush(str_stack, item->name);
                     return T_STR_V_NIL;
                 }
             }
