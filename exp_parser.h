@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "parser.h"
+#include "str_stack.h"
 
 #define STR_LEN 0       //| #
 #define MUL 1           //| *
@@ -48,15 +49,15 @@
 
 #define PREC_TAB_SIZE 26
 
-int tokConversion( token*);
+int tokConversion( token*, s_stack*);
 
-bool phCheck( stack*, stack*, int, int*, int);
+bool phCheck( stack*, s_stack*, int, int*, int);
 
-bool pHelp( stack*, stack*, int);
+bool pHelp( stack*, s_stack*, int);
 
-bool pAlgo( stack*, stack*, int);
+bool pAlgo( stack*, s_stack*, int);
 
-bool pExpression();
+bool pExpression( int);
 
 #endif
 
