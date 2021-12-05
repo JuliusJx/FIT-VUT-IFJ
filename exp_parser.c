@@ -54,6 +54,7 @@ int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
 
 int tokConversion(token *cToken, s_stack *str_stack){
     tableItem *item;
+    char temp_str[50] = "";     //TODO: tých 50 môže robiť problém
     switch (cToken->type){
         case TOKEN_StrLen:
             return STR_LEN;
@@ -86,24 +87,39 @@ int tokConversion(token *cToken, s_stack *str_stack){
         case TOKEN_RightPar:
             return RIGHT_PAR;
         case TOKEN_Int:
-            // ### CODE GEN ###
-            printf("PUSHS int@%d\n", atoi(cToken->content));
             s_stackPush(str_stack, cToken->content);
+            // ### CODE GEN ###
+            strcpy(temp_str, "\nPUSHS int@%d");
+            sprintf(temp_str, temp_str, atoi(cToken->content));
+            if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+            else{ GEN_CODE(&blockBuffer, temp_str);}
+
             return T_INT;
         case TOKEN_Num:
-            // ### CODE GEN ###
-            printf("PUSHS float@%a\n", atof(cToken->content));
             s_stackPush(str_stack, cToken->content);
+            // ### CODE GEN ###
+            strcpy(temp_str, "\nPUSHS float@%a");
+            sprintf(temp_str, temp_str, atof(cToken->content));     //TODO: Mino
+            if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+            else{ GEN_CODE(&blockBuffer, temp_str);}
+
             return T_NUM;
         case TOKEN_String:
-            // ### CODE GEN ###
-            printf("PUSHS string@%s\n", cToken->content);
             s_stackPush(str_stack, cToken->content);
+            // ### CODE GEN ###
+            strcpy(temp_str, "\nPUSHS string@%s");
+            sprintf(temp_str, temp_str, cToken->content);
+            if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+            else{ GEN_CODE(&blockBuffer, temp_str);}
+
             return T_STR;
         case TOKEN_Key_nil:
             return T_NIL;
         case TOKEN_ID:
             item = symGetItem(table, cToken->content, scope);
+            strcpy(temp_str, "\nPUSHS TF@%s");
+            sprintf(temp_str, temp_str, item->name);
+            
             if(item == NULL)
                 return T_DOLLAR;
             if(item->type == FUNC_ID){
@@ -115,40 +131,51 @@ int tokConversion(token *cToken, s_stack *str_stack){
 
             if(item->isInit){
                 if(item->type == TYPE_INT){
-                    // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
                     s_stackPush(str_stack, item->name);
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     return T_INT_V;
                 }
                 if(item->type == TYPE_NUM){
+                    s_stackPush(str_stack, item->name);
                     // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     s_stackPush(str_stack, item->name);
                     return T_NUM_V;
                 }
                 if(item->type == TYPE_STR){
+                    s_stackPush(str_stack, item->name);
                     // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     s_stackPush(str_stack, item->name);
                     return T_STR_V;
                 }
             }
             else{
                 if(item->type == TYPE_INT){
+                    s_stackPush(str_stack, item->name);
                     // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     s_stackPush(str_stack, item->name);
                     return T_INT_V_NIL;
                 }
                 if(item->type == TYPE_NUM){
+                    s_stackPush(str_stack, item->name);
                     // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     s_stackPush(str_stack, item->name);
                     return T_NUM_V_NIL;
                 }
                 if(item->type == TYPE_STR){
+                    s_stackPush(str_stack, item->name);
                     // ### CODE GEN ###
-                    printf("PUSHS TF@%s\n", item->name);
+                    if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
+                    else{ GEN_CODE(&blockBuffer, temp_str);}
                     s_stackPush(str_stack, item->name);
                     return T_STR_V_NIL;
                 }
@@ -212,30 +239,43 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
         stackTop(e_stack, &tmp_top2);
         if(tmp_top2 == LE){
             stackPop(e_stack, &tmp_top2);
+            
+            // ### CODE GEN SETUP ###
+            char temp_str1[20] = "GF@%%%dtemp1 ";
+            char temp_str2[20] = "GF@%%%dtemp2 ";
+            sprintf(temp_str1, temp_str1, plvl);
+            sprintf(temp_str2, temp_str2, plvl);
+            
             // T_STR && STR_CONC && T_STR = T_STR
             if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
                 s_stackPush(str_stack, "STR_CONC");
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                //TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    //TODO: Remove
 
-                //### CODE GEN ###
-                printf("POPS TF@%%%dtemp1\n",plvl);
-                printf("POPS TF@%%%dtemp2\n",plvl);
-                printf("CONCAT TF@%%%dtemp1 TF@%%%dtemp1 TF@%%%dtemp2\n", plvl, plvl, plvl);
-                printf("PUSHS TF@%%%dtemp1\n", plvl);
-                
                 // ### CODE GEN ###
-                char temp_str1[20] = "TF@%%%dtemp1";
-                char temp_str2[20] = "TF@%%%dtemp2";
-                sprintf(temp_str1, temp_str1, plvl);
-                sprintf(temp_str2, temp_str2, plvl);
                 if(scope == 1){
-                    //GEN_CODE();   //TODO!
+                    GEN_CODE(&defBuffer, "\nPOPS ");
+                    GEN_CODE(&defBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                    GEN_CODE(&defBuffer, "\nPOPS ");
+                    GEN_CODE(&defBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                    GEN_CODE(&defBuffer, "\nCONCAT ");
+                    GEN_CODE(&defBuffer, temp_str1);
+                    GEN_CODE(&defBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                    GEN_CODE(&defBuffer, "\nPUSHS ");
+                    GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
                 }
                 else{
-
+                    GEN_CODE(&blockBuffer, "\nPOPS ");
+                    GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                    GEN_CODE(&blockBuffer, "\nPOPS ");
+                    GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                    GEN_CODE(&blockBuffer, "\nCONCAT ");
+                    GEN_CODE(&blockBuffer, temp_str1);
+                    GEN_CODE(&blockBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                    GEN_CODE(&blockBuffer, "\nPUSHS ");
+                    GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
                 }
 
                 if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token))
@@ -245,26 +285,48 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_INT && INT_DIV || MUL || PLUS_MINUS && T_INT      = T_INT
             else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+
                 switch (tmp_pop2){
                 case INT_DIV:
                     s_stackPush(str_stack, "INT_DIV");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nIDIVS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nIDIVS "); }
                     break;
+
                 case MUL:
                     s_stackPush(str_stack, "MUL");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nMULS "); }
                     break;
+
                 case PLUS:
                     s_stackPush(str_stack, "PLUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
                     break;
+
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
                     return true;
@@ -273,24 +335,41 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_INT && MUL || PLUS_MINUS && T_NUM = T_NUM
             else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+
                 switch (tmp_pop2){
                 case MUL:
                     s_stackPush(str_stack, "MUL");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nMULS "); }
                     break;
+
                 case PLUS:
                     s_stackPush(str_stack, "PLUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
                     break;
+
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
-                
+
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
+
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
                 else{
@@ -298,15 +377,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_NUM && MUL && T_INT || T_NUM     = T_NUM
             else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == MUL) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
                 s_stackPush(str_stack, "MUL");
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 // ### CODE GEN ###
+                if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
+                else{ GEN_CODE(&blockBuffer, "\nMULS "); }
 
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
@@ -315,13 +397,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_INT || T_NUM && DIV && T_INT || T_NUM = T_NUM
             else if( (tmp_top == T_INT || tmp_top == T_INT_V || tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == DIV) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
                 s_stackPush(str_stack, "DIV");
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
+
+                // ### CODE GEN ###
+                if(scope == 1){ GEN_CODE(&defBuffer, "\nDIVS "); }
+                else{ GEN_CODE(&blockBuffer, "\nDIVS "); }
 
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
@@ -330,20 +417,32 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_NUM && PLUS_MINUS && T_NUM || T_INT = T_NUM
             else if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+
                 switch (tmp_pop2){
                 case PLUS:
                     s_stackPush(str_stack, "PLUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
                     break;
+
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
@@ -352,6 +451,9 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
+            // TODO! POTIALTO CODEGEN
+
             // T_NUM || T_INT &&  REL_COMP && T_NUM || T_INT = T_BOOL
             else if( (tmp_top == T_NUM || tmp_top == T_NUM_V || tmp_top == T_INT || tmp_top == T_INT_V) && \
                      (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ || tmp_pop2 == R_LE || tmp_pop2 == R_GR || tmp_pop2 == R_LEQ || tmp_pop2 == R_GRQ) && \
@@ -378,8 +480,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_GRQ");
                     break;    
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -388,6 +490,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_STR && REL_COMP && T_STR = T_BOOL
             else if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ || tmp_pop2 == R_LE || tmp_pop2 == R_GR || tmp_pop2 == R_LEQ || tmp_pop2 == R_GRQ) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 s_stackPop(str_stack, &str1);
@@ -412,8 +515,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_GRQ");
                     break;    
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -436,8 +539,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
                     break;  
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -446,6 +549,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_NIL && REL_COMP_1 && T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL || T_STR_V || T_STR_V_NIL = T_BOOL   // ? TODO: týmto som si nie úplne istý
             else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL || tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL)){
                 s_stackPop(str_stack, &str1);
@@ -458,8 +562,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
                     break; 
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -468,6 +572,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL   &&   REL_COMP_1   &&   T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL = T_BOOL
             else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL) ){
                 s_stackPop(str_stack, &str1);
@@ -480,8 +585,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -490,6 +595,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_STR_V || T_STR_V_NIL   &&   REL_COMP_1   &&   T_STR_V || T_STR_V_NIL = T_BOOL
             else if( (tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL) ){
                 s_stackPop(str_stack, &str1);
@@ -502,8 +608,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -512,6 +618,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     return false;
                 }
             }
+
             // T_NIL   &&   REL_COMP_1   &&   T_NIL = T_BOOL
             else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
                 s_stackPop(str_stack, &str1);
@@ -524,8 +631,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
                     break;
                 }
-                s_stackTop(str_stack, &str_top);
-                printf("[%s %s %s]\n", str2, str_top, str1);
+                s_stackTop(str_stack, &str_top);                // TODO: Remove
+                printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
@@ -763,7 +870,7 @@ bool pExpression(int lvl){
             }
             else{
                 GEN_CODE(&blockBuffer, "\nPOPS TF@");
-                genVar(&defBuffer, sym_value);
+                genVar(&blockBuffer, sym_value);
             }
             return true;
         }
