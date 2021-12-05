@@ -151,6 +151,9 @@ token *GetToken(){
                 else if(c == EOF){
                     NewToken->type = TOKEN_EOF;
                     done = true;
+                }else if (c != '\t' && c != ' '){
+                    InsertChar(&newInput, c, &MemError);
+                    error = true;
                 }
                 break;
             case FSM_String:
@@ -215,16 +218,20 @@ token *GetToken(){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_StrEscB;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_StrEscA:
                 if((c >= '0') && (c <= '9')){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_StrEscC;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_StrEscB:
                 if((c >= '0') && (c <= '4')){
@@ -235,24 +242,30 @@ token *GetToken(){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_StrEscD;
                 }
-                else
+                else{
                     error = true;
+                    InsertChar(&newInput, c, &MemError);
+                }
                 break;
             case FSM_StrEscC:
                 if((c >= '0') && (c <= '9')){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_String;
                 }
-                else
+                else{
                     error = true;
+                    InsertChar(&newInput, c, &MemError);
+                }
                 break;
             case FSM_StrEscD:
                 if((c >= '0') && (c <= '5')){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_String;
                 }
-                else
+                else{
                     error = true;
+                    InsertChar(&newInput, c, &MemError);
+                }
                 break;
             case FSM_ID:
                 if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || (c == '_')){
@@ -303,8 +316,10 @@ token *GetToken(){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_NumEA;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_NumDot:
                 if((c == 'e') || (c == 'E')){
@@ -334,16 +349,20 @@ token *GetToken(){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_NumE;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_NumEB:
                 if((c >= '0') && (c <= '9')){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_NumE;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_NumE:
                 if((c >= '0') && (c <= '9')){
@@ -384,8 +403,10 @@ token *GetToken(){
                     NewToken->type = TOKEN_Concat;
                     done = true;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_Less:
                 if(c == '=')
@@ -419,8 +440,10 @@ token *GetToken(){
                     NewToken->type = TOKEN_NotEQ;
                     done = true;
                 }
-                else
+                else{
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
             case FSM_OneLineC:
                 if (c == '[')
                     FSM_State = FSM_OneLineOpenPar;
@@ -452,14 +475,18 @@ token *GetToken(){
                     FSM_State = FSM_MultilineClosePar;
                 else if(c == '\n')
                     (line)++;
-                else if(c == EOF)
+                else if(c == EOF){
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 break;
             case FSM_MultilineClosePar:
                 if(c == ']')
                     FSM_State = FSM_Start;
-                else if(c == EOF)
+                else if(c == EOF){
+                    InsertChar(&newInput, c, &MemError);
                     error = true;
+                }
                 else if(c == '\n')
                     (line)++;
                 else
@@ -474,7 +501,6 @@ token *GetToken(){
             MemError = true;
         else
             NewToken->content = strcpy(NewToken->content, newInput.str);
-        ungetc(c, stdin);
         NewToken->type = TOKEN_Err;
     }
     free(newInput.str);

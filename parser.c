@@ -925,7 +925,7 @@ bool pStatement(){
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMPIFEQ ELSE%")
             GEN_CODE(&blockBuffer, iftmp);
-            GEN_CODE(&blockBuffer, " ")
+            GEN_CODE(&blockBuffer, " TF@")
             GEN_CODE(&blockBuffer, newItem.name) //maybe freed somewhere, check it later
             GEN_CODE(&blockBuffer, " bool@false")
 
@@ -1013,7 +1013,7 @@ bool pStatement(){
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%")
             GEN_CODE(&blockBuffer, whtmp);
-            GEN_CODE(&blockBuffer, " ")
+            GEN_CODE(&blockBuffer, " TF@")
             GEN_CODE(&blockBuffer, newWhileItem.name) //maybe freed somewhere, check it later
             GEN_CODE(&blockBuffer, " bool@false")
 
