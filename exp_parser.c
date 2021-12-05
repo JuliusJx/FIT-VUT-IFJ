@@ -262,6 +262,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&defBuffer, temp_str2);    // POPS GF@%%%dtemp2
                     GEN_CODE(&defBuffer, "\nCONCAT ");
                     GEN_CODE(&defBuffer, temp_str1);
+                    GEN_CODE(&defBuffer, temp_str1);
                     GEN_CODE(&defBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
                     GEN_CODE(&defBuffer, "\nPUSHS ");
                     GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
@@ -272,6 +273,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&blockBuffer, "\nPOPS ");
                     GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
                     GEN_CODE(&blockBuffer, "\nCONCAT ");
+                    GEN_CODE(&defBuffer, temp_str1);
                     GEN_CODE(&blockBuffer, temp_str1);
                     GEN_CODE(&blockBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
                     GEN_CODE(&blockBuffer, "\nPUSHS ");
@@ -739,7 +741,7 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
             free(rm);
 
             // ### CODE GEN ###
-            char temp_str[20] = "\nPOPS TF@%%%dtemp1";
+            char temp_str[20] = "\nPOPS GF@%%%dtemp1";
             sprintf(temp_str, temp_str, plvl);
 
             if(scope == 1){
