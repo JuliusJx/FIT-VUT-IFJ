@@ -14,7 +14,9 @@
 
 extern int errCode;
 
-void errPrint( int, token*);
+#define ERR_CHECK(command,err_code,err_string) if(command){errPrint(err_code, cToken, err_string);freeToken(cToken);return false;}
+
+void errPrint( int, token*, char*);
 
 #endif
 
