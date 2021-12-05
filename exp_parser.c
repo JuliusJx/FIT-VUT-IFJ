@@ -225,6 +225,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 printf("POPS TF@%%%dtemp2\n",plvl);
                 printf("CONCAT TF@%%%dtemp1 TF@%%%dtemp1 TF@%%%dtemp2\n", plvl, plvl, plvl);
                 printf("PUSHS TF@%%%dtemp1\n", plvl);
+                
+                // ### CODE GEN ###
+                char temp_str1[20] = "TF@%%%dtemp1";
+                char temp_str2[20] = "TF@%%%dtemp2";
+                sprintf(temp_str1, temp_str1, plvl);
+                sprintf(temp_str2, temp_str2, plvl);
+                if(scope == 1){
+                    //GEN_CODE();   //TODO!
+                }
+                else{
+
+                }
 
                 if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token))
                     return true;
@@ -615,10 +627,21 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
             }
         case ER:    // else Error
             printf("ERROR5\n");
+
             s_stackPop(str_stack, &rm);
             free(rm);
+
             // ### CODE GEN ###
-            printf("POPS TF@%%%dtemp1\n",plvl);
+            char temp_str[20] = "\nPOPS TF@%%%dtemp1";
+            sprintf(temp_str, temp_str, plvl);
+
+            if(scope == 1){
+                GEN_CODE(&defBuffer, temp_str);
+            }
+            else{
+                GEN_CODE(&blockBuffer, temp_str);
+            }
+
             if(token == T_NIL || token == T_INT_V_NIL || token == T_NUM_V_NIL || token == T_STR_V_NIL){
                 errCode = 8;
                 return false;
@@ -736,7 +759,7 @@ bool pExpression(int lvl){
             if(scope == 1){
                 GEN_CODE(&defBuffer, "\nPOPS TF@");
                 genVar(&defBuffer, sym_value);          //TODO! TAKTO VYPISOVAT PREMENNE
-                
+
             }
             else{
                 GEN_CODE(&blockBuffer, "\nPOPS TF@");
