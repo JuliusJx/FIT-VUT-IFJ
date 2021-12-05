@@ -289,32 +289,32 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "INT_DIV");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nIDIVS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nIDIVS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nIDIVS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nIDIVS"); }
                     break;
 
                 case MUL:
                     s_stackPush(str_stack, "MUL");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nMULS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nMULS"); }
                     break;
 
                 case PLUS:
                     s_stackPush(str_stack, "PLUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS"); }
                     break;
 
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS"); }
                     break;
                 }
 
@@ -339,24 +339,24 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "MUL");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nMULS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nMULS"); }
                     break;
 
                 case PLUS:
                     s_stackPush(str_stack, "PLUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS"); }
                     break;
 
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS"); }
                     break;
                 }
 
@@ -380,8 +380,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 // ### CODE GEN ###
-                if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS "); }
-                else{ GEN_CODE(&blockBuffer, "\nMULS "); }
+                if(scope == 1){ GEN_CODE(&defBuffer, "\nMULS"); }
+                else{ GEN_CODE(&blockBuffer, "\nMULS"); }
 
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
@@ -400,8 +400,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
                 // ### CODE GEN ###
-                if(scope == 1){ GEN_CODE(&defBuffer, "\nDIVS "); }
-                else{ GEN_CODE(&blockBuffer, "\nDIVS "); }
+                if(scope == 1){ GEN_CODE(&defBuffer, "\nDIVS"); }
+                else{ GEN_CODE(&blockBuffer, "\nDIVS"); }
 
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
@@ -421,16 +421,16 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "PLUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nADDS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nADDS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nADDS"); }
                     break;
 
                 case MINUS:
                     s_stackPush(str_stack, "MINUS");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS "); }
-                    else{ GEN_CODE(&blockBuffer, "\nSUBS "); }
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nSUBS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nSUBS"); }
                     break;
                 }
 
@@ -457,22 +457,123 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 switch (tmp_pop2){
                 case R_EQ:
                     s_stackPush(str_stack, "R_EQ");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nEQS"); }
                     break;
+
                 case R_NEQ:
                     s_stackPush(str_stack, "R_NEQ");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS\nNOTS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nEQS\nNOTS"); }
                     break;
+
                 case R_LE:
                     s_stackPush(str_stack, "R_LE");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nLTS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nLTS"); }
                     break;
+
                 case R_GR:
                     s_stackPush(str_stack, "R_GR");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){ GEN_CODE(&defBuffer, "\nGTS"); }
+                    else{ GEN_CODE(&blockBuffer, "\nGTS"); }
                     break;
+
                 case R_LEQ:
                     s_stackPush(str_stack, "R_LEQ");
+
+                    // ### CODE GEN ###
+                    if(scope == 1){
+                        GEN_CODE(&defBuffer, "\nPOPS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nPOPS ");
+                        GEN_CODE(&defBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                        GEN_CODE(&defBuffer, "\nPUSHS ")
+                        GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nPUSHS ")
+                        GEN_CODE(&defBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+
+                        GEN_CODE(&defBuffer, "\nLTS");
+                        GEN_CODE(&defBuffer, "\nEQ ")
+                        GEN_CODE(&defBuffer, temp_str1);
+                        GEN_CODE(&defBuffer, temp_str1);
+                        GEN_CODE(&defBuffer, temp_str2);    // EQ GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                        GEN_CODE(&defBuffer, "\nPUSHS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nANDS");
+                    }
+                    else{
+                        GEN_CODE(&blockBuffer, "\nPOPS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nPOPS ");
+                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                        GEN_CODE(&blockBuffer, "\nPUSHS ")
+                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nPUSHS ")
+                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+
+                        GEN_CODE(&blockBuffer, "\nLTS");
+                        GEN_CODE(&blockBuffer, "\nEQ ")
+                        GEN_CODE(&blockBuffer, temp_str1);
+                        GEN_CODE(&blockBuffer, temp_str1);
+                        GEN_CODE(&blockBuffer, temp_str2);    // EQ GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                        GEN_CODE(&blockBuffer, "\nPUSHS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nANDS");
+                    }
                     break;
+
                 case R_GRQ:
                     s_stackPush(str_stack, "R_GRQ");
-                    break;    
+
+                    // ### CODE GEN ###
+                    if(scope == 1){
+                        GEN_CODE(&defBuffer, "\nPOPS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nPOPS ");
+                        GEN_CODE(&defBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                        GEN_CODE(&defBuffer, "\nPUSHS ")
+                        GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nPUSHS ")
+                        GEN_CODE(&defBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+
+                        GEN_CODE(&defBuffer, "\nGTS");
+                        GEN_CODE(&defBuffer, "\nEQ ")
+                        GEN_CODE(&defBuffer, temp_str1);
+                        GEN_CODE(&defBuffer, temp_str1);
+                        GEN_CODE(&defBuffer, temp_str2);    // EQ GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                        GEN_CODE(&defBuffer, "\nPUSHS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nANDS");
+                    }
+                    else{
+                        GEN_CODE(&blockBuffer, "\nPOPS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nPOPS ");
+                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
+                        GEN_CODE(&blockBuffer, "\nPUSHS ")
+                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nPUSHS ")
+                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+
+                        GEN_CODE(&blockBuffer, "\nGTS");
+                        GEN_CODE(&blockBuffer, "\nEQ ")
+                        GEN_CODE(&blockBuffer, temp_str1);
+                        GEN_CODE(&blockBuffer, temp_str1);
+                        GEN_CODE(&blockBuffer, temp_str2);    // EQ GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                        GEN_CODE(&blockBuffer, "\nPUSHS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nANDS");
+                    }
+                    break;
                 }
 
                 s_stackTop(str_stack, &str_top);                // TODO: Remove
