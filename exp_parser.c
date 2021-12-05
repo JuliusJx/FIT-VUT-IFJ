@@ -525,13 +525,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
 
             else{
                 printf("ERROR9\n");
-                errCode = 6;
+                if(errCode == 0)
+                    errCode = 6;
                 return false;
             }
 
         }
         else{
-            if(tmp_pop2 == STR_LEN && tmp_top == LE){   //TODO: PLS SPRAV TO
+            if(tmp_pop2 == STR_LEN && tmp_top == LE){
                 if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
                     s_stackPop(str_stack, &str1);
                     s_stackPush(str_stack, "STR_LEN");
@@ -548,7 +549,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
                 else{
                     printf("ERROR-12\n");
-                    errCode = 6;
+                    if(errCode == 0)
+                        errCode = 6;
                     return false;
                 }
             }
@@ -560,7 +562,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
                 else{
                     printf("ERROR4587\n");
-                    errCode = 2;
+                    if(errCode == 0)
+                        errCode = 2;
                     return false;
                 }
             }
@@ -572,7 +575,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
             else{
                 printf("ERROR8\n");
-                errCode = 2;
+                if(errCode == 0)
+                    errCode = 2;
                 return false;
             }
         }
@@ -709,6 +713,9 @@ bool pExpression(int lvl){
             break;
         case T_NIL:
             break;
+        case T_BOOL:
+            value = TYPE_INT;
+            break;
         default:
             printf("BOIII ERROR\n");
             break;
@@ -727,9 +734,12 @@ bool pExpression(int lvl){
             sym_value->isInit = false;
             return true;
         }
-        else{
+        else if(value == TYPE_NUM && sym_value->type == TYPE_INT){
             printf("ERROR-987\n");
             errCode = 4;
+            return false;
+        }
+        else{
             return false;
         }
     }
