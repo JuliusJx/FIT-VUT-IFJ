@@ -18,6 +18,7 @@
 
 #define GEN_CODE(buffer,string) if(!insertString((buffer),(string))){errCode = 99; return false;}
 
+extern contentInput startBuffer;
 extern contentInput defBuffer;
 extern contentInput blockBuffer;
 extern contentInput callBuffer;

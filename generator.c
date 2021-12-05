@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "generator.h"
 
-
+contentInput startBuffer = {.str = NULL, .index = 0, .length = 1};
 contentInput defBuffer = {.str = NULL, .index = 0, .length = 1};
 contentInput blockBuffer = {.str = NULL, .index = 0, .length = 1};
 contentInput callBuffer = {.str = NULL, .index = 0, .length = 1};
@@ -26,6 +26,8 @@ bool mallocBuffer( contentInput *buffer){
 }
 
 bool mallocBuffers(){
+    if(!mallocBuffer(&startBuffer))
+        return false;
     if(!mallocBuffer(&defBuffer))
         return false;
     if(!mallocBuffer(&blockBuffer))
@@ -45,6 +47,7 @@ void freeBuffer( contentInput *buffer){
 }
 
 void freeBuffers(){
+    freeBuffer(&startBuffer);
     freeBuffer(&defBuffer);
     freeBuffer(&blockBuffer);
     freeBuffer(&callBuffer);

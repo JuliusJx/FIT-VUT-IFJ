@@ -30,7 +30,7 @@ int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
     { LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| //       | 3
     { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| +        | 4
     { LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| -        | 5
-    { LE,LE,LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| ..       | 6
+    { LE,LE,LE,LE,LE,LE,LE,GR,GR,GR,GR,GR,GR,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| ..       | 6
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ==       | 7
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,LE,LE,LE,LE},   //| ~=       | 8
     { LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER,ER,ER,LE,GR,LE,LE,LE,LE,LE,LE,GR,ER,ER,ER,ER},   //| <        | 9
@@ -586,6 +586,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
 }
 
 bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
+    char *rm = NULL;
     int tmp_top = 0;
     stackTop(e_stack,  &tmp_top);
 
@@ -614,6 +615,10 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
             }
         case ER:    // else Error
             printf("ERROR5\n");
+            s_stackPop(str_stack, &rm);
+            free(rm);
+            // ### CODE GEN ###
+            printf("POPS TF@%%%dtemp1\n",plvl);
             if(token == T_NIL || token == T_INT_V_NIL || token == T_NUM_V_NIL || token == T_STR_V_NIL){
                 errCode = 8;
                 return false;
@@ -638,7 +643,9 @@ bool pExpression(int lvl){
 
     // ### CODE GEN ###
     if(lvl > gTmp){
-        printf("DEFVAR TF@%%%dtemp1\nDEFVAR TF@%%%dtemp2\n",plvl,plvl);
+        char temp_str[50] = "\nDEFVAR GF@%%%dtemp1\nDEFVAR GF@%%%dtemp2";
+        sprintf(temp_str, temp_str, plvl,plvl);
+        GEN_CODE(&startBuffer, temp_str);
         gTmp += 1;
     }
 
@@ -726,8 +733,15 @@ bool pExpression(int lvl){
                 sym_value->isInit = true;
 
             // ### CODE GEN ###
-            printf("POPS TF@[X]\n");
-
+            if(scope == 1){
+                GEN_CODE(&defBuffer, "\nPOPS TF@");
+                genVar(&defBuffer, sym_value);          //TODO! TAKTO VYPISOVAT PREMENNE
+                
+            }
+            else{
+                GEN_CODE(&blockBuffer, "\nPOPS TF@");
+                genVar(&defBuffer, sym_value);
+            }
             return true;
         }
         else if(value == T_NIL){
