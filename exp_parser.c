@@ -89,8 +89,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
         case TOKEN_Int:
             s_stackPush(str_stack, cToken->content);
             // ### CODE GEN ###
-            strcpy(temp_str, "\nPUSHS int@%d");
-            sprintf(temp_str, temp_str, atoi(cToken->content));
+            sprintf(temp_str, "\nPUSHS int@%d", atoi(cToken->content));
             if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
             else{ GEN_CODE(&blockBuffer, temp_str);}
 
@@ -98,8 +97,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
         case TOKEN_Num:
             s_stackPush(str_stack, cToken->content);
             // ### CODE GEN ###
-            strcpy(temp_str, "\nPUSHS float@%a");
-            sprintf(temp_str, temp_str, atof(cToken->content));     //TODO: Mino
+            sprintf(temp_str, "\nPUSHS float@%a", atof(cToken->content));
             if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
             else{ GEN_CODE(&blockBuffer, temp_str);}
 
@@ -107,8 +105,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
         case TOKEN_String:
             s_stackPush(str_stack, cToken->content);
             // ### CODE GEN ###
-            strcpy(temp_str, "\nPUSHS string@%s");
-            sprintf(temp_str, temp_str, cToken->content);
+            sprintf(temp_str, "\nPUSHS string@%s", cToken->content);
             if(scope == 1){ GEN_CODE(&defBuffer, temp_str);}
             else{ GEN_CODE(&blockBuffer, temp_str);}
 
@@ -117,8 +114,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
             return T_NIL;
         case TOKEN_ID:
             item = symGetItem(table, cToken->content, scope);
-            strcpy(temp_str, "\nPUSHS TF@%s");
-            sprintf(temp_str, temp_str, item->name);
+            sprintf(temp_str, "\nPUSHS TF@%s", item->name);
 
             if(item == NULL)
                 return T_DOLLAR;
@@ -457,6 +453,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                      (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V) ){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+
                 switch (tmp_pop2){
                 case R_EQ:
                     s_stackPush(str_stack, "R_EQ");
@@ -477,6 +474,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_GRQ");
                     break;    
                 }
+
                 s_stackTop(str_stack, &str_top);                // TODO: Remove
                 printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
@@ -847,7 +845,6 @@ bool pExpression(int lvl){
         case T_NIL:
             break;
         case T_BOOL:
-            value = TYPE_INT;
             break;
         default:
             printf("BOIII ERROR\n");
