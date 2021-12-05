@@ -889,7 +889,7 @@ bool pStatement(){
             freeToken(cToken);
 
             tableItem newItem = { 
-                .type = TYPE_INT,
+                .type = T_BOOL,
                 .isInit = true,
                 .isUsed = false,
                 .paramAmount = 0,
@@ -927,7 +927,7 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, iftmp);
             GEN_CODE(&blockBuffer, " ")
             GEN_CODE(&blockBuffer, newItem.name) //maybe freed somewhere, check it later
-            GEN_CODE(&blockBuffer, " int@0")
+            GEN_CODE(&blockBuffer, " bool@false")
 
             scope++;
             if(!pStatement())
@@ -981,7 +981,7 @@ bool pStatement(){
             freeToken(cToken);
 
             tableItem newWhileItem = { 
-                .type = TYPE_INT,
+                .type = T_BOOL,
                 .isInit = true,
                 .isUsed = false,
                 .paramAmount = 0,
@@ -1015,7 +1015,7 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, whtmp);
             GEN_CODE(&blockBuffer, " ")
             GEN_CODE(&blockBuffer, newWhileItem.name) //maybe freed somewhere, check it later
-            GEN_CODE(&blockBuffer, " int@0")
+            GEN_CODE(&blockBuffer, " bool@false")
 
             if((cToken = nextToken()) == NULL){
                 return false;

@@ -229,7 +229,7 @@ bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
     GEN_CODE(buffer, tmp)
     GEN_CODE(buffer, "\nMOVE TF@param%")
     GEN_CODE(buffer, tmp)
-    GEN_CODE(buffer, " TF@")
+    GEN_CODE(buffer, " LF@")
     if(!genVar(buffer, item))
         return false;
     return true;
