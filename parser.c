@@ -402,7 +402,9 @@ bool pBody(){
             break;
 
         case TOKEN_ID:
-
+            
+            GEN_CODE(&callBuffer, "\nCREATEFRAME")
+            GEN_CODE(&callBuffer, "\nPUSHFRAME")
             returnToken = cToken;
             if(!pCall())
                 return false;
@@ -1120,6 +1122,14 @@ bool pStatement(){
                 returnToken = cToken;
                 if(!pCall())
                     return false;
+                if(strcmp(item->name,"write")){
+                    if(scope == 1){
+                        GEN_CODE(&defBuffer,"\nPOPFRAME")
+                    }
+                    else{
+                        GEN_CODE(&blockBuffer,"\nPOPFRAME")
+                    }
+                }
             }
             else{
                 symstackPush(symStack, item);
