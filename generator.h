@@ -41,9 +41,13 @@ bool genOrd();
 
 bool genChr();
 
-bool genCallArg( contentInput*, int, token*);
+bool genCallArgLit( contentInput*, int, token*);
 
-bool genWrite( contentInput*, token*);
+bool genWriteLit( contentInput*, token*);
+
+bool genCallArgID( contentInput*, int, tableItem*);
+
+bool genWriteID( contentInput*, tableItem*);
 
 bool genVar( contentInput*, tableItem*);
 

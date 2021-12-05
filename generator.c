@@ -154,7 +154,7 @@ bool genChr(){
     return true;
 }
 
-bool genCallArg( contentInput *buffer, int counter, token *cToken){
+bool genCallArgLit( contentInput *buffer, int counter, token *cToken){
     GEN_CODE(buffer, "\nDEFVAR TF@param")
     char tmp[25];
     float ftmp;
@@ -183,26 +183,16 @@ bool genCallArg( contentInput *buffer, int counter, token *cToken){
         case TOKEN_Key_nil:
             GEN_CODE(buffer, " nil@nil")
             break;
-
-        case TOKEN_ID:
-            GEN_CODE(buffer, " LF@")
-            GEN_CODE(buffer, cToken->content)
-            break;
         
         default: return false;
     }
     return true;
 }
 
-bool genWrite( contentInput *buffer, token *cToken){
+bool genWriteLit( contentInput *buffer, token *cToken){
     char tmp[25];
     float ftmp;
     switch(cToken->type){
-        case TOKEN_ID:
-            GEN_CODE(buffer,"\nWRITE TF@")
-            GEN_CODE(buffer, cToken->content);
-            break;
-
         case TOKEN_Int:
             GEN_CODE(buffer,"\nWRITE int@")
             GEN_CODE(buffer, cToken->content);
@@ -229,6 +219,26 @@ bool genWrite( contentInput *buffer, token *cToken){
     return true;
 }
 
+bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
+    GEN_CODE(buffer, "\nDEFVAR TF@param")
+    char tmp[25];
+    sprintf(tmp, "%d", counter);
+    GEN_CODE(buffer, tmp)
+    GEN_CODE(buffer, "\nMOVE TF@param")
+    GEN_CODE(buffer, tmp)
+    GEN_CODE(buffer, " TF@")
+    if(!genVar(buffer, item))
+        return false;
+    return true;
+}
+
+bool genWriteID( contentInput *buffer, tableItem *item){
+    GEN_CODE(buffer, "\nWRITE TF@")
+    if(!genVar(buffer, item))
+        return false;
+    return true;
+}
+
 bool genVar( contentInput *buffer, tableItem *item){
     if(item->scope == 1){
         GEN_CODE(buffer, item->name)
@@ -246,20 +256,26 @@ bool genVar( contentInput *buffer, tableItem *item){
             stack storeStack;
             stackInit(&storeStack);
             while(cScope != item->scope){
-                stackPop(blockStack, &cIndex);
-                stackPush(&storeStack, cIndex);
+                if(!stackPop(blockStack, &cIndex))
+                    return false;
+                if(!stackPush(&storeStack, cIndex))
+                    return false;
                 cScope--;
             }
-            stackTop(blockStack, &blockIndex);
+            if(!stackTop(blockStack, &blockIndex))
+                return false;
             while(!stackIsEmpty(&storeStack)){
-                stackPop(&storeStack, &cIndex);
-                stackPush(blockStack, cIndex);
+                if(!stackPop(&storeStack, &cIndex))
+                    return false;
+                if(!stackPush(blockStack, cIndex))
+                    return false;
             }
         }
         char tmp[10];
         sprintf(tmp, "%d", blockIndex);
         GEN_CODE(buffer, tmp)
     }
+    return true;
 }
 
 // --End of file-
