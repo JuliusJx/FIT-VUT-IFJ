@@ -52,6 +52,8 @@ bool genWriteID( contentInput*, tableItem*);
 
 bool genVar( contentInput*, tableItem*);
 
+void generateCode();
+
 #endif
 
 // --End of file-

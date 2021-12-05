@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "symtable.h"
+#include "err_handler.h"
+#include "generator.h"
 
 //Function initializes symbol table
 void symInit( symTable *table){
@@ -82,6 +84,30 @@ void symDeleteAll( symTable *table){
         while ((*table)[i] != NULL){
             tmp = (*table)[i];
             (*table)[i] = tmp->next;
+            if(tmp->type == FUNC_ID){
+                if(tmp->isUsed && !tmp->isInit){
+                    fprintf(stderr,"3yzx"); //TODO - add error code
+                    errCode = 3;
+                }
+                if(tmp->isUsed){
+                    if(!strcmp(tmp->name, "tointeger")){
+                        if(!genToInteger())
+                            errCode = 99;
+                    }
+                    else if(!strcmp(tmp->name, "substr")){
+                        if(!genSubstr())
+                            errCode = 99;
+                    }
+                    else if(!strcmp(tmp->name, "ord")){
+                        if(!genOrd())
+                            errCode = 99;
+                    }
+                    else if(!strcmp(tmp->name, "chr")){
+                        if(!genChr())
+                            errCode = 99;
+                    }
+                }
+            }
             if(tmp->paramAmount > 0)
                 free(tmp->paramTypes);
             if(tmp->returnAmount > 0)

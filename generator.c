@@ -281,4 +281,11 @@ bool genVar( contentInput *buffer, tableItem *item){
     return true;
 }
 
+void generateCode(){
+    printf("%s", startBuffer.str);
+    printf("%s", callBuffer.str);
+    printf("%s", defBuffer.str);
+    freeBuffers();
+}
+
 // --End of file-

@@ -216,7 +216,7 @@ bool pProgram(){
         return false;
     }
     //###### CODEGEN ######
-    GEN_CODE(&callBuffer,".IFJcode21\n")
+    GEN_CODE(&startBuffer,".IFJcode21\n")
     //this sounds better than free(null) lol
     tokenID = cToken->content;
     freeToken(cToken);
@@ -237,7 +237,6 @@ bool pProgram(){
     }
     //###### CODEGEN ######
     GEN_CODE(&callBuffer, "\nJUMP %END")
-    GEN_CODE(&defBuffer, "\n\nLABEL %END")
     freeToken(cToken);
     return true;
 }
@@ -1448,6 +1447,7 @@ bool pStatement(){
                             
                             while(!symstackIsEmpty(symStack)){
                                 symstackPop(symStack, &tmp);
+                                tmp->isInit = true;
                                 if(tmp->type != item->returnTypes[index - 1] - '0'){
                                     fprintf(stderr,"5e"); //TODO - add error code
                                     errPrint(5, cToken);
@@ -1762,15 +1762,12 @@ int main(){
     mallocBuffers();
     insertBuiltIn();
     pProgram();
-    
-    //TODO REMOVE THIS AFTER TESTING 
-    printf("%s\n",callBuffer.str);
-    printf("%s\n",defBuffer.str);
-    freeBuffers();
 
     int dump;
     tableItem *ptrDump;
     symDeleteAll(table);
+    //###### CODEGEN ######
+    GEN_CODE(&defBuffer, "\n\nLABEL %END\n")
     while(!stackIsEmpty(argStack)){
         stackPop(argStack, &dump);
     }
@@ -1785,11 +1782,10 @@ int main(){
     free(symStack);
     free(blockStack);
     free(tokenID);
-    /*if (errCode){
-        printf("\ntest run failed\n");
-    }
-    else
-        printf("\ntest run successfuly\n");*/
+    
+    if(!errCode)
+        generateCode();
+    
     return errCode;
 }
 
