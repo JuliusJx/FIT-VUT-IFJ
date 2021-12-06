@@ -190,6 +190,34 @@ bool insertBuiltIn(){
     return true;
 }
 
+//Function sets type to 1 (TYPE_INT), 2 (TYPE_NUM), 3 (TYPE_STR) or 4 (TYPE_NIL)
+//based on token type   8             11            14              10
+//This is done due to the way we store types in symtable for returns and parameters ("1213" -> int,num,int,str) 
+bool reType(token *cToken, int *type){
+    switch(cToken->type){
+        
+        case TOKEN_Key_string:
+            *type = TYPE_STR;
+            break;
+        
+        case TOKEN_Key_integer:
+            *type = TYPE_INT;
+            break;
+
+        case TOKEN_Key_number:
+            *type = TYPE_NUM;
+            break;
+
+        case TOKEN_Key_nil:
+            *type = TYPE_NIL;
+            break;
+
+        default:
+            ERR_CHECK(true,2,"exp_type")
+    }
+    return true;
+}
+
 //Main program block, first parser called from main
 bool pProgram(){
     //cToken == current token
@@ -212,6 +240,7 @@ bool pProgram(){
     }
     //###### CODEGEN ######
     GEN_CODE(&startBuffer,".IFJcode21\n")
+    GEN_CODE(&startBuffer,"\nDEFVAR GF@dump%%\n") //Variable for discarding values
     tokenID = cToken->content;
     freeToken(cToken);
     //scope 0 represents scope, where all functions are defined
@@ -413,9 +442,10 @@ bool pBody(){
 
         //Global call (no variables defined in global scope)
         case TOKEN_ID:
-
-            GEN_CODE(&callBuffer, "\nCREATEFRAME")
-            GEN_CODE(&callBuffer, "\nPUSHFRAME")
+            if(strcmp(cToken->content,"reads") && strcmp(cToken->content,"readi") && strcmp(cToken->content,"readn")){
+                GEN_CODE(&callBuffer, "\nCREATEFRAME")
+                GEN_CODE(&callBuffer, "\nPUSHFRAME")
+            }
             returnToken = cToken;
             if(!pCall())
                 return false;
@@ -479,7 +509,7 @@ bool pCall(){
             }
             else if(scope == 1){
                 GEN_CODE(&defBuffer,"\n\
-                \nPUSHFRAME\                   
+                \nPUSHFRAME\
                 \nCREATEFRAME")
             }
             else{
@@ -526,9 +556,22 @@ bool pCall(){
 
         //###### CODEGEN ######
         //No need to create an empty frame for returns in scope 0 (no global variables allowed)
-        if(scope == 0){                         
-            GEN_CODE(&callBuffer,"\n\nCALL ")
-            GEN_CODE(&callBuffer,callFuncID->name)
+        if(scope == 0){
+            if(strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){                        
+                GEN_CODE(&callBuffer,"\n\nCALL ")
+                GEN_CODE(&callBuffer,callFuncID->name)
+            }else{
+                GEN_CODE(&callBuffer, "\nREAD GF@dump%%")
+                if(!strcmp(callFuncID->name,"reads")){
+                    GEN_CODE(&callBuffer, " string")
+                }
+                else if(!strcmp(callFuncID->name,"readi")){
+                    GEN_CODE(&callBuffer, " int")
+                }
+                else{
+                    GEN_CODE(&callBuffer, " float")
+                }
+            }
         }
         //In other scopes, we create an empty frame to which retvals will be stored and separated from rest of the variables
         //If fucntion had any arguments, they would also be stored in this frame (not here)
@@ -560,7 +603,7 @@ bool pCall(){
         return false;
     }
 
-    //Expecting left parenthesis after call arguments
+    //Expecting right parenthesis after call arguments
     ERR_CHECK(!cmpTokType(cToken, TOKEN_RightPar),2,"exp_rightpar")
 
     freeToken(cToken);
@@ -576,27 +619,8 @@ bool pParams(){
 
     //Change token types to types compatible with symtable
     int type;
-    switch(cToken->type){
-        
-        case TOKEN_Key_string:
-            type = TYPE_STR;
-            break;
-        
-        case TOKEN_Key_integer:
-            type = TYPE_INT;
-            break;
-
-        case TOKEN_Key_number:
-            type = TYPE_NUM;
-            break;
-
-        case TOKEN_Key_nil:
-            type = TYPE_NIL;
-            break;
-
-        default:
-            ERR_CHECK(true,2,"exp_type")//expected type key token
-    }
+    if(!reType(cToken, &type))
+        return false;
 
     //Insert parameter types to the function item in symtable
     tableItem *item = symGetItem(table, tokenID, 0);
@@ -631,31 +655,13 @@ bool pReturns( bool definition){
     static int returnIndex = 0;
     
     int type;
-    switch(cToken->type){
-        
-        case TOKEN_Key_string:
-            type = TYPE_STR;
-            break;
-        
-        case TOKEN_Key_integer:
-            type = TYPE_INT;
-            break;
+    if(!reType(cToken, &type))
+        return false;
 
-        case TOKEN_Key_number:
-            type = TYPE_NUM;
-            break;
-
-        case TOKEN_Key_nil:
-            type = TYPE_NIL;
-            break;
-
-        default:
-            ERR_CHECK(true,2,"exp_type")
-    }
     tableItem *item = symGetItem(table, tokenID, 0);
     //isInit is set to true right after argument check if the function has been previously declared
-    //It is set to true only after params if the function has not been declared before
-    //Based on this we know whether to control return types with what was in the declaration or whether we just add the return types to symtable
+    //It is set to true only after returns if the function has not been declared before
+    //Based on this we know whether to check compatibility of return types with what was in the declaration or whether we just add the return types to symtable
     if(item->isInit){
 
         ERR_CHECK(returnIndex >= item->returnAmount,3,"more_rets_in_def") //function has more returns in definitition than in declaration
@@ -700,6 +706,7 @@ bool pReturns( bool definition){
 }
 
 //Function parses arguments in function definition (types + names)
+//Function is only called during definitions and therefore always generates code (unlike pReturns) 
 bool pArgs(){
     
     token *cToken;
@@ -716,7 +723,7 @@ bool pArgs(){
     ERR_CHECK(symGetItem(table, cToken->content, scope) != NULL,3,"id_defined") //redefinition of ID
 
     
-    char *tmp = cToken->content; //maybe future error TODO something
+    char *tmp = cToken->content; 
     free(cToken); //freeToken() would also free content, which we need in tmp
 
     if((cToken = nextToken()) == NULL){
@@ -731,28 +738,12 @@ bool pArgs(){
     }
     
     int type;
-    switch(cToken->type){
-        
-        case TOKEN_Key_string:
-            type = TYPE_STR;
-            break;
-        
-        case TOKEN_Key_integer:
-            type = TYPE_INT;
-            break;
+    if(!reType(cToken, &type))
+        return false;
 
-        case TOKEN_Key_number:
-            type = TYPE_NUM;
-            break;
-
-        case TOKEN_Key_nil:
-            type = TYPE_NIL;
-            break;
-
-        default:
-            ERR_CHECK(true,2,"exp_type")
-    }
-
+    //isInit is set to true right after argument check if the function has been previously declared
+    //It is set to true only after returns if the function has not been declared before
+    //Based on this we know whether to check compatibility of argument types with what was in the declaration or whether we just add the argument types to symtable
     if(item->isInit){
         ERR_CHECK(paramIndex >= item->paramAmount,3,"more_params_in_def") //function has more parameters in definitition than in declaration
 
@@ -781,6 +772,8 @@ bool pArgs(){
         return false;
     }
     free(tmp);
+
+    //If comma is detected, recursive call
     if(!cmpTokType(cToken, TOKEN_Comma)){
         ERR_CHECK((paramIndex + 1) < item->paramAmount,3,"less_params_in_def")//function has less parameters in definitition than in declaration
         returnToken = cToken;
@@ -795,6 +788,7 @@ bool pArgs(){
     return true;
 }
 
+//Function parses arguments in function call
 bool pCallArgs(){
     token *cToken;
     static int paramCounter = 1;
@@ -803,8 +797,11 @@ bool pCallArgs(){
         return false;
     }
     int type;
+    //If argument is not an ID
     if(!cmpTokType(cToken, TOKEN_ID)){
+        //If argument is a literal
         if(cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
+            //If called function isn't write
             if(strcmp(callFuncID->name,"write")){
 
                 ERR_CHECK(!stackPop(argStack, &type),5,"too_many_args") //more arguments in call than expected
@@ -830,6 +827,7 @@ bool pCallArgs(){
                     }
                 }
                 //###### CODEGEN ######
+                //We select which buffer to write ouutput into based on scope
                 if(scope == 0){
                     ERR_CHECK(!genCallArgLit(&callBuffer, paramCounter, cToken),99,"internal")
                 }
@@ -840,6 +838,7 @@ bool pCallArgs(){
                     ERR_CHECK(!genCallArgLit(&blockBuffer, paramCounter, cToken),99,"internal")
                 }
             }
+            //If function is write and argument is a literal
             else{
                 if(scope == 0){
                     ERR_CHECK(!genWriteLit(&callBuffer,cToken),99,"internal")
@@ -852,15 +851,18 @@ bool pCallArgs(){
                 }
             }
         }
+        //If token is neither an ID nor a literal (ERROR)
         else{
             ERR_CHECK(true,2,"bad_arg") //argument is neither an ID nor a literal
         }
     }
-    else{//if arg is ID
+    //If argument is an ID
+    else{
         tableItem *item = symGetItem(table, cToken->content, scope);
 
         ERR_CHECK(item == NULL,3,"undef_id") //used id is undefined
 
+        //If function is write
         if(!strcmp(callFuncID->name,"write")){
             if((item->type == TYPE_INT) || (item->type == TYPE_NUM) || (item->type == TYPE_STR) || (item->type == TYPE_NIL)){
                 type = item->type;
@@ -869,6 +871,7 @@ bool pCallArgs(){
                 ERR_CHECK(true,5,"function_as_arg")//tried to pass function as argument
             }
         }
+        //If function is not write
         else{
             ERR_CHECK(!stackPop(argStack, &type),5,"too_many_args")
         }
@@ -876,6 +879,7 @@ bool pCallArgs(){
             ERR_CHECK((item->type != TYPE_INT) || (type != TYPE_NUM),5,"wrong_arg_type")
         }
         //###### CODEGEN ######
+        //Different generation for write (one liner)
         if(strcmp(callFuncID->name,"write")){
             if(scope == 1){
                 ERR_CHECK(!genCallArgID(&defBuffer, paramCounter, item),99,"internal")
@@ -896,7 +900,7 @@ bool pCallArgs(){
     
     freeToken(cToken);
 
-    //if next token is comma, recursive call
+    //If next token is comma, recursive call
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -915,6 +919,7 @@ bool pCallArgs(){
     return true;
 }
 
+//Function parses any statement in funtion body (variable definitions, assigns, if/while, calls)
 bool pStatement(){
     token *cToken;
     if((cToken = nextToken()) == NULL){
@@ -925,11 +930,13 @@ bool pStatement(){
     int blockIndex;
     int index;
     switch(cToken->type){
+        //If/else block
         case TOKEN_Key_if:
             blockCounter++;
             stackPush(blockStack, blockCounter);
             freeToken(cToken);
 
+            //Artificial variable which stores result of condition
             tableItem newItem = { 
                 .type = T_BOOL,
                 .isInit = true,
@@ -958,6 +965,7 @@ bool pStatement(){
             isCondition = true;
             scope++;
             symstackPush(symStack, &newItem);
+            //Call expression to resolve condition
             if(!pExpression(0))
                 return false;
             if((cToken = nextToken()) == NULL){
@@ -973,6 +981,7 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, newItem.name) //maybe freed somewhere, check it later
             GEN_CODE(&blockBuffer, " bool@false")
 
+            //Recursive call for if body
             if(!pStatement())
                 return false;
             
@@ -983,6 +992,8 @@ bool pStatement(){
             if((cToken = nextToken()) == NULL){
                 return false;
             }
+
+            //Else block
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_else),2,"exp_else")
             blockCounter++;
             stackPush(blockStack, blockCounter);
@@ -992,6 +1003,7 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, "\n\nLABEL ELSE%")
             GEN_CODE(&blockBuffer, iftmp);
 
+            //Recursive call for else body
             scope++;
             if(!pStatement())
                 return false;
@@ -1002,6 +1014,8 @@ bool pStatement(){
             if((cToken = nextToken()) == NULL){
                 return false;
             }
+
+            //End
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_end),2,"exp_end")
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\n\nLABEL ENDIF%")
@@ -1018,11 +1032,13 @@ bool pStatement(){
                 return false;
             break;
 
+        //While block
         case TOKEN_Key_while:
             blockCounter++;
             stackPush(blockStack, blockCounter);
             freeToken(cToken);
 
+            //Artificial variable which stores result of condition
             tableItem newWhileItem = { 
                 .type = T_BOOL,
                 .isInit = true,
@@ -1053,6 +1069,7 @@ bool pStatement(){
             scope++;
             isCondition = true;
             symstackPush(symStack, &newWhileItem);
+            //Call expression to resolve condition
             if(!pExpression(0))
                 return false;
             
@@ -1068,7 +1085,7 @@ bool pStatement(){
             }
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_do),2,"exp_do")
 
-            
+            //Recursive call for loop body
             if(!pStatement())
                 return false;
             symDeleteScope(table, scope);
@@ -1078,6 +1095,8 @@ bool pStatement(){
             if((cToken = nextToken()) == NULL){
                 return false;
             }
+
+            //End
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_end),2,"exp_end")
 
             //###### CODEGEN ######
@@ -1097,6 +1116,7 @@ bool pStatement(){
                 return false;
             break;
         
+        //Variable declaration/initialization
         case TOKEN_Key_local:
 
             freeToken(cToken);
@@ -1122,28 +1142,11 @@ bool pStatement(){
             if((cToken = nextToken()) == NULL){
                 return false;
             }
+
             int type;
-            switch(cToken->type){
-                
-                case TOKEN_Key_string:
-                    type = TYPE_STR;
-                    break;
-                
-                case TOKEN_Key_integer:
-                    type = TYPE_INT;
-                    break;
+            if(!reType(cToken, &type))
+                return false;
 
-                case TOKEN_Key_number:
-                    type = TYPE_NUM;
-                    break;
-
-                case TOKEN_Key_nil:
-                    type = TYPE_NIL;
-                    break;
-
-                default:
-                    ERR_CHECK(true,2,"exp_type")
-            }
             ERR_CHECK(!symInsert(table, tmp, type, false, scope),99,"internal")
             freeToken(cToken);
 
@@ -1161,10 +1164,12 @@ bool pStatement(){
                 return false;
             break;
 
+        //Assignment or call
         case TOKEN_ID:
             
             item = symGetItem(table, cToken->content, scope);
             ERR_CHECK(item == NULL,3,"undef_id")
+            //If function ID -> call
             if(item->type == FUNC_ID){
                 returnToken = cToken;
                 if(!pCall())
@@ -1178,12 +1183,14 @@ bool pStatement(){
                     }
                 }
             }
+            //If variable ID -> assignment
             else{
                 symstackPush(symStack, item);
                 freeToken(cToken);
 
                 if((cToken = nextToken()) == NULL)
                     return false;
+                //If comma call pID which pushes all variables to symStack
                 if(cmpTokType(cToken, TOKEN_Comma)){
                     freeToken(cToken);
                     if(!pID())
@@ -1195,24 +1202,30 @@ bool pStatement(){
                 
                 if((cToken = nextToken()) == NULL)
                     return false;
+
+                //Assign ("=") was found
                 if(cmpTokType(cToken, TOKEN_Assign)){
                     freeToken(cToken);
 
                     if((cToken = nextToken()) == NULL)
                         return false;
+                    //ID was found
                     if(cmpTokType(cToken, TOKEN_ID)){
                         item = symGetItem(table, cToken->content, scope);
                         ERR_CHECK(item == NULL,3,"undef_id")
+                        //ID on the right of "=" was a function
                         if(item->type == FUNC_ID){
                             tableItem *tmp;
                             
                             index = symstackCount(symStack);
                             ERR_CHECK(index > item->returnAmount,5,"too_many_targets")//function has less returns than there are variables before assign
                             
+                            //Start POPing variables on the left of "=" and set them as initialized 
                             while(!symstackIsEmpty(symStack)){
                                 symstackPop(symStack, &tmp);
                                 tmp->isInit = true;
                                 ERR_CHECK(tmp->type != item->returnTypes[index - 1] - '0',5,"wrong_ret_type")//TODO check the number/int compatibility
+                                //If it wasn't a one-liner
                                 if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
                                     //###### CODEGEN ######
                                     GEN_CODE(&postCallBuffer, "\nMOVE LF@")
@@ -1222,7 +1235,10 @@ bool pStatement(){
                                     sprintf(buf, "%d", index);
                                     GEN_CODE(&postCallBuffer, buf);
                                 }
+                                //One of the built-in one-liners
                                 else{
+                                    //If one of these functions is called in scope 0 its return value is put into the dump variable (no variables in scope 0)
+                                    //This means the function still executes, asks for input but otherwise does nothing
                                     if(scope == 1){
                                         GEN_CODE(&defBuffer, "\nREAD TF@")
                                         genVar(&defBuffer, tmp);
@@ -1295,6 +1311,7 @@ bool pStatement(){
                 return false;
             break;
 
+        //Return 
         case TOKEN_Key_return:
             index = 0;
             tableItem *item = symGetItem(table, tokenID, 0);
