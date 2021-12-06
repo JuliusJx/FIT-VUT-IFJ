@@ -434,8 +434,6 @@ bool pCall(){
 
     ERR_CHECK(item->type != FUNC_ID,3,"call_no_f_id") //only functions can be called (got variable)
 
-    ERR_CHECK((item->returnAmount > 0) && (scope == 0),5,"ret_in_main")//functions with returns cannot be called outside of function definitions (no global variables)
-
     callFuncID = item;
     symToggleUsed(table, cToken->content, 0); //all functions are defined at scope 0
     int i = item->paramAmount - 1;

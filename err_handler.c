@@ -136,12 +136,6 @@ void errPrint( int errType, token *token, char *err_string){
         printToken(token);
         fprintf(stderr, "\" is not a function ID and therefore cannot be called or used outside of function definitions.");
     }
-    else if (!strcmp(err_string, "ret_in_main")){
-        fprintf(stderr, "\"");
-        printToken(token);
-        fprintf(stderr, "\" is a function with returns and therefore cannot be called outside of function definitions.");
-
-    }
     else if (!strcmp(err_string, "write_no_par")){
         fprintf(stderr, "\"write\" function expects at least one argument in call.");
     }
