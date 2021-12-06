@@ -676,11 +676,11 @@ bool pReturns( bool definition){
     //If we are in a definition, generate code
     if(definition){
         //###### CODEGEN ######
-        GEN_CODE(&defBuffer, "\n\nDEFVAR LF@retval%")
+        GEN_CODE(&defBuffer, "\n\nDEFVAR LF@retval%%")
         char tmp[10];
         sprintf(tmp, "%d", returnIndex);
         GEN_CODE(&defBuffer, tmp)
-        GEN_CODE(&defBuffer, "\nMOVE LF@retval%")
+        GEN_CODE(&defBuffer, "\nMOVE LF@retval%%")
         GEN_CODE(&defBuffer, tmp)
         GEN_CODE(&defBuffer, " nil@nil")
     }
@@ -764,7 +764,7 @@ bool pArgs(){
     GEN_CODE(&defBuffer, tmp)
     char argTmp[10];
     sprintf(argTmp, "%d", paramIndex);
-    GEN_CODE(&defBuffer, " LF@param%")
+    GEN_CODE(&defBuffer, " LF@param%%")
     GEN_CODE(&defBuffer, argTmp)
 
     //if next token is comma, recursive call
@@ -1234,7 +1234,7 @@ bool pStatement(){
                                     //###### CODEGEN ######
                                     GEN_CODE(&postCallBuffer, "\nMOVE LF@")
                                     genVar(&postCallBuffer, tmp);
-                                    GEN_CODE(&postCallBuffer, " TF@retval%");
+                                    GEN_CODE(&postCallBuffer, " TF@retval%%");
                                     char buf[10]; //max number of return values is 999 999 999 lol
                                     sprintf(buf, "%d", index);
                                     GEN_CODE(&postCallBuffer, buf);
@@ -1334,8 +1334,8 @@ bool pStatement(){
                     .next = NULL };
                 char rettmp[10];
                 sprintf(rettmp, "%d", index);
-                ERR_CHECK((newItem.name = malloc(8 * sizeof(char))) == NULL,99,"internal")
-                strcpy(newItem.name, "retval%\0");
+                ERR_CHECK((newItem.name = malloc(9 * sizeof(char))) == NULL,99,"internal")
+                strcpy(newItem.name, "retval%%\0");
                 ERR_CHECK((newItem.name = realloc(newItem.name, strlen(newItem.name) + strlen(rettmp) + 1)) == NULL,99,"internal")
                 strcat(newItem.name, rettmp);
                 symstackPush(symStack, &newItem);
@@ -1390,7 +1390,7 @@ bool pInit(){
                 //###### CODEGEN ######
                 GEN_CODE(&postCallBuffer, "\nMOVE LF@")
                 genVar(&postCallBuffer, tmp);
-                GEN_CODE(&postCallBuffer, " TF@retval%1");
+                GEN_CODE(&postCallBuffer, " TF@retval%%1");
                 GEN_CODE(&postCallBuffer, "\nPOPFRAME")
                 if(!pCall())
                     return false;
@@ -1452,6 +1452,17 @@ bool pInit(){
     }
     else{
         ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_nil),5,"bad_assign")//trying to init using something ither than funcID/ID/literal/expression/nil
+        symstackPop(symStack, &tmp);
+        if(scope == 1){
+            GEN_CODE(&defBuffer, "\nMOVE TF@")
+            genVar(&defBuffer, tmp);
+            GEN_CODE(&defBuffer, " nil@nil")
+        }
+        else{
+            GEN_CODE(&blockBuffer, "\nMOVE TF@")
+            genVar(&blockBuffer, tmp);
+            GEN_CODE(&blockBuffer, " nil@nil")
+        }
     }
     return true;
 }

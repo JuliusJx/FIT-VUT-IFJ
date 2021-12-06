@@ -70,10 +70,10 @@ bool genToInteger(){
     if(!insertString(&defBuffer,"\
     \nLABEL tointeger\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval%1\
-    \nMOVE LF@retval%1 nil@nil\
-    \nJUMPIFEQ tointeger_end LF@param%1 nil@nil\
-    \nFLOAT2INT LF@retval%1 LF@param%1\
+    \nDEFVAR LF@retval%%1\
+    \nMOVE LF@retval%%1 nil@nil\
+    \nJUMPIFEQ tointeger_end LF@param%%1 nil@nil\
+    \nFLOAT2INT LF@retval%%1 LF@param%%1\
     \nLABEL tointeger_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -85,30 +85,37 @@ bool genSubstr(){
     if(!insertString(&defBuffer, "\
     \nLABEL substr\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval%1\
-    \nMOVE LF@retval%1 string@\
-    \nFLOAT2INT LF@param%2 LF@param%2\
-    \nFLOAT2INT LF@param%3 LF@param%3\
+    \nDEFVAR LF@retval%%1\
+    \nMOVE LF@retval%%1 string@\
+    \nDEFVAR TF@help%check\
+    \nTYPE TF@help%check LF@param%%2\
+    \nJUMPIFEQ checkp2%substr TF@help%check string@int\
+    \nFLOAT2INT LF@param%%2 LF@param%%2\
+    \nLABEL checkp2%substr\
+    \nTYPE TF@help%check LF@param%%3\
+    \nJUMPIFEQ checkp3%substr TF@help%check string@int\
+    \nFLOAT2INT LF@param%%3 LF@param%%3\
+    \nLABEL checkp3%substr\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param%2 int@1\
+    \nLT TF@cond LF@param%%2 int@1\
     \nJUMPIFEQ substr_end TF@cond bool@true\
-    \nGT TF@cond LF@param%2 LF@param%3\
+    \nGT TF@cond LF@param%%2 LF@param%%3\
     \nJUMPIFEQ substr_end TF@cond bool@true\
     \nDEFVAR TF@strlen\
-    \nSTRLEN TF@strlen LF@param%1\
-    \nGT TF@cond LF@param%3 TF@strlen\
+    \nSTRLEN TF@strlen LF@param%%1\
+    \nGT TF@cond LF@param%%3 TF@strlen\
     \nJUMPIFEQ substr_end TF@cond bool@true\
     \nDEFVAR TF@counter\
     \nDEFVAR TF@tmp\
     \nMOVE TF@tmp string@\
     \nMOVE TF@counter int@0\
-    \nSUB LF@param%2 LF@param%2 int@1\
+    \nSUB LF@param%%2 LF@param%%2 int@1\
     \nLABEL substr_loop\
-    \nGETCHAR TF@tmp LF@param%1 LF@param%2\
-    \nCONCAT LF@retval%1 LF@retval%1 TF@tmp\
+    \nGETCHAR TF@tmp LF@param%%1 LF@param%%2\
+    \nCONCAT LF@retval%%1 LF@retval%%1 TF@tmp\
     \nADD TF@counter TF@counter int@1\
-    \nADD LF@param%2 LF@param%2 int@1\
-    \nJUMPIFNEQ substr_loop LF@param%2 lf@param%3\
+    \nADD LF@param%%2 LF@param%%2 int@1\
+    \nJUMPIFNEQ substr_loop LF@param%%2 lf@param%%3\
     \nLABEL substr_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -120,17 +127,17 @@ bool genOrd(){
     if(!insertString(&defBuffer,"\
     \nLABEL ord\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval%1\
-    \nMOVE LF@retval%1 nil@nil\
+    \nDEFVAR LF@retval%%1\
+    \nMOVE LF@retval%%1 nil@nil\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param%2 int@1\
+    \nLT TF@cond LF@param%%2 int@1\
     \nJUMPIFEQ ord_end TF@cond bool@true\
     \nDEFVAR TF@strlen\
-    \nSTRLEN TF@strlen LF@param%1\
-    \nGT TF@cond LF@param%2 TF@strlen\
+    \nSTRLEN TF@strlen LF@param%%1\
+    \nGT TF@cond LF@param%%2 TF@strlen\
     \nJUMPIFEQ ord_end TF@cond bool@true\
-    \nSUB LF@param%2 LF@param%2 int@1\
-    \nSTRI2INT LF@retval%1 LF@param%1 LF@param%2\
+    \nSUB LF@param%%2 LF@param%%2 int@1\
+    \nSTRI2INT LF@retval%%1 LF@param%%1 LF@param%%2\
     \nLABEL ord_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -142,14 +149,14 @@ bool genChr(){
     if(!insertString(&defBuffer, "\
     LABEL chr\
     \nCREATEFRAME\
-    \nDEFVAR LF@retval%1\
-    \nMOVE LF@retval%1 nil@nil\
+    \nDEFVAR LF@retval%%1\
+    \nMOVE LF@retval%%1 nil@nil\
     \nDEFVAR TF@cond\
-    \nLT TF@cond LF@param%1 int@0\
+    \nLT TF@cond LF@param%%1 int@0\
     \nJUMPIFEQ chr_end TF@cond bool@true\
-    \nGT TF@cond LF@param%1 int@255\
+    \nGT TF@cond LF@param%%1 int@255\
     \nJUMPIFEQ chr_end TF@cond bool@true\
-    \nINT2CHAR LF@retval%1 LF@param%1\
+    \nINT2CHAR LF@retval%%1 LF@param%%1\
     \nLABEL chr_end\
     \nPOPFRAME\
     \nRETURN"))
@@ -158,12 +165,12 @@ bool genChr(){
 }
 
 bool genCallArgLit( contentInput *buffer, int counter, token *cToken){
-    GEN_CODE(buffer, "\nDEFVAR TF@param%")
+    GEN_CODE(buffer, "\nDEFVAR TF@param%%")
     char tmp[25];
     float ftmp;
     sprintf(tmp, "%d", counter);
     GEN_CODE(buffer, tmp)
-    GEN_CODE(buffer, "\nMOVE TF@param%")
+    GEN_CODE(buffer, "\nMOVE TF@param%%")
     GEN_CODE(buffer, tmp)
     switch(cToken->type){
         case TOKEN_String:
@@ -197,23 +204,23 @@ bool genWriteLit( contentInput *buffer, token *cToken){
     float ftmp;
     switch(cToken->type){
         case TOKEN_Int:
-            GEN_CODE(buffer,"\nWRITE int@")
+            GEN_CODE(buffer,"\n\nWRITE int@")
             GEN_CODE(buffer, cToken->content);
             break;
 
         case TOKEN_Num:
-            GEN_CODE(buffer,"\nWRITE float@")
+            GEN_CODE(buffer,"\n\nWRITE float@")
             ftmp = atof(cToken->content);
             snprintf(tmp, 25,"%a", ftmp);
             GEN_CODE(buffer, tmp);
             break;
         
         case TOKEN_Key_nil:
-            GEN_CODE(buffer,"\nWRITE nil@nil")
+            GEN_CODE(buffer,"\n\nWRITE string@nil")
             break;
             
         case TOKEN_String:
-            GEN_CODE(buffer,"\nWRITE string@")
+            GEN_CODE(buffer,"\n\nWRITE string@")
             GEN_CODE(buffer, cToken->content);
             break;
 
@@ -223,11 +230,11 @@ bool genWriteLit( contentInput *buffer, token *cToken){
 }
 
 bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
-    GEN_CODE(buffer, "\nDEFVAR TF@param%")
+    GEN_CODE(buffer, "\nDEFVAR TF@param%%")
     char tmp[25];
     sprintf(tmp, "%d", counter);
     GEN_CODE(buffer, tmp)
-    GEN_CODE(buffer, "\nMOVE TF@param%")
+    GEN_CODE(buffer, "\nMOVE TF@param%%")
     GEN_CODE(buffer, tmp)
     GEN_CODE(buffer, " LF@")
     if(!genVar(buffer, item))
@@ -236,9 +243,22 @@ bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
 }
 
 bool genWriteID( contentInput *buffer, tableItem *item){
+    static int counter = 0;
+    char tmp[25];
+    sprintf(tmp, "%d", counter);
+    GEN_CODE(buffer, "\n\nJUMPIFNEQ nilWRITE%")
+    GEN_CODE(buffer, tmp)
+    GEN_CODE(buffer, " TF@")
+    if(!genVar(buffer, item))
+        return false;
+    GEN_CODE(buffer, " nil@nil")
+    GEN_CODE(buffer, "\nWRITE string@nil")
+    GEN_CODE(buffer, "\nLABEL nilWRITE%")
+    GEN_CODE(buffer, tmp)
     GEN_CODE(buffer, "\nWRITE TF@")
     if(!genVar(buffer, item))
         return false;
+    counter++;
     return true;
 }
 
