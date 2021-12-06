@@ -71,7 +71,7 @@ void errPrint( int errType, token *token, char *err_string){
         printToken(token);
         token = GetToken();
         printToken(token);
-        fprintf(stderr, "\" could not be identiied! ");
+        fprintf(stderr, "\" could not be identified! ");
     }else if (!strcmp(err_string, "exp_require")){
         fprintf(stderr, "Missing keyword \"require\" needed at the beginning of program! ");
         RECEIVED
@@ -161,12 +161,62 @@ void errPrint( int errType, token *token, char *err_string){
     else if (!strcmp(err_string, "less_rets_in_def")){
         fprintf(stderr, "Function was declared with more returns than is defined here.");
     }
-    /*else if (!strcmp(err_string, "redef_id")){
-        
+    else if (!strcmp(err_string, "more_params_in_def")){
+        fprintf(stderr, "Function was declared with less arguments than is defined here.");
     }
-    else if (!strcmp(err_string, )){
-
-    }*/
+    else if (!strcmp(err_string, "diff_params_in_def")){
+        fprintf(stderr, "Function was declared with less arguments than is defined here.");
+    }
+    else if (!strcmp(err_string, "less_params_in_def")){
+        fprintf(stderr, "Function was declared with less arguments than is defined here.");
+    }
+    else if (!strcmp(err_string, "too_many_args")){
+        fprintf(stderr, "Too many arguments in function call. ");
+    }
+    else if (!strcmp(err_string, "wrong_arg_type")){
+        fprintf(stderr, "Argument \"");
+        printToken(token);
+        fprintf(stderr, " is the wrong type. ");
+    }
+    else if (!strcmp(err_string, "function_as_arg")){
+        fprintf(stderr, "ID \"");
+        printToken(token);
+        fprintf(stderr, " is a function and therefore cannot be used as an argument. ");
+    }
+    else if (!strcmp(err_string, "not_enough_args")){
+        fprintf(stderr, "Not enough arguments in function call. ");
+    }
+    else if (!strcmp(err_string, "exp_then")){
+        fprintf(stderr, "Expected \"then\". ");
+        RECEIVED
+    }
+    else if (!strcmp(err_string, "exp_else")){
+        fprintf(stderr, "Expected \"else\". ");
+        RECEIVED
+    }
+    else if (!strcmp(err_string, "exp_do")){
+        fprintf(stderr, "Expected \"do\". ");
+        RECEIVED
+    }
+    else if (!strcmp(err_string, "too_many_targets")){
+        fprintf(stderr, "Function does not return enough values. ");
+    }
+    else if (!strcmp(err_string, "wrong_ret_type")){
+        fprintf(stderr, "Wrong return type. ");
+    }
+    else if (!strcmp(err_string, "bad_assign")){
+        fprintf(stderr, "\"");
+        printToken(token);
+        fprintf(stderr, "\" cannot be assigned to the variable bacause it's not a function, variable or literal. ))");
+    }
+    else if (!strcmp(err_string, "missing_assign")){
+        fprintf(stderr, "Missing the right side of assignment.");
+    }
+    else if (!strcmp(err_string, "func_as_target")){
+        fprintf(stderr, "\"");
+        printToken(token);
+        fprintf(stderr, "\" is a function and therefore cannot store a return value. ");
+    }
 
     
     fprintf(stderr, "\n");
