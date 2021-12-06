@@ -908,6 +908,7 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
 
 bool pExpression(int lvl){
     stringValid = true;
+    char *str_stack_top = NULL;
     int value = -1;
     tableItem *sym_value;
     plvl = lvl;
@@ -979,6 +980,31 @@ bool pExpression(int lvl){
         }
         else{
             printf("ERROR456546\n");
+        }
+
+        if(!s_stackIsEmpty(str_stack)){
+            char temp_str[50] = "";
+
+            s_stackTop(str_stack, &str_stack_top);
+            if(!strcmp(str_stack_top, "1")){
+                
+                value = T_BOOL;
+                sprintf(temp_str, "GF@%%%dtemp1", plvl);
+
+                // ### CODE GEN ###
+                GEN_CODE(&blockBuffer, "\nPOPS ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, "\nPUSHS bool@true");
+            }
+            else if(!strcmp(str_stack_top, "0")){
+                value = T_BOOL;
+                sprintf(temp_str, "GF@%%%dtemp1", plvl);
+
+                // ### CODE GEN ###
+                GEN_CODE(&blockBuffer, "\nPOPS ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, "\nPUSHS bool@false");
+            }
         }
 
         symstackPop(symStack, &sym_value);
