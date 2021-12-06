@@ -21,6 +21,7 @@ tableItem *callFuncID = NULL;
 int scope = 0;
 int blockCounter = 0;
 stack *blockStack;
+bool isCondition = false;
 
 bool cmpTokType( token *token, int cmpType){
     if(token->type == cmpType)
@@ -913,6 +914,7 @@ bool pStatement(){
             GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
             GEN_CODE(&defBuffer, newItem.name)
             
+            isCondition = true;
             symstackPush(symStack, &newItem);
             if(!pExpression(0))
                 return false;
@@ -1006,6 +1008,8 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newWhileItem.name)
             GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%")
             GEN_CODE(&blockBuffer, whtmp);
+
+            isCondition = true;
             symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
                 return false;
