@@ -12,23 +12,28 @@
 #include <string.h>
 #include "parser.h"
 
-token *returnToken = NULL;
-symTable *table;
-stack *argStack;
-symstack *symStack;
-char *tokenID = NULL; //maybe rename to functionID
-tableItem *callFuncID = NULL;
-int scope = 0;
-int blockCounter = 0;
-stack *blockStack;
-bool isCondition = false;
+token *returnToken = NULL;      //This variable holds returned token, nextToken first takes token from this variable before calling getToken
+symTable *table;                //Symtable
+stack *argStack;                //Stack holds expected argument types for called function
+symstack *symStack;             //Stack holds variables before assign ("=")
+char *tokenID = NULL;           //Variable holds function ID in cases where we moved onto other tokens but still need it
+tableItem *callFuncID = NULL;   //Variable holds symtable item of functions during calls 
+int scope = 0;                  //Variable holds the current scope, increments when entering a block and decrements when leaving 
+                                //0 = main block with function definitions and calls, 1 = function definition bodies, >1 = if/while blocks
+int blockCounter = 0;           //Variable holds amount of blocks that have been created to ensure a unique name for variables in IFJcode21 
+stack *blockStack;              //Stack holds recently visited block numbers, pop when leaving a block, push when entering 
+bool isCondition = false;       //Flag for deciding whether parsed expression is an if/while condition
 
+
+//Function compares token type with cmpType
 bool cmpTokType( token *token, int cmpType){
     if(token->type == cmpType)
         return true;
     return false;
 }
 
+//Function returns a new token
+//First retrieves token from returnToken, if empty calls function GetToken to receive new token from stdin
 token *nextToken(){
     token *tmp;
     if (returnToken != NULL){
@@ -45,6 +50,7 @@ token *nextToken(){
     return tmp;
 }
 
+//Function frees token and it's content
 void freeToken( token *token){
     if((token->type == TOKEN_ID) || (token->type == TOKEN_String) || (token->type == TOKEN_Err)){
         if(tokenID != token->content)
@@ -53,6 +59,7 @@ void freeToken( token *token){
     free(token);
 }
 
+//Function inserts all builtin functions into symtable
 bool insertBuiltIn(){
     tableItem *item;
     if(!symInsert(table, "reads", FUNC_ID, true, 0)){
@@ -183,7 +190,7 @@ bool insertBuiltIn(){
     return true;
 }
 
-
+//Main program block, first parser called from main
 bool pProgram(){
     //cToken == current token
     token *cToken;
@@ -205,7 +212,6 @@ bool pProgram(){
     }
     //###### CODEGEN ######
     GEN_CODE(&startBuffer,".IFJcode21\n")
-    //this sounds better than free(null) lol
     tokenID = cToken->content;
     freeToken(cToken);
     //scope 0 represents scope, where all functions are defined
@@ -225,6 +231,7 @@ bool pProgram(){
     return true;
 }
 
+//Body of the program (global calls and function declarations/definitions)
 bool pBody(){
     token *cToken;
     if((cToken = nextToken()) == NULL){
@@ -232,6 +239,7 @@ bool pBody(){
     }
     tableItem *item;
     switch(cToken->type){
+        //Function declaration
         case TOKEN_Key_global:
             
             freeToken(cToken);
@@ -306,6 +314,7 @@ bool pBody(){
             }
             break;
 
+        //Function definition
         case TOKEN_Key_function:
             
             freeToken(cToken);
@@ -402,6 +411,7 @@ bool pBody(){
             }
             break;
 
+        //Global call (no variables defined in global scope)
         case TOKEN_ID:
 
             GEN_CODE(&callBuffer, "\nCREATEFRAME")
@@ -420,12 +430,15 @@ bool pBody(){
     return true;
 }
 
+//Function calls
+//This function is called only after we are sure that a cuntion call is about to occur
 bool pCall(){
     token *cToken;
     if((cToken = nextToken()) == NULL){
         return false;
     }
 
+    //Initial error checks
     ERR_CHECK(!cmpTokType(cToken, TOKEN_ID),2,"exp_id")
 
     tableItem *item = symGetItem(table, cToken->content, 0);
@@ -435,7 +448,9 @@ bool pCall(){
     ERR_CHECK(item->type != FUNC_ID,3,"call_no_f_id") //only functions can be called (got variable)
 
     callFuncID = item;
-    symToggleUsed(table, cToken->content, 0); //all functions are defined at scope 0
+    symToggleUsed(table, cToken->content, 0); //Set the function as used
+
+    //Push all function parameter types to argStack
     int i = item->paramAmount - 1;
     while (i >= 0){
         stackPush(argStack, item->paramTypes[i--] - '0');
@@ -446,24 +461,25 @@ bool pCall(){
         return false;
     }
 
-    ERR_CHECK(!cmpTokType(cToken, TOKEN_LeftPar),2,"exp_leftpar")
+    ERR_CHECK(!cmpTokType(cToken, TOKEN_LeftPar),2,"exp_leftpar") //Expecting left parenthesis after function ID
 
     freeToken(cToken);
 
     if((cToken = nextToken()) == NULL){
         return false;
     }
+    //An argument was found in function call
     if(cmpTokType(cToken, TOKEN_ID) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Key_nil)){
         returnToken = cToken;
         //###### CODEGEN ######
-        if(strcmp(callFuncID->name,"write")){
-            if(scope == 0){                 // TODO: Removed pushframe
+        if(strcmp(callFuncID->name,"write")){  //If the function is not "write"
+            if(scope == 0){                    //During global calls, there is no TF yet and therefore nothing to push  
                 GEN_CODE(&callBuffer,"\n\
                 \nCREATEFRAME")
             }
             else if(scope == 1){
                 GEN_CODE(&defBuffer,"\n\
-                \nPUSHFRAME\
+                \nPUSHFRAME\                   
                 \nCREATEFRAME")
             }
             else{
@@ -473,9 +489,11 @@ bool pCall(){
             }
 
         }
+        //pCallArgs resolves arguments, compares types, generates code before a function call
         if(!pCallArgs())
             return false;
         //###### CODEGEN ######
+        //Functions write/reads/readi/readn have one-line counterparts in IFJcode21 and do not need to be called like other functions
         if(strcmp(callFuncID->name,"write") && strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){
             if(scope == 1){
                 GEN_CODE(&defBuffer,"\
@@ -494,23 +512,29 @@ bool pCall(){
                 \nPUSHFRAME\
                 \n\nCALL ")
                 GEN_CODE(&blockBuffer,callFuncID->name)
-            }//maybe add condition for scope == 0 TODO
+            }
         }
         
     }
+    //No argument was found in function call
     else{
 
+        //No argument error checks
         ERR_CHECK(!strcmp(item->name, "write"),5,"write_no_par") //write needs at least 1 param
 
         ERR_CHECK(item->paramAmount > 0,5,"not_enough_pars") //function expected more params
 
         //###### CODEGEN ######
-        if(scope == 0){
+        //No need to create an empty frame for returns in scope 0 (no global variables allowed)
+        if(scope == 0){                         
             GEN_CODE(&callBuffer,"\n\nCALL ")
             GEN_CODE(&callBuffer,callFuncID->name)
         }
+        //In other scopes, we create an empty frame to which retvals will be stored and separated from rest of the variables
+        //If fucntion had any arguments, they would also be stored in this frame (not here)
         else{
-            if(strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){ //if not read-s/i/n
+            //One liners do not need this frame for returns as they can be simply printed as READ TF@variable [type]@
+            if(strcmp(callFuncID->name,"reads") && strcmp(callFuncID->name,"readi") && strcmp(callFuncID->name,"readn")){ 
                 if(scope == 1){
                     GEN_CODE(&defBuffer,"\n\
                     \nPUSHFRAME\
@@ -536,18 +560,21 @@ bool pCall(){
         return false;
     }
 
+    //Expecting left parenthesis after call arguments
     ERR_CHECK(!cmpTokType(cToken, TOKEN_RightPar),2,"exp_rightpar")
 
     freeToken(cToken);
     return true;
 }
 
+//Function parses parameters listed in function declaration (only types in declaration)
 bool pParams(){
     token *cToken;
     if((cToken = nextToken()) == NULL){
         return false;
     }
 
+    //Change token types to types compatible with symtable
     int type;
     switch(cToken->type){
         
@@ -570,6 +597,8 @@ bool pParams(){
         default:
             ERR_CHECK(true,2,"exp_type")//expected type key token
     }
+
+    //Insert parameter types to the function item in symtable
     tableItem *item = symGetItem(table, tokenID, 0);
 
     ERR_CHECK(!symAddParam(item, type),99,"internal")
@@ -592,6 +621,8 @@ bool pParams(){
     return true;
 }
 
+//Function parses return types in definition/declaration
+//Generates code only in definition (based on bool argument) 
 bool pReturns( bool definition){
     token *cToken;
     if((cToken = nextToken()) == NULL){
@@ -622,6 +653,9 @@ bool pReturns( bool definition){
             ERR_CHECK(true,2,"exp_type")
     }
     tableItem *item = symGetItem(table, tokenID, 0);
+    //isInit is set to true right after argument check if the function has been previously declared
+    //It is set to true only after params if the function has not been declared before
+    //Based on this we know whether to control return types with what was in the declaration or whether we just add the return types to symtable
     if(item->isInit){
 
         ERR_CHECK(returnIndex >= item->returnAmount,3,"more_rets_in_def") //function has more returns in definitition than in declaration
@@ -633,6 +667,7 @@ bool pReturns( bool definition){
         returnIndex++;
         ERR_CHECK(!symAddReturn(item, type),99,"internal")
     }
+    //If we are in a definition, generate code
     if(definition){
         //###### CODEGEN ######
         GEN_CODE(&defBuffer, "\n\nDEFVAR LF@retval%")
@@ -646,7 +681,7 @@ bool pReturns( bool definition){
 
     freeToken(cToken);
 
-    //if next token is comma, recursive call
+    //If next token is comma, recursive call with the same definition flag as when we first entered the function
     if((cToken = nextToken()) == NULL){
         return false;
     }
@@ -664,6 +699,7 @@ bool pReturns( bool definition){
     return true;
 }
 
+//Function parses arguments in function definition (types + names)
 bool pArgs(){
     
     token *cToken;
