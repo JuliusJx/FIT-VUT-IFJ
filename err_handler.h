@@ -18,6 +18,8 @@ extern int errCode;
 
 void errPrint( int, token*, char*);
 
+void printToken(token*);
+
 #endif
 
 // --End of file-
