@@ -228,15 +228,15 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
         stackPop(e_stack, &tmp_pop2);
         stackPop(e_stack, &tmp_top);
         stackTop(e_stack, &tmp_top2);
+
+        // ### CODE GEN SETUP ###
+        char temp_str1[20] = "GF@%%%dtemp1 ";
+        char temp_str2[20] = "GF@%%%dtemp2 ";
+        sprintf(temp_str1, temp_str1, plvl);
+        sprintf(temp_str2, temp_str2, plvl);
+
         if(tmp_top2 == LE){
             stackPop(e_stack, &tmp_top2);
-            
-            // ### CODE GEN SETUP ###
-            char temp_str1[20] = "GF@%%%dtemp1 ";
-            char temp_str2[20] = "GF@%%%dtemp2 ";
-            sprintf(temp_str1, temp_str1, plvl);
-            sprintf(temp_str2, temp_str2, plvl);
-            
             // T_STR && STR_CONC && T_STR = T_STR
             if( (tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR || tmp_pop == T_STR_V) ){
                 s_stackPop(str_stack, &str1);
@@ -726,9 +726,27 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
                     s_stackPop(str_stack, &str1);
                     s_stackPush(str_stack, "STR_LEN");
-                    s_stackTop(str_stack, &str_top);
-                    printf("[%s %s]\n", str1, str_top);
+                    s_stackTop(str_stack, &str_top);        // TODO: Remove
+                    printf("[%s %s]\n", str1, str_top);     // TODO: Remove
 
+                    if(scope == 1){
+                        GEN_CODE(&defBuffer, "\nPOPS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nSTRLEN ");
+                        GEN_CODE(&defBuffer, temp_str1);
+                        GEN_CODE(&defBuffer, temp_str1);    // STRLEN GF@%%%dtemp1
+                        GEN_CODE(&defBuffer, "\nPUSHS ");
+                        GEN_CODE(&defBuffer, temp_str1);    // PUSH GF@%%%dtemp1
+                    }
+                    else{
+                        GEN_CODE(&blockBuffer, "\nPOPS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nSTRLEN ");
+                        GEN_CODE(&blockBuffer, temp_str1);
+                        GEN_CODE(&blockBuffer, temp_str1);    // STRLEN GF@%%%dtemp1
+                        GEN_CODE(&blockBuffer, "\nPUSHS ");
+                        GEN_CODE(&blockBuffer, temp_str1);    // PUSH GF@%%%dtemp1
+                    }
 
                     if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
                         return true;
