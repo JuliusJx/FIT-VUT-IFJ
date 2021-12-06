@@ -16,6 +16,7 @@ token *cToken;
 bool stringValid = true;
 int gTmp = -1;
 int plvl = 0;
+int lastTok = -1;
 
                 // TOP          // VSTUP
 int prec_table[PREC_TAB_SIZE][PREC_TAB_SIZE] = {
@@ -128,40 +129,49 @@ int tokConversion(token *cToken, s_stack *str_stack){
             if(item->isInit){
                 if(item->type == TYPE_INT){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_INT_V;
                 }
                 if(item->type == TYPE_NUM){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_NUM_V;
                 }
                 if(item->type == TYPE_STR){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_STR_V;
                 }
@@ -169,40 +179,49 @@ int tokConversion(token *cToken, s_stack *str_stack){
             else{
                 if(item->type == TYPE_INT){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_INT_V_NIL;
                 }
                 if(item->type == TYPE_NUM){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_NUM_V_NIL;
                 }
                 if(item->type == TYPE_STR){
                     s_stackPush(str_stack, item->name);
+
                     // ### CODE GEN ###
-                    if(scope == 1 && !isCondition){
-                        GEN_CODE(&defBuffer, temp_str);
-                        genVar(&defBuffer, item);
-                    }
-                    else{
-                        GEN_CODE(&blockBuffer, temp_str);
-                        genVar(&blockBuffer, item);
+                    if(lastTok != TOKEN_ID){
+                        if(scope == 1 && !isCondition){
+                            GEN_CODE(&defBuffer, temp_str);
+                            genVar(&defBuffer, item);
+                        }
+                        else{
+                            GEN_CODE(&blockBuffer, temp_str);
+                            genVar(&blockBuffer, item);
+                        }
                     }
                     return T_STR_V_NIL;
                 }
@@ -289,8 +308,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&defBuffer, temp_str2);    // POPS GF@%%%dtemp2
                     GEN_CODE(&defBuffer, "\nCONCAT ");
                     GEN_CODE(&defBuffer, temp_str1);
-                    GEN_CODE(&defBuffer, temp_str1);
-                    GEN_CODE(&defBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                    GEN_CODE(&defBuffer, temp_str2);
+                    GEN_CODE(&defBuffer, temp_str1);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
                     GEN_CODE(&defBuffer, "\nPUSHS ");
                     GEN_CODE(&defBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
                 }
@@ -301,8 +320,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
                     GEN_CODE(&blockBuffer, "\nCONCAT ");
                     GEN_CODE(&blockBuffer, temp_str1);
-                    GEN_CODE(&blockBuffer, temp_str1);
-                    GEN_CODE(&blockBuffer, temp_str2);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
+                    GEN_CODE(&blockBuffer, temp_str2);
+                    GEN_CODE(&blockBuffer, temp_str1);    // CONCAT GF@%%%dtemp1 GF@%%%dtemp1 GF@%%%dtemp2
                     GEN_CODE(&blockBuffer, "\nPUSHS ");
                     GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
                 }
@@ -623,8 +642,6 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
             }
 
-            // TODO! POTIALTO CODEGEN
-
             // NIL RULES
             // T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL || T_STR_V || T_STR_V_NIL && REL_COMP_1 && T_NIL = T_BOOL
             else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL || tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
@@ -885,7 +902,7 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
 
             s_stackPop(str_stack, &rm);
             free(rm);
-
+/*
             // ### CODE GEN ###
             char temp_str[20] = "";
             sprintf(temp_str, "\nPOPS GF@%%%dtemp1", plvl);
@@ -896,7 +913,7 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
             else{
                 GEN_CODE(&blockBuffer, temp_str);
             }
-
+*/  // TODO! toto asi preč
             if(token == T_NIL || token == T_INT_V_NIL || token == T_NUM_V_NIL || token == T_STR_V_NIL){
                 errCode = 8;
             }
@@ -912,6 +929,7 @@ bool pExpression(int lvl){
     int value = -1;
     tableItem *sym_value;
     plvl = lvl;
+    lastTok = -1;
 
     stack *e_stack = malloc(sizeof(stack));   //TODO: nezabudnúť uvoľniť
     s_stack *str_stack = malloc(sizeof(stack));
@@ -957,6 +975,8 @@ bool pExpression(int lvl){
                 }
             }
         }
+        if(cToken != NULL)
+            lastTok = cToken->type;
     }
 
     if(cToken->type == TOKEN_Comma)
