@@ -982,7 +982,9 @@ bool pExpression(int lvl){
             printf("ERROR456546\n");
         }
 
-        if(!s_stackIsEmpty(str_stack)){
+        symstackPop(symStack, &sym_value);
+
+        if(!s_stackIsEmpty(str_stack) && sym_value->type == T_BOOL){
             char temp_str[50] = "";
 
             s_stackTop(str_stack, &str_stack_top);
@@ -1007,7 +1009,6 @@ bool pExpression(int lvl){
             }
         }
 
-        symstackPop(symStack, &sym_value);
         switch (value){
         case T_INT:
         case T_INT_V:
