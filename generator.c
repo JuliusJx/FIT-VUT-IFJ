@@ -87,8 +87,15 @@ bool genSubstr(){
     \nCREATEFRAME\
     \nDEFVAR LF@retval%1\
     \nMOVE LF@retval%1 string@\
+    \nDEFVAR TF@help%check\
+    \nTYPE TF@help%check LF@param%2\
+    \nJUMPIFEQ checkp2%substr TF@help%check string@int\
     \nFLOAT2INT LF@param%2 LF@param%2\
+    \nLABEL checkp2%substr\
+    \nTYPE TF@help%check LF@param%3\
+    \nJUMPIFEQ checkp3%substr TF@help%check string@int\
     \nFLOAT2INT LF@param%3 LF@param%3\
+    \nLABEL checkp3%substr\
     \nDEFVAR TF@cond\
     \nLT TF@cond LF@param%2 int@1\
     \nJUMPIFEQ substr_end TF@cond bool@true\
@@ -197,23 +204,23 @@ bool genWriteLit( contentInput *buffer, token *cToken){
     float ftmp;
     switch(cToken->type){
         case TOKEN_Int:
-            GEN_CODE(buffer,"\nWRITE int@")
+            GEN_CODE(buffer,"\n\nWRITE int@")
             GEN_CODE(buffer, cToken->content);
             break;
 
         case TOKEN_Num:
-            GEN_CODE(buffer,"\nWRITE float@")
+            GEN_CODE(buffer,"\n\nWRITE float@")
             ftmp = atof(cToken->content);
             snprintf(tmp, 25,"%a", ftmp);
             GEN_CODE(buffer, tmp);
             break;
         
         case TOKEN_Key_nil:
-            GEN_CODE(buffer,"\nWRITE nil@nil")
+            GEN_CODE(buffer,"\n\nWRITE string@nil")
             break;
             
         case TOKEN_String:
-            GEN_CODE(buffer,"\nWRITE string@")
+            GEN_CODE(buffer,"\n\nWRITE string@")
             GEN_CODE(buffer, cToken->content);
             break;
 
@@ -236,9 +243,22 @@ bool genCallArgID( contentInput *buffer, int counter, tableItem *item){
 }
 
 bool genWriteID( contentInput *buffer, tableItem *item){
+    static int counter = 0;
+    char tmp[25];
+    sprintf(tmp, "%d", counter);
+    GEN_CODE(buffer, "\n\nJUMPIFNEQ nilWRITE%")
+    GEN_CODE(buffer, tmp)
+    GEN_CODE(buffer, " TF@")
+    if(!genVar(buffer, item))
+        return false;
+    GEN_CODE(buffer, " nil@nil")
+    GEN_CODE(buffer, "\nWRITE string@nil")
+    GEN_CODE(buffer, "\nLABEL nilWRITE%")
+    GEN_CODE(buffer, tmp)
     GEN_CODE(buffer, "\nWRITE TF@")
     if(!genVar(buffer, item))
         return false;
+    counter++;
     return true;
 }
 

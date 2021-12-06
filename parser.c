@@ -1431,6 +1431,17 @@ bool pInit(){
     }
     else{
         ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_nil),5,"bad_assign")//trying to init using something ither than funcID/ID/literal/expression/nil
+        symstackPop(symStack, &tmp);
+        if(scope == 1){
+            GEN_CODE(&defBuffer, "\nMOVE TF@")
+            genVar(&defBuffer, tmp);
+            GEN_CODE(&defBuffer, " nil@nil")
+        }
+        else{
+            GEN_CODE(&blockBuffer, "\nMOVE TF@")
+            genVar(&blockBuffer, tmp);
+            GEN_CODE(&blockBuffer, " nil@nil")
+        }
     }
     return true;
 }
