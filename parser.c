@@ -648,6 +648,7 @@ bool pReturns( bool definition){
         return false;
     }
     if(!cmpTokType(cToken, TOKEN_Comma)){
+        ERR_CHECK((returnIndex + 1) < item->returnAmount,3,"less_rets_in_def") //function has less returns in definitition than in declaration
         returnToken = cToken;
         returnIndex = 0;
         return true;
@@ -673,7 +674,7 @@ bool pArgs(){
 
     ERR_CHECK(!cmpTokType(cToken, TOKEN_ID),2,"exp_id")
 
-    ERR_CHECK(symGetItem(table, cToken->content, scope) != NULL,3,"redef_id") //redefinition of ID
+    ERR_CHECK(symGetItem(table, cToken->content, scope) != NULL,3,"id_defined") //redefinition of ID
 
     
     char *tmp = cToken->content; //maybe future error TODO something
@@ -742,6 +743,7 @@ bool pArgs(){
     }
     free(tmp);
     if(!cmpTokType(cToken, TOKEN_Comma)){
+        ERR_CHECK((paramIndex + 1) < item->paramAmount,3,"less_params_in_def")//function has less parameters in definitition than in declaration
         returnToken = cToken;
         paramIndex = 0;
         return true;
@@ -915,9 +917,9 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newItem.name)
             
             isCondition = true;
-            symstackPush(symStack, &newItem);
+            /*symstackPush(symStack, &newItem);
             if(!pExpression(0))
-                return false;
+                return false;*/
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -1010,9 +1012,9 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, whtmp);
 
             isCondition = true;
-            symstackPush(symStack, &newWhileItem);
+            /*symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
-                return false;
+                return false;*/
             
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%")
@@ -1043,8 +1045,6 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, whtmp);
             GEN_CODE(&blockBuffer, "\n\nLABEL LOOP_END%")
             GEN_CODE(&blockBuffer, whtmp);
-            GEN_CODE(&blockBuffer, "\nPOPS GF@%dump") //TODO pre martina popy
-            GEN_CODE(&blockBuffer, "\nPOPS GF@%dump") 
 
 
             if(scope == 1){
