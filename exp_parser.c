@@ -1207,9 +1207,9 @@ bool pExpression(int lvl){
             return true;
         }
         else if(value == T_NIL && sym_value->type == T_BOOL){
+            // ### CODE GEN ###
             if(sym_value->scope == 0){ GEN_CODE(&blockBuffer, "\nPOPS LF@"); }
             else{ GEN_CODE(&blockBuffer, "\nPOPS TF@"); }
-            // ### CODE GEN ###
             genVar(&blockBuffer, sym_value);
             errCode = 0;
             return true;
@@ -1223,6 +1223,43 @@ bool pExpression(int lvl){
             printf("ERROR-987\n");
             errCode = 4;
             return false;
+        }
+        else if( (value == TYPE_INT || value == TYPE_NUM || value == TYPE_STR) && sym_value-> type == T_BOOL){
+            char temp_str[50] = "";
+            sprintf(temp_str, "GF@%%%dtemp1 ", plvl);
+
+            // ### CODE GEN ###
+            if(value == TYPE_STR){
+                GEN_CODE(&blockBuffer, "\nPOPS ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, "\nSTRLEN ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, temp_str);        // STRLEN GF@%%%dtemp1 GF@%%%dtemp1
+                GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, temp_str);       // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
+                GEN_CODE(&blockBuffer, "\nPUSHS ");
+                GEN_CODE(&blockBuffer, temp_str);       // PUSHS GF@%%%dtemp1
+            }
+            else if(value == TYPE_INT){
+                GEN_CODE(&blockBuffer, "\nPOPS ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
+                GEN_CODE(&blockBuffer, temp_str);
+                GEN_CODE(&blockBuffer, temp_str);        // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
+                GEN_CODE(&blockBuffer, "\nPUSHS ");
+                GEN_CODE(&blockBuffer, temp_str);       // PUSHS GF@%%%dtemp1
+            }
+
+            GEN_CODE(&blockBuffer, "\nPUSHS float@0x0p+0");
+            GEN_CODE(&blockBuffer, "\nEQS");
+            GEN_CODE(&blockBuffer, "\nNOTS");
+
+            if(sym_value->scope == 0){ GEN_CODE(&blockBuffer, "\nPOPS LF@"); }
+            else{ GEN_CODE(&blockBuffer, "\nPOPS TF@"); }
+            genVar(&blockBuffer, sym_value);
+            errCode = 0;
+            return true;
         }
         else{
             return false;
