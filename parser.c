@@ -21,6 +21,7 @@ tableItem *callFuncID = NULL;
 int scope = 0;
 int blockCounter = 0;
 stack *blockStack;
+bool isCondition = false;
 
 bool cmpTokType( token *token, int cmpType){
     if(token->type == cmpType)
@@ -486,10 +487,10 @@ bool pCall(){
                 GEN_CODE(&defBuffer,callFuncID->name)
             }
             else{
-                GEN_CODE(&defBuffer,"\
+                GEN_CODE(&blockBuffer,"\
                 \nPUSHFRAME\
                 \n\nCALL ")
-                GEN_CODE(&defBuffer,callFuncID->name)
+                GEN_CODE(&blockBuffer,callFuncID->name)
             }//maybe add condition for scope == 0 TODO
         }
         
@@ -913,9 +914,10 @@ bool pStatement(){
             GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
             GEN_CODE(&defBuffer, newItem.name)
             
-            /*symstackPush(symStack, &newItem);
+            isCondition = true;
+            symstackPush(symStack, &newItem);
             if(!pExpression(0))
-                return false;*/
+                return false;
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -1006,9 +1008,11 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newWhileItem.name)
             GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%")
             GEN_CODE(&blockBuffer, whtmp);
-            /*symstackPush(symStack, &newWhileItem);
+
+            isCondition = true;
+            symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
-                return false;*/
+                return false;
             
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%")
@@ -1125,7 +1129,7 @@ bool pStatement(){
                 returnToken = cToken;
                 if(!pCall())
                     return false;
-                if(strcmp(item->name,"write")){
+                if(strcmp(item->name,"write") && strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
                     if(scope == 1){
                         GEN_CODE(&defBuffer,"\nPOPFRAME")
                     }
@@ -1324,17 +1328,33 @@ bool pInit(){
                     return false;
             }
             else{
-                //###### CODEGEN ######
-                GEN_CODE(&defBuffer, "\nREAD TF@")
-                genVar(&defBuffer, tmp);
-                if(!strcmp(item->name,"reads")){
-                    GEN_CODE(&defBuffer, " string")
-                }
-                else if(!strcmp(item->name,"readi")){
-                    GEN_CODE(&defBuffer, " int")
+                if(scope == 1){
+                    //###### CODEGEN ######
+                    GEN_CODE(&defBuffer, "\nREAD TF@")
+                    genVar(&defBuffer, tmp);
+                    if(!strcmp(item->name,"reads")){
+                        GEN_CODE(&defBuffer, " string")
+                    }
+                    else if(!strcmp(item->name,"readi")){
+                        GEN_CODE(&defBuffer, " int")
+                    }
+                    else{
+                        GEN_CODE(&defBuffer, " float")
+                    }
                 }
                 else{
-                    GEN_CODE(&defBuffer, " float")
+                    //###### CODEGEN ######
+                    GEN_CODE(&blockBuffer, "\nREAD TF@")
+                    genVar(&blockBuffer, tmp);
+                    if(!strcmp(item->name,"reads")){
+                        GEN_CODE(&blockBuffer, " string")
+                    }
+                    else if(!strcmp(item->name,"readi")){
+                        GEN_CODE(&blockBuffer, " int")
+                    }
+                    else{
+                        GEN_CODE(&blockBuffer, " float")
+                    }
                 }
             }
             tmp->isInit = true;
