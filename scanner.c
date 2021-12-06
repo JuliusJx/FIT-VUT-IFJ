@@ -151,7 +151,7 @@ token *GetToken(){
                 else if(c == EOF){
                     NewToken->type = TOKEN_EOF;
                     done = true;
-                }else if (c != '\t' && c != ' '){
+                }else if (c != '\t' && c != ' ' && c != '\r'){
                     InsertChar(&newInput, c, &MemError);
                     error = true;
                 }
