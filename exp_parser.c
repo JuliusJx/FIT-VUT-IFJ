@@ -242,6 +242,32 @@ int tokConversion(token *cToken, s_stack *str_stack){
     }
 }
 
+bool pConvertFloat(contentInput* blockBuffer, char* temp_str1,  char* temp_str2, int tmp_top, int tmp_pop){
+    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
+        GEN_CODE(blockBuffer, "\nPOPS ");
+        GEN_CODE(blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+        GEN_CODE(blockBuffer, "\nINT2FLOAT ");
+        GEN_CODE(blockBuffer, temp_str1);
+        GEN_CODE(blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
+        GEN_CODE(blockBuffer, "\nPUSHS ");
+        GEN_CODE(blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+    }
+    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
+        GEN_CODE(blockBuffer, "\nPOPS ");
+        GEN_CODE(blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
+        GEN_CODE(blockBuffer, "\nPOPS ");
+        GEN_CODE(blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
+        GEN_CODE(blockBuffer, "\nINT2FLOAT ");
+        GEN_CODE(blockBuffer, temp_str2);
+        GEN_CODE(blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
+        GEN_CODE(blockBuffer, "\nPUSHS ");
+        GEN_CODE(blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+        GEN_CODE(blockBuffer, "\nPUSHS ");
+        GEN_CODE(blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+    }
+    return true;
+}
+
 bool phCheck(stack *e_stack, s_stack *str_stack, int tmp_top, int *tmp_top2, int token){        // TODO: prepísať tie tmp_topy na niečo rozumnejšie
     stackTop(e_stack, tmp_top2);
     if(prec_table[*tmp_top2][token] == LE){
@@ -523,30 +549,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_EQ");
 
                     // ### CODE GEN ###
-                    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str1);
-                        GEN_CODE(&blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-                    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str2);
-                        GEN_CODE(&blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-
-                    // ### CODE GEN ###
+                    pConvertFloat(&blockBuffer, temp_str1,  temp_str2, tmp_top, tmp_pop);
                     GEN_CODE(&blockBuffer, "\nEQS");
                     break;
 
@@ -554,30 +557,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_NEQ");
 
                     // ### CODE GEN ###
-                    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str1);
-                        GEN_CODE(&blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-                    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str2);
-                        GEN_CODE(&blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-
-                    // ### CODE GEN ###
+                    pConvertFloat(&blockBuffer, temp_str1,  temp_str2, tmp_top, tmp_pop);
                     GEN_CODE(&blockBuffer, "\nEQS\nNOTS");
                     break;
 
@@ -585,30 +565,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_LE");
 
                     // ### CODE GEN ###
-                    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str1);
-                        GEN_CODE(&blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-                    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str2);
-                        GEN_CODE(&blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-
-                    // ### CODE GEN ###
+                    pConvertFloat(&blockBuffer, temp_str1,  temp_str2, tmp_top, tmp_pop);
                     GEN_CODE(&blockBuffer, "\nLTS");
                     break;
 
@@ -616,30 +573,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_GR");
 
                     // ### CODE GEN ###
-                    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str1);
-                        GEN_CODE(&blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-                    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str2);
-                        GEN_CODE(&blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-
-                    // ### CODE GEN ###
+                    pConvertFloat(&blockBuffer, temp_str1,  temp_str2, tmp_top, tmp_pop);
                     GEN_CODE(&blockBuffer, "\nGTS");
                     break;
 
@@ -651,28 +585,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                         s_stackPush(str_stack, "R_GRQ");
 
                     // ### CODE GEN ###
-                    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){    // FLOAT == INT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str1);
-                        GEN_CODE(&blockBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
-                    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){    // INT == FLOAT
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
-                        GEN_CODE(&blockBuffer, "\nPOPS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // POPS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nINT2FLOAT ");
-                        GEN_CODE(&blockBuffer, temp_str2);
-                        GEN_CODE(&blockBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
-                        GEN_CODE(&blockBuffer, "\nPUSHS ");
-                        GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
-                    }
+                    pConvertFloat(&blockBuffer, temp_str1,  temp_str2, tmp_top, tmp_pop);
 
                     GEN_CODE(&blockBuffer, "\nPOPS ");
                     GEN_CODE(&blockBuffer, temp_str1);    // POPS GF@%%%dtemp1
