@@ -243,7 +243,7 @@ bool genWriteID( contentInput *buffer, tableItem *item){
 }
 
 bool genVar( contentInput *buffer, tableItem *item){
-    if(item->scope == 1){
+    if(item->scope == 1 || item->scope == 0){
         GEN_CODE(buffer, item->name)
     }
     else{

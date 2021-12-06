@@ -378,7 +378,7 @@ bool pBody(){
 
                 returnToken = cToken;
             }
-            
+
             symToggleInit(table, tokenID, 0);
             scope++;
             if(!pStatement())
@@ -403,7 +403,7 @@ bool pBody(){
             break;
 
         case TOKEN_ID:
-            
+
             GEN_CODE(&callBuffer, "\nCREATEFRAME")
             GEN_CODE(&callBuffer, "\nPUSHFRAME")
             returnToken = cToken;
@@ -459,9 +459,8 @@ bool pCall(){
         returnToken = cToken;
         //###### CODEGEN ######
         if(strcmp(callFuncID->name,"write")){
-            if(scope == 0){
+            if(scope == 0){                 // TODO: Removed pushframe
                 GEN_CODE(&callBuffer,"\n\
-                \nPUSHFRAME\
                 \nCREATEFRAME")
             }
             else if(scope == 1){
@@ -485,6 +484,12 @@ bool pCall(){
                 \nPUSHFRAME\
                 \n\nCALL ")
                 GEN_CODE(&defBuffer,callFuncID->name)
+            }
+            else if(scope == 0){
+                GEN_CODE(&callBuffer,"\
+                \nPUSHFRAME\
+                \n\nCALL ")
+                GEN_CODE(&callBuffer,callFuncID->name)
             }
             else{
                 GEN_CODE(&blockBuffer,"\
@@ -899,7 +904,7 @@ bool pStatement(){
                 .returnAmount = 0,
                 .paramTypes = NULL,
                 .returnTypes = NULL,
-                .scope = scope,
+                .scope = 1,
                 .next = NULL };
             char iftmp[10];
             stackTop(blockStack, &blockIndex);
@@ -917,9 +922,9 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newItem.name)
             
             isCondition = true;
-            /*symstackPush(symStack, &newItem);
+            symstackPush(symStack, &newItem);
             if(!pExpression(0))
-                return false;*/
+                return false;
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -992,7 +997,7 @@ bool pStatement(){
                 .returnAmount = 0,
                 .paramTypes = NULL,
                 .returnTypes = NULL,
-                .scope = scope,
+                .scope = 1,
                 .next = NULL };
             char whtmp[10];
             stackTop(blockStack, &blockIndex);
@@ -1012,9 +1017,9 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, whtmp);
 
             isCondition = true;
-            /*symstackPush(symStack, &newWhileItem);
+            symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
-                return false;*/
+                return false;
             
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%")
@@ -1269,7 +1274,7 @@ bool pStatement(){
                     .returnAmount = 0,
                     .paramTypes = NULL,
                     .returnTypes = NULL,
-                    .scope = scope,
+                    .scope = 0,
                     .next = NULL };
                 char rettmp[10];
                 sprintf(rettmp, "%d", index);
