@@ -87,32 +87,43 @@ int tokConversion(token *cToken, s_stack *str_stack){
             return LEFT_PAR;
         case TOKEN_RightPar:
             return RIGHT_PAR;
+
         case TOKEN_Int:
             s_stackPush(str_stack, cToken->content);
-            // ### CODE GEN ###
-            sprintf(temp_str, "\nPUSHS int@%d", atoi(cToken->content));
-            if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
-            else{ GEN_CODE(&blockBuffer, temp_str);}
 
+            // ### CODE GEN ###
+            if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
+                sprintf(temp_str, "\nPUSHS int@%d", atoi(cToken->content));
+                if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
+                else{ GEN_CODE(&blockBuffer, temp_str);}
+            }
             return T_INT;
+
         case TOKEN_Num:
             s_stackPush(str_stack, cToken->content);
-            // ### CODE GEN ###
-            sprintf(temp_str, "\nPUSHS float@%a", atof(cToken->content));
-            if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
-            else{ GEN_CODE(&blockBuffer, temp_str);}
 
+            // ### CODE GEN ###
+            if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
+                sprintf(temp_str, "\nPUSHS float@%a", atof(cToken->content));
+                if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
+                else{ GEN_CODE(&blockBuffer, temp_str);}
+            }
             return T_NUM;
+
         case TOKEN_String:
             s_stackPush(str_stack, cToken->content);
-            // ### CODE GEN ###
-            sprintf(temp_str, "\nPUSHS string@%s", cToken->content);
-            if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
-            else{ GEN_CODE(&blockBuffer, temp_str);}
 
+            // ### CODE GEN ###
+            if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
+                sprintf(temp_str, "\nPUSHS string@%s", cToken->content);
+                if(scope == 1 && !isCondition){ GEN_CODE(&defBuffer, temp_str);}
+                else{ GEN_CODE(&blockBuffer, temp_str);}
+            }
             return T_STR;
+
         case TOKEN_Key_nil:
             return T_NIL;
+
         case TOKEN_ID:
             item = symGetItem(table, cToken->content, scope);
             sprintf(temp_str, "\nPUSHS TF@");
@@ -131,7 +142,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
@@ -147,7 +158,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
@@ -163,7 +174,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
@@ -181,7 +192,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
@@ -197,7 +208,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
@@ -213,7 +224,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
                     s_stackPush(str_stack, item->name);
 
                     // ### CODE GEN ###
-                    if(lastTok != TOKEN_ID){
+                    if(lastTok != TOKEN_ID && lastTok != TOKEN_String && lastTok != TOKEN_Int && lastTok != TOKEN_Num){
                         if(scope == 1 && !isCondition){
                             GEN_CODE(&defBuffer, temp_str);
                             genVar(&defBuffer, item);
