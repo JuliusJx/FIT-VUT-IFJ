@@ -457,32 +457,28 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_EQ");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nEQS"); }
+                    GEN_CODE(&blockBuffer, "\nEQS");
                     break;
 
                 case R_NEQ:
                     s_stackPush(str_stack, "R_NEQ");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS\nNOTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nEQS\nNOTS"); }
+                    GEN_CODE(&blockBuffer, "\nEQS\nNOTS");
                     break;
 
                 case R_LE:
                     s_stackPush(str_stack, "R_LE");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nLTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nLTS"); }
+                    GEN_CODE(&blockBuffer, "\nLTS");
                     break;
 
                 case R_GR:
                     s_stackPush(str_stack, "R_GR");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nGTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nGTS"); }
+                    GEN_CODE(&blockBuffer, "\nGTS");
                     break;
 
                 case R_LEQ:
@@ -531,31 +527,27 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     s_stackPush(str_stack, "R_EQ");
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nEQS"); }
+                    GEN_CODE(&blockBuffer, "\nEQS");
                     break;
 
                 case R_NEQ:
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nEQS\nNOTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nEQS\nNOTS"); }
+                    GEN_CODE(&blockBuffer, "\nEQS\nNOTS");
                     s_stackPush(str_stack, "R_NEQ");
                     break;
 
                 case R_LE:
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nLTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nLTS"); }
+                    GEN_CODE(&blockBuffer, "\nLTS");
                     s_stackPush(str_stack, "R_LE");
                     break;
 
                 case R_GR:
 
                     // ### CODE GEN ###
-                    if(scope == 1){ GEN_CODE(&defBuffer, "\nGTS"); }
-                    else{ GEN_CODE(&blockBuffer, "\nGTS"); }
+                    GEN_CODE(&blockBuffer, "\nGTS");
                     s_stackPush(str_stack, "R_GR");
                     break;
 
