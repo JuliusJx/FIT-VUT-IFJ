@@ -18,5 +18,7 @@ test_symtable:
 	tests/./symtable_test
 test_parser:
 	gcc -Wall -std=c11 -pedantic -lm -g -o parser parser.c
+ep: build
+	./build < tests/exp_parser_input.txt
 clean:
 	rm -f build
