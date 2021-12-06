@@ -42,6 +42,8 @@ void freeToken( token*);
 
 bool insertBuiltIn();
 
+bool reType(token*, int*);
+
 bool pProgram();
 
 bool pBody();
