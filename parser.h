@@ -32,6 +32,7 @@ extern symstack *symStack;
 extern char *tokenID; //maybe rename to functionID
 extern int scope;
 extern stack *blockStack;
+extern bool isCondition;
 
 bool cmpTokType( token*, int);
 
