@@ -59,6 +59,8 @@ bool pAlgo( stack*, s_stack*, int);
 
 bool pExpression( int);
 
+bool pConvertFloat(contentInput*, char*,  char*, int, int);
+
 #endif
 
 // --End of file--

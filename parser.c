@@ -916,6 +916,7 @@ bool pCallArgs(){
 }
 
 bool pStatement(){
+    int dump;
     token *cToken;
     if((cToken = nextToken()) == NULL){
         return false;
@@ -984,6 +985,7 @@ bool pStatement(){
                 return false;
             }
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_else),2,"exp_else")
+            stackPop(blockStack, &dump);
             blockCounter++;
             stackPush(blockStack, blockCounter);
             //###### CODEGEN ######
@@ -1003,6 +1005,7 @@ bool pStatement(){
                 return false;
             }
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_end),2,"exp_end")
+            stackPop(blockStack, &dump);
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\n\nLABEL ENDIF%")
             GEN_CODE(&blockBuffer, iftmp);
@@ -1079,6 +1082,7 @@ bool pStatement(){
                 return false;
             }
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_end),2,"exp_end")
+            stackPop(blockStack, &dump);
 
             //###### CODEGEN ######
             GEN_CODE(&blockBuffer, "\nJUMP LOOP%")
