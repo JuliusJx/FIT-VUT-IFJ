@@ -516,7 +516,7 @@ bool pCall(){
                 if(scope == 1){
                     GEN_CODE(&defBuffer,"\n\
                     \nPUSHFRAME\
-                    \nCRATEFRAME\
+                    \nCREATEFRAME\
                     \nPUSHFRAME\
                     \n\nCALL ")
                     GEN_CODE(&defBuffer,callFuncID->name)
@@ -524,7 +524,7 @@ bool pCall(){
                 else{
                     GEN_CODE(&blockBuffer,"\n\
                     \nPUSHFRAME\
-                    \nCRATEFRAME\
+                    \nCREATEFRAME\
                     \nPUSHFRAME\
                     \n\nCALL ")
                     GEN_CODE(&blockBuffer,callFuncID->name)
@@ -922,6 +922,7 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newItem.name)
             
             isCondition = true;
+            scope++;
             symstackPush(symStack, &newItem);
             if(!pExpression(0))
                 return false;
@@ -938,7 +939,6 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, newItem.name) //maybe freed somewhere, check it later
             GEN_CODE(&blockBuffer, " bool@false")
 
-            scope++;
             if(!pStatement())
                 return false;
             
@@ -1015,7 +1015,8 @@ bool pStatement(){
             GEN_CODE(&defBuffer, newWhileItem.name)
             GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%")
             GEN_CODE(&blockBuffer, whtmp);
-
+            
+            scope++;
             isCondition = true;
             symstackPush(symStack, &newWhileItem);
             if(!pExpression(0))
@@ -1033,7 +1034,7 @@ bool pStatement(){
             }
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_do),2,"exp_do")
 
-            scope++;
+            
             if(!pStatement())
                 return false;
             symDeleteScope(table, scope);
@@ -1286,6 +1287,13 @@ bool pStatement(){
             }
             if(!pExpression(0))
                 return false;
+
+            if(scope == 1){
+                GEN_CODE(&defBuffer, "\n\nPOPFRAME\nRETURN")
+            }
+            else{
+                GEN_CODE(&blockBuffer, "\n\nPOPFRAME\nRETURN")
+            }
             break;
 
         default:
