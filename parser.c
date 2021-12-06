@@ -1039,6 +1039,9 @@ bool pStatement(){
             GEN_CODE(&blockBuffer, whtmp);
             GEN_CODE(&blockBuffer, "\n\nLABEL LOOP_END%")
             GEN_CODE(&blockBuffer, whtmp);
+            GEN_CODE(&blockBuffer, "\nPOPS GF@%dump") //TODO pre martina popy
+            GEN_CODE(&blockBuffer, "\nPOPS GF@%dump") 
+
 
             if(scope == 1){
                 GEN_CODE(&defBuffer, blockBuffer.str)
