@@ -1322,23 +1322,24 @@ bool pStatement(){
             ERR_CHECK(item == NULL,99,"internal")
             freeToken(cToken);
             while(index < item->returnAmount){
-                tableItem newItem = { 
-                    .type = item->returnTypes[index++]-'0',
-                    .isInit = true,
-                    .isUsed = false,
-                    .paramAmount = 0,
-                    .returnAmount = 0,
-                    .paramTypes = NULL,
-                    .returnTypes = NULL,
-                    .scope = 0,
-                    .next = NULL };
+                tableItem *newItem;
+                ERR_CHECK((newItem = malloc(sizeof(tableItem))) == NULL,99,"internal")
+                newItem->type = item->returnTypes[index++]-'0';
+                newItem->isInit = true;
+                newItem->isUsed = false;
+                newItem->paramAmount = 0;
+                newItem->returnAmount = 0;
+                newItem->paramTypes = NULL;
+                newItem->returnTypes = NULL;
+                newItem->scope = 0;
+                newItem->next = NULL;
                 char rettmp[10];
                 sprintf(rettmp, "%d", index);
-                ERR_CHECK((newItem.name = malloc(9 * sizeof(char))) == NULL,99,"internal")
-                strcpy(newItem.name, "retval%%\0");
-                ERR_CHECK((newItem.name = realloc(newItem.name, strlen(newItem.name) + strlen(rettmp) + 1)) == NULL,99,"internal")
-                strcat(newItem.name, rettmp);
-                symstackPush(symStack, &newItem);
+                ERR_CHECK((newItem->name = malloc(9 * sizeof(char))) == NULL,99,"internal")
+                strcpy(newItem->name, "retval%%\0");
+                ERR_CHECK((newItem->name = realloc(newItem->name, strlen(newItem->name) + strlen(rettmp) + 1)) == NULL,99,"internal")
+                strcat(newItem->name, rettmp);
+                symstackPush(symStack, newItem);
             }
             if(!pExpression(0))
                 return false;
