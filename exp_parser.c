@@ -1217,6 +1217,8 @@ bool pExpression(int lvl){
             return true;
         }
         else{
+            if(errCode == 0)
+                errCode = 4;
             return false;
         }
     }
