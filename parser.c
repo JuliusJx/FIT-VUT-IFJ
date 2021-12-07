@@ -1448,17 +1448,17 @@ bool pInit(){
         else{
             returnToken = cToken;
             symstackTop(symStack, &tmp);
+            tmp->isInit = true;
             if(!pExpression(0))
                 return false;
-            tmp->isInit = true;
         }
     }
     else if (cmpTokType(cToken, TOKEN_Num) || cmpTokType(cToken, TOKEN_Int) || cmpTokType(cToken, TOKEN_String) || cmpTokType(cToken, TOKEN_StrLen) || cmpTokType(cToken, TOKEN_LeftPar)){
         returnToken = cToken;
-        if(!pExpression(0))
-            return false;
         symstackTop(symStack, &tmp);
         tmp->isInit = true;
+        if(!pExpression(0))
+            return false;
     }
     else{
         ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_nil),5,"bad_assign")//trying to init using something ither than funcID/ID/literal/expression/nil
