@@ -292,7 +292,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
     int tmp_pop2 = 0;
     char *str1 = NULL;
     char *str2 = NULL;
-    char *str_top = NULL;
+    //char *str_top = NULL;
 
     stackPop(e_stack, &tmp_pop);
     stackTop(e_stack, &tmp_top);
@@ -363,9 +363,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&blockBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
                 }
 
-                if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -413,9 +418,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -473,9 +483,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -499,9 +514,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&blockBuffer, "\nMULS");
                 }
 
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -525,9 +545,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     GEN_CODE(&blockBuffer, "\nDIVS");
                     }
 
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -571,9 +596,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -651,9 +681,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -720,9 +755,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -751,9 +791,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -780,9 +825,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -809,9 +859,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -838,9 +893,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -867,9 +927,14 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 //s_stackTop(str_stack, &str_top);                // TODO: Remove
                 //printf("[%s %s %s]\n", str2, str_top, str1);    // TODO: Remove
 
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
+                    free(str1);
+                    free(str2);
                     return true;
+                }
                 else{
+                    free(str1);
+                    free(str2);
                     printf("ERROR-12\n");
                     return false;
                 }
@@ -910,9 +975,12 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                         GEN_CODE(&blockBuffer, temp_str1);    // PUSH GF@%%%dtemp1
                     }
 
-                    if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
+                    if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token)){
+                        free(str1);
                         return true;
+                    }
                     else{
+                        free(str1);
                         printf("ERROR-364");
                         return false;
                     }
@@ -1009,8 +1077,24 @@ bool pAlgo(stack *e_stack, s_stack *str_stack, int token){
     return false;
 }
 
+void cClean(stack *e_stack, s_stack *str_stack){
+    int e_dump;
+    char *s_dump;;
+
+    while(!stackIsEmpty(e_stack))
+        stackPop(e_stack, &e_dump);
+    while(!s_stackIsEmpty(str_stack)){
+        s_stackPop(str_stack, &s_dump);
+        free(s_dump);
+    }
+
+    free(e_stack);
+    free(str_stack);
+}
+
 bool pExpression(int lvl){
     stringValid = true;
+    cToken = NULL;
     char *str_stack_top = NULL;
     int value = -1;
     tableItem *sym_value;
@@ -1032,8 +1116,11 @@ bool pExpression(int lvl){
     }
 
     while(stringValid){
+        if(cToken != NULL)
+            freeToken(cToken);
         if((cToken = nextToken()) == NULL){
             printf("ERROR4\n");
+            cClean(e_stack, str_stack);
             return false;   // TODO: Asi nejaké uvolenenie zásobníku ? idk čo všetko sa tu bude robiť ešte a error ?
         }
 
@@ -1048,6 +1135,7 @@ bool pExpression(int lvl){
         else{
             if(stackIsEmpty(e_stack)){
                 printf("ERROR77\n");
+                cClean(e_stack, str_stack);
                 return false;
             }
             else{
@@ -1057,6 +1145,7 @@ bool pExpression(int lvl){
                 }
                 else{
                     printf("ERROR66\n");
+                    cClean(e_stack, str_stack);
                     return false;
                 }
             }
@@ -1159,6 +1248,7 @@ bool pExpression(int lvl){
                 genVar(&blockBuffer, sym_value);
             }
             errCode = 0;
+            cClean(e_stack, str_stack);
             return true;
         }
         else if(value == T_NIL && sym_value->type == T_BOOL){
@@ -1167,16 +1257,19 @@ bool pExpression(int lvl){
             else{ GEN_CODE(&blockBuffer, "\nPOPS TF@"); }
             genVar(&blockBuffer, sym_value);
             errCode = 0;
+            cClean(e_stack, str_stack);
             return true;
         }
         else if(value == T_NIL){
             sym_value->isInit = false;
             errCode = 0;
+            cClean(e_stack, str_stack);
             return true;
         }
         else if(value == TYPE_NUM && sym_value->type == TYPE_INT){
             printf("ERROR-987\n");
             errCode = 4;
+            cClean(e_stack, str_stack);
             return false;
         }
         else if( (value == TYPE_INT || value == TYPE_NUM || value == TYPE_STR) && sym_value-> type == T_BOOL){
@@ -1214,19 +1307,25 @@ bool pExpression(int lvl){
             else{ GEN_CODE(&blockBuffer, "\nPOPS TF@"); }
             genVar(&blockBuffer, sym_value);
             errCode = 0;
+            cClean(e_stack, str_stack);
             return true;
         }
         else{
             if(errCode == 0)
                 errCode = 4;
+            cClean(e_stack, str_stack);
             return false;
         }
     }
     else{
-        if(errCode == 0)
+        if(errCode == 0){
+            cClean(e_stack, str_stack);
             return true;
-        else
+        }
+        else{
+            cClean(e_stack, str_stack);
             return false;
+        }
     }
 }
 
