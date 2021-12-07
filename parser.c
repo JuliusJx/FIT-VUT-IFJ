@@ -1321,6 +1321,15 @@ bool pStatement(){
             tableItem *item = symGetItem(table, tokenID, 0);
             ERR_CHECK(item == NULL,99,"internal")
             freeToken(cToken);
+            if(item->returnAmount == 0){
+                if(scope == 1){
+                    GEN_CODE(&defBuffer, "\n\nPOPFRAME\nRETURN")
+                }
+                else{
+                    GEN_CODE(&blockBuffer, "\n\nPOPFRAME\nRETURN")
+                }
+                break;
+            }
             while(index < item->returnAmount){
                 tableItem *newItem;
                 ERR_CHECK((newItem = malloc(sizeof(tableItem))) == NULL,99,"internal")
