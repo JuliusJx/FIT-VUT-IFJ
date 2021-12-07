@@ -182,8 +182,13 @@ token *GetToken(){
                     InsertChar(&newInput, '3', &MemError);
                     InsertChar(&newInput, '5', &MemError);
                 }
-                else if((c >= 31) && (c <= 255))
+                else if((c >= 31) && (c <= 255)){
                     InsertChar(&newInput, c, &MemError);
+                }else{
+                    InsertChar(&newInput, c, &MemError);
+                    error = true;
+                }
+
                 break;
             case FSM_StrEsc:
                 if(c == '"'){
@@ -311,10 +316,6 @@ token *GetToken(){
                 if((c >= '0') && (c <= '9')){
                     InsertChar(&newInput, c, &MemError);
                     FSM_State = FSM_NumDot;
-                }
-                else if((c == 'e') || (c == 'E')){
-                    InsertChar(&newInput, c, &MemError);
-                    FSM_State = FSM_NumEA;
                 }
                 else{
                     InsertChar(&newInput, c, &MemError);
