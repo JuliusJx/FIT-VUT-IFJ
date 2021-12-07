@@ -170,12 +170,12 @@ void errPrint( int errType, token *token, char *err_string){
     else if (!strcmp(err_string, "wrong_arg_type")){
         fprintf(stderr, "Argument \"");
         printToken(token);
-        fprintf(stderr, " is the wrong type. ");
+        fprintf(stderr, "\" is the wrong type. ");
     }
     else if (!strcmp(err_string, "function_as_arg")){
         fprintf(stderr, "ID \"");
         printToken(token);
-        fprintf(stderr, " is a function and therefore cannot be used as an argument. ");
+        fprintf(stderr, "\" is a function and therefore cannot be used as an argument. ");
     }
     else if (!strcmp(err_string, "not_enough_args")){
         fprintf(stderr, "Not enough arguments in function call. ");
