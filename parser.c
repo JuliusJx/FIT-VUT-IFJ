@@ -952,9 +952,9 @@ bool pStatement(){
             stackTop(blockStack, &blockIndex);
             sprintf(iftmp, "%d", blockIndex);
 
-            ERR_CHECK((newItem.name = malloc(8 * sizeof(char))) == NULL,99,"internal") //8 characters for ifcond% + terminal character
+            ERR_CHECK((newItem.name = malloc(9 * sizeof(char))) == NULL,99,"internal") //9 characters for ifcond%% + terminal character
 
-            strcpy(newItem.name, "ifcond%\0");
+            strcpy(newItem.name, "ifcond%%\0");
 
             ERR_CHECK((newItem.name = realloc(newItem.name, strlen(newItem.name) + strlen(iftmp) + 1)) == NULL,99,"internal")
 
@@ -976,7 +976,7 @@ bool pStatement(){
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_then),2,"exp_then")
 
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\nJUMPIFEQ ELSE%")
+            GEN_CODE(&blockBuffer, "\nJUMPIFEQ ELSE%%")
             GEN_CODE(&blockBuffer, iftmp);
             GEN_CODE(&blockBuffer, " TF@")
             GEN_CODE(&blockBuffer, newItem.name) //maybe freed somewhere, check it later
@@ -1000,9 +1000,9 @@ bool pStatement(){
             blockCounter++;
             stackPush(blockStack, blockCounter);
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\nJUMP ENDIF%")
+            GEN_CODE(&blockBuffer, "\nJUMP ENDIF%%")
             GEN_CODE(&blockBuffer, iftmp);
-            GEN_CODE(&blockBuffer, "\n\nLABEL ELSE%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL ELSE%%")
             GEN_CODE(&blockBuffer, iftmp);
 
             //Recursive call for else body
@@ -1021,7 +1021,7 @@ bool pStatement(){
             ERR_CHECK(!cmpTokType(cToken, TOKEN_Key_end),2,"exp_end")
             stackPop(blockStack, &dump);
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\n\nLABEL ENDIF%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL ENDIF%%")
             GEN_CODE(&blockBuffer, iftmp);
 
             if(scope == 1){
@@ -1056,9 +1056,9 @@ bool pStatement(){
             stackTop(blockStack, &blockIndex);
             sprintf(whtmp, "%d", blockIndex);
 
-            ERR_CHECK((newWhileItem.name = malloc(8 * sizeof(char))) == NULL,99,"internal") //8 characters for whcond% + terminal character
+            ERR_CHECK((newWhileItem.name = malloc(9 * sizeof(char))) == NULL,99,"internal") //9 characters for whcond%% + terminal character
 
-            strcpy(newWhileItem.name, "whcond%\0");
+            strcpy(newWhileItem.name, "whcond%%\0");
 
             ERR_CHECK((newWhileItem.name = realloc(newWhileItem.name, strlen(newWhileItem.name) + strlen(whtmp) + 1)) == NULL,99,"internal")
 
@@ -1066,7 +1066,7 @@ bool pStatement(){
             //###### CODEGEN ######
             GEN_CODE(&defBuffer, "\n\nDEFVAR TF@")
             GEN_CODE(&defBuffer, newWhileItem.name)
-            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP%%")
             GEN_CODE(&blockBuffer, whtmp);
             
             scope++;
@@ -1077,7 +1077,7 @@ bool pStatement(){
                 return false;
             
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%")
+            GEN_CODE(&blockBuffer, "\nJUMPIFEQ LOOP_END%%")
             GEN_CODE(&blockBuffer, whtmp);
             GEN_CODE(&blockBuffer, " TF@")
             GEN_CODE(&blockBuffer, newWhileItem.name) //maybe freed somewhere, check it later
@@ -1104,9 +1104,9 @@ bool pStatement(){
             stackPop(blockStack, &dump);
 
             //###### CODEGEN ######
-            GEN_CODE(&blockBuffer, "\nJUMP LOOP%")
+            GEN_CODE(&blockBuffer, "\nJUMP LOOP%%")
             GEN_CODE(&blockBuffer, whtmp);
-            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP_END%")
+            GEN_CODE(&blockBuffer, "\n\nLABEL LOOP_END%%")
             GEN_CODE(&blockBuffer, whtmp);
 
 
