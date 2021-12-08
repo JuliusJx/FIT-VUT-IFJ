@@ -1067,11 +1067,12 @@ void cClean(stack *e_stack, s_stack *str_stack){
 bool pCheckErr(int* expLine){
     struct token *cToken2 = cToken;
 
+    // If error occured, set proper error value
     if(errCode != 0){
         switch (errCode){
             case 2:
                 cToken2->line = *expLine;
-                errPrint(2, cToken2, "Syntax Error");
+                errPrint(2, cToken2, "exp_syntax");
                 break;
             case 4:
                 cToken2->line = *expLine;
@@ -1089,10 +1090,11 @@ bool pCheckErr(int* expLine){
                 break;
             default:
                 break;
-            }
+        }
     }
     *expLine = -1;
 
+    // Return true if no error occured otherwise false
     if(errCode == 0)
         return true;
     else
