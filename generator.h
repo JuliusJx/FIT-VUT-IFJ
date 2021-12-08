@@ -17,7 +17,7 @@
 #include "symtable.h"
 #include "parser.h"
 
-#define GEN_CODE(buffer,string) if(!insertString((buffer),(string))){errCode = 99; return false;}
+#define GEN_CODE(buffer,string) if(!insertString((buffer),(string))){errCode = 99; fprintf(stderr, "Internal Compiler Error"); return false;}
 
 extern contentInput startBuffer;
 extern contentInput defBuffer;
