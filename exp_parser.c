@@ -1063,20 +1063,61 @@ void cClean(stack *e_stack, s_stack *str_stack){
     free(str_stack);
 }
 
+// Function for better error printing
+bool pCheckErr(int* expLine){
+    struct token *cToken2 = cToken;
+
+    switch (errCode){
+        case 2:
+            cToken2->line = *expLine;
+            errPrint(2, cToken2, "Syntax Error");
+            break;
+        case 4:
+            cToken2->line = *expLine;
+            errPrint(4, cToken2, "bad_type");
+            break;
+        case 6:
+            cToken2->line = *expLine;
+            errPrint(6, cToken2, "invalid_expression");
+            break;
+        case 8:
+            errPrint(8, cToken2, "unexpected_nil");
+            break;
+        case 9:
+            errPrint(9, cToken2, "division_by_zero");
+            break;
+        default:
+            break;
+        }
+    *expLine = -1;
+    return false;
+}
+
 // Function checks if expression is valid 
 // Returns true if expression is valid otherwise false if expression is not valid
 bool pExpression(int lvl){
     char *str_stack_top = NULL; // Top of string stack
     int value = -1;             // Temp value for checking if expression returns correct type (returned value)
-    tableItem *sym_value;       // Temp value for checking if expression returns correct type (expected value)
+    tableItem *sym_value = NULL;// Temp value for checking if expression returns correct type (expected value)
     stringValid = true;         // Flag for checking if expression is still valid after every token
     cToken = NULL;              // Current token
     lastTok = -1;               // Last token type
     plvl = lvl;                 // Current level of recursion (comma)
+    static int expLine = -1;    // Line where expression starts
 
     // Initialize stacks
-    s_stack *str_stack = malloc(sizeof(stack));     // TODO: error 99
-    stack *e_stack = malloc(sizeof(stack));         // TODO: error 99
+    s_stack *str_stack = malloc(sizeof(stack));
+    stack *e_stack = malloc(sizeof(stack));
+
+    if(str_stack == NULL){
+        errCode = 99;
+        return false;
+    }
+    if(e_stack == NULL){
+        errCode = 99;
+        return false;
+    }
+
     s_stackInit(str_stack);
     stackInit(e_stack);
     stackPush(e_stack, T_DOLLAR);
@@ -1096,16 +1137,29 @@ bool pExpression(int lvl){
             freeToken(cToken);
         if((cToken = nextToken()) == NULL){
             cClean(e_stack, str_stack);
-            return false;
+            return pCheckErr(&expLine);
         }
+
+        // Save line where expression starts
+        if(expLine == -1)
+            expLine = cToken->line;
 
         // Check if we can process token
         if((cToken->type >= TOKEN_Int && cToken->type <= TOKEN_LessEQ) || cToken->type == TOKEN_EQ || cToken->type == TOKEN_NotEQ || cToken->type == TOKEN_LeftPar || cToken->type == TOKEN_RightPar \
             || cToken->type == TOKEN_String || cToken->type == TOKEN_ID || cToken->type == TOKEN_Key_nil || cToken->type == TOKEN_StrLen){
 
+            // Division by zero check
+            if((lastTok == TOKEN_Div || lastTok == TOKEN_DivInt) && (cToken->type == TOKEN_Int || cToken->type == TOKEN_Num) && cToken->content != NULL){
+                if(!strcmp(cToken->content, "0") || (!strcmp(cToken->content, "0.0") && lastTok != TOKEN_DivInt)){
+                    errCode = 9;
+                    cClean(e_stack, str_stack);
+                    return pCheckErr(&expLine);
+                }
+            }
+
             // Process token
             if(!pAlgo(e_stack, str_stack, tokConversion(cToken, str_stack))){
-                stringValid = false;
+                stringValid = pCheckErr(&expLine);
                 break;
             }
         }
@@ -1113,16 +1167,16 @@ bool pExpression(int lvl){
         else{
             if(stackIsEmpty(e_stack)){
                 cClean(e_stack, str_stack);
-                return false;
+                return pCheckErr(&expLine);
             }
             else{
                 if(pAlgo(e_stack, str_stack, tokConversion(cToken, str_stack))){
                     stackPop(e_stack, &value);
-                    stringValid = false;
+                    stringValid = pCheckErr(&expLine);
                 }
                 else{
                     cClean(e_stack, str_stack);
-                    return false;
+                    return pCheckErr(&expLine);
                 }
             }
         }
@@ -1137,7 +1191,7 @@ bool pExpression(int lvl){
     if(cToken->type == TOKEN_Comma){
         if(!pExpression(lvl+1)){
             cClean(e_stack, str_stack);
-            return false;
+            return pCheckErr(&expLine);
         }
     }
     else
@@ -1257,7 +1311,7 @@ bool pExpression(int lvl){
         else if(value == TYPE_NUM && sym_value->type == TYPE_INT){
             errCode = 4;
             cClean(e_stack, str_stack);
-            return false;
+            return pCheckErr(&expLine);
         }
 
         // If value is integer, float or string and expected type is bool
@@ -1304,7 +1358,7 @@ bool pExpression(int lvl){
             if(errCode == 0)
                 errCode = 4;
             cClean(e_stack, str_stack);
-            return false;
+            return pCheckErr(&expLine);
         }
     }
     // Parser did not expected return value
@@ -1317,7 +1371,7 @@ bool pExpression(int lvl){
         // Expression is not valid
         else{
             cClean(e_stack, str_stack);
-            return false;
+            return pCheckErr(&expLine);
         }
     }
 }
