@@ -1067,30 +1067,36 @@ void cClean(stack *e_stack, s_stack *str_stack){
 bool pCheckErr(int* expLine){
     struct token *cToken2 = cToken;
 
-    switch (errCode){
-        case 2:
-            cToken2->line = *expLine;
-            errPrint(2, cToken2, "Syntax Error");
-            break;
-        case 4:
-            cToken2->line = *expLine;
-            errPrint(4, cToken2, "bad_type");
-            break;
-        case 6:
-            cToken2->line = *expLine;
-            errPrint(6, cToken2, "invalid_expression");
-            break;
-        case 8:
-            errPrint(8, cToken2, "unexpected_nil");
-            break;
-        case 9:
-            errPrint(9, cToken2, "division_by_zero");
-            break;
-        default:
-            break;
-        }
+    if(errCode != 0){
+        switch (errCode){
+            case 2:
+                cToken2->line = *expLine;
+                errPrint(2, cToken2, "Syntax Error");
+                break;
+            case 4:
+                cToken2->line = *expLine;
+                errPrint(4, cToken2, "bad_type");
+                break;
+            case 6:
+                cToken2->line = *expLine;
+                errPrint(6, cToken2, "invalid_expression");
+                break;
+            case 8:
+                errPrint(8, cToken2, "unexpected_nil");
+                break;
+            case 9:
+                errPrint(9, cToken2, "division_by_zero");
+                break;
+            default:
+                break;
+            }
+    }
     *expLine = -1;
-    return false;
+
+    if(errCode == 0)
+        return true;
+    else
+        return false;
 }
 
 // Function checks if expression is valid 
@@ -1159,7 +1165,7 @@ bool pExpression(int lvl){
 
             // Process token
             if(!pAlgo(e_stack, str_stack, tokConversion(cToken, str_stack))){
-                stringValid = pCheckErr(&expLine);
+                stringValid = false;
                 break;
             }
         }
@@ -1172,7 +1178,7 @@ bool pExpression(int lvl){
             else{
                 if(pAlgo(e_stack, str_stack, tokConversion(cToken, str_stack))){
                     stackPop(e_stack, &value);
-                    stringValid = pCheckErr(&expLine);
+                    stringValid = false;
                 }
                 else{
                     cClean(e_stack, str_stack);
@@ -1287,7 +1293,7 @@ bool pExpression(int lvl){
             }
             errCode = 0;
             cClean(e_stack, str_stack);
-            return true;
+            return pCheckErr(&expLine);
         }
 
         else if(value == T_NIL && sym_value->type == T_BOOL){
@@ -1297,14 +1303,14 @@ bool pExpression(int lvl){
             genVar(&blockBuffer, sym_value);
             errCode = 0;
             cClean(e_stack, str_stack);
-            return true;
+            return pCheckErr(&expLine);
         }
 
         else if(value == T_NIL){
             sym_value->isInit = false;
             errCode = 0;
             cClean(e_stack, str_stack);
-            return true;
+            return pCheckErr(&expLine);
         }
 
         // Error, return type is not correct - type incompatibility
@@ -1351,7 +1357,7 @@ bool pExpression(int lvl){
             genVar(&blockBuffer, sym_value);
             errCode = 0;
             cClean(e_stack, str_stack);
-            return true;
+            return pCheckErr(&expLine);
         }
         // Return type is not correct
         else{
@@ -1366,7 +1372,7 @@ bool pExpression(int lvl){
         // Expression is valid
         if(errCode == 0){
             cClean(e_stack, str_stack);
-            return true;
+            return pCheckErr(&expLine);
         }
         // Expression is not valid
         else{
