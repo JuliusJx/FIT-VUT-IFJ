@@ -247,7 +247,7 @@ int tokConversion(token *cToken, s_stack *str_stack){
 
 // Function for convert integer to float in generation
 bool pConvertFloat(contentInput* xBuffer, char* temp_str1,  char* temp_str2, int tmp_top, int tmp_pop){
-    if( (tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V) ){
+    if((tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V)){
         GEN_CODE(xBuffer, "\nPOPS ");
         GEN_CODE(xBuffer, temp_str1);    // POPS GF@%%%dtemp1
         GEN_CODE(xBuffer, "\nINT2FLOAT ");
@@ -256,9 +256,25 @@ bool pConvertFloat(contentInput* xBuffer, char* temp_str1,  char* temp_str2, int
         GEN_CODE(xBuffer, "\nPUSHS ");
         GEN_CODE(xBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
     }
-    else if( (tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V) ){
+    else if((tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V)){
         GEN_CODE(xBuffer, "\nPOPS ");
         GEN_CODE(xBuffer, temp_str1);    // POPS GF@%%%dtemp1
+        GEN_CODE(xBuffer, "\nPOPS ");
+        GEN_CODE(xBuffer, temp_str2);    // POPS GF@%%%dtemp2
+        GEN_CODE(xBuffer, "\nINT2FLOAT ");
+        GEN_CODE(xBuffer, temp_str2);
+        GEN_CODE(xBuffer, temp_str2);    // INT2FLOAT GF@%%%dtemp2 GF@%%%dtemp2
+        GEN_CODE(xBuffer, "\nPUSHS ");
+        GEN_CODE(xBuffer, temp_str2);    // PUSHS GF@%%%dtemp2
+        GEN_CODE(xBuffer, "\nPUSHS ");
+        GEN_CODE(xBuffer, temp_str1);    // PUSHS GF@%%%dtemp1
+    }
+    else if((tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop == T_INT || tmp_pop == T_INT_V)){
+        GEN_CODE(xBuffer, "\nPOPS ");
+        GEN_CODE(xBuffer, temp_str1);    // POPS GF@%%%dtemp1
+        GEN_CODE(xBuffer, "\nINT2FLOAT ");
+        GEN_CODE(xBuffer, temp_str1);
+        GEN_CODE(xBuffer, temp_str1);    // INT2FLOAT GF@%%%dtemp1 GF@%%%dtemp1
         GEN_CODE(xBuffer, "\nPOPS ");
         GEN_CODE(xBuffer, temp_str2);    // POPS GF@%%%dtemp2
         GEN_CODE(xBuffer, "\nINT2FLOAT ");
@@ -540,7 +556,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 else{
                     pConvertFloat(&blockBuffer, temp_str1, temp_str2, tmp_top, tmp_pop);
                     GEN_CODE(&blockBuffer, "\nDIVS");
-                    }
+                }
 
                 // Check if is possible to reduce expression more
                 if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
