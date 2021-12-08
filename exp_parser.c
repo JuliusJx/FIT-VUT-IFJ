@@ -358,6 +358,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
             if((tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == STR_CONC) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
                 s_stackPush(str_stack, "STR_CONC");
 
                 // ### CODE GEN ###
@@ -387,22 +389,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_STR, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_INT && INT_DIV || MUL || PLUS || MINUS && T_INT = T_INT
             else if((tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == INT_DIV || tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_INT || tmp_pop == T_INT_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case INT_DIV:
@@ -439,22 +437,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_INT && MUL || PLUS || MINUS && T_NUM = T_NUM
             else if((tmp_top == T_INT || tmp_top == T_INT_V) && (tmp_pop2 == MUL || tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case MUL:
@@ -501,22 +495,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_NUM && MUL && T_INT || T_NUM = T_NUM
             else if((tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == MUL) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
                 s_stackPush(str_stack, "MUL");
 
                 // ### CODE GEN ###
@@ -530,22 +520,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_INT || T_NUM && DIV && T_INT || T_NUM = T_NUM
             else if((tmp_top == T_INT || tmp_top == T_INT_V || tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == DIV) && (tmp_pop == T_INT || tmp_pop == T_INT_V || tmp_pop == T_NUM || tmp_pop == T_NUM_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
                 s_stackPush(str_stack, "DIV");
 
                 // ### CODE GEN ###
@@ -559,22 +545,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_NUM && PLUS || MINUS && T_NUM || T_INT = T_NUM
             else if((tmp_top == T_NUM || tmp_top == T_NUM_V) && (tmp_pop2 == PLUS || tmp_pop2 == MINUS) && (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case PLUS:
@@ -607,16 +589,10 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_NUM, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_NUM || T_INT && == || != || < || > || <= || >= && T_NUM || T_INT = T_BOOL
@@ -625,6 +601,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     (tmp_pop == T_NUM || tmp_pop == T_NUM_V || tmp_pop == T_INT || tmp_pop == T_INT_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -689,22 +667,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_STR && == || != || < || > || <= || >= && T_STR = T_BOOL
             else if((tmp_top == T_STR || tmp_top == T_STR_V) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ || tmp_pop2 == R_LE || tmp_pop2 == R_GR || tmp_pop2 == R_LEQ || tmp_pop2 == R_GRQ) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -762,16 +736,10 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // NIL RULES
@@ -779,6 +747,8 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
             else if( (tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL || tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -796,22 +766,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_NIL && == || != && T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL || T_STR_V || T_STR_V_NIL = T_BOOL
             else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL || tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -829,22 +795,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL && == | != && T_INT_V || T_INT_V_NIL || T_NUM_V || T_NUM_V_NIL = T_BOOL
             else if((tmp_top == T_INT_V || tmp_top == T_INT_V_NIL || tmp_top == T_NUM_V || tmp_top == T_NUM_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_INT_V || tmp_pop == T_INT_V_NIL || tmp_pop == T_NUM_V || tmp_pop == T_NUM_V_NIL)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -862,22 +824,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_STR_V || T_STR_V_NIL && == || != && T_STR_V || T_STR_V_NIL = T_BOOL
             else if((tmp_top == T_STR_V || tmp_top == T_STR_V_NIL) && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && (tmp_pop == T_STR_V || tmp_pop == T_STR_V_NIL)){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -895,22 +853,18 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // T_NIL && == || != && T_NIL = T_BOOL
             else if(tmp_top == T_NIL && (tmp_pop2 == R_EQ || tmp_pop2 == R_NEQ) && tmp_pop == T_NIL){
                 s_stackPop(str_stack, &str1);
                 s_stackPop(str_stack, &str2);
+                free(str1);
+                free(str2);
 
                 switch (tmp_pop2){
                     case R_EQ:
@@ -928,16 +882,10 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 }
 
                 // Check if is possible to reduce expression more
-                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token)){
-                    free(str1);
-                    free(str2);
+                if(phCheck(e_stack, str_stack, T_BOOL, &tmp_top2, token))
                     return true;
-                }
-                else{
-                    free(str1);
-                    free(str2);
+                else
                     return false;
-                }
             }
 
             // If no rule is found
@@ -955,6 +903,7 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                 // # STR
                 if((tmp_pop2 == STR_LEN) && (tmp_pop == T_STR || tmp_pop == T_STR_V)){
                     s_stackPop(str_stack, &str1);
+                    free(str1);
                     s_stackPush(str_stack, "STR_LEN");
 
                     if(scope == 1){
@@ -977,14 +926,10 @@ bool pHelp(stack *e_stack, s_stack *str_stack, int token){
                     }
 
                     // Check if is possible to reduce expression more
-                    if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token)){
-                        free(str1);
+                    if(phCheck(e_stack, str_stack, T_INT, &tmp_top2, token))
                         return true;
-                    }
-                    else{
-                        free(str1);
+                    else
                         return false;
-                    }
                 }
                 else{
                     if(errCode == 0)
