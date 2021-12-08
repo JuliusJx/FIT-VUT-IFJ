@@ -1134,8 +1134,12 @@ bool pExpression(int lvl){
     // Check if token is comma (more return values)
     // If so, check if expression is valid
     // If not, return token
-    if(cToken->type == TOKEN_Comma)
-        pExpression(lvl+1);         // TODO: check či toto dobre funguje ? viac návratových hodnôt a nejaké zlé
+    if(cToken->type == TOKEN_Comma){
+        if(!pExpression(lvl+1)){
+            cClean(e_stack, str_stack);
+            return false;
+        }
+    }
     else
         returnToken = cToken;
 
