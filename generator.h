@@ -2,7 +2,8 @@
  * File: generator.h
  * Header file for generator.c
  * Subject: IFJ
- * Authors: Jakub Julius Smykal, Ondrej Kovac
+ * Project: Implementace prekladace imperativniho jazyka IFJ21
+ * Authors: Milan Hrabovský (xhrabo15), Ondrej Kovac (xkovac57), Jakub Julius Smykal (xsmyka01), Martin Talajka (xtalaj00)
  * Year: 2021
  */
 
