@@ -1229,7 +1229,9 @@ bool pStatement(){
                             while(!symstackIsEmpty(symStack)){
                                 symstackPop(symStack, &tmp);
                                 tmp->isInit = true;
-                                ERR_CHECK(tmp->type != item->returnTypes[index - 1] - '0',5,"wrong_ret_type")//TODO check the number/int compatibility
+                                if(tmp->type != item->returnTypes[index - 1] - '0'){
+                                    ERR_CHECK(tmp->type != TYPE_NUM && item->returnTypes[index - 1] - '0' != TYPE_INT,5,"wrong_ret_type")
+                                }
                                 //If it wasn't a one-liner
                                 if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
                                     //###### CODEGEN ######
@@ -1395,7 +1397,10 @@ bool pInit(){
             int index = symstackCount(symStack);
             ERR_CHECK(index > item->returnAmount,5,"too_many_targets")
             symstackPop(symStack, &tmp);
-            ERR_CHECK(tmp->type != item->returnTypes[--index] - '0',5,"wrong_ret_type")
+            if(tmp->type != item->returnTypes[index - 1] - '0'){
+                ERR_CHECK(tmp->type != TYPE_NUM && item->returnTypes[index - 1] - '0' != TYPE_INT,5,"wrong_ret_type")
+            }
+            index--;
             returnToken = cToken;
             if(strcmp(item->name,"reads") && strcmp(item->name,"readi") && strcmp(item->name,"readn")){
                 //###### CODEGEN ######
