@@ -212,6 +212,21 @@ void errPrint( int errType, token *token, char *err_string){
         printToken(token);
         fprintf(stderr, "\" is a function and therefore cannot store a return value. ");
     }
+    else if (!strcmp(err_string, "exp_syntax")){
+        fprintf(stderr, "Syntax error occured in the expression starting on stated line.");
+    }
+    else if (!strcmp(err_string, "exp_bad_type")){
+        fprintf(stderr, "Expression starting on stated line is being assigned to variable with different type (Possibly bad return type declaration in function definition).");
+    }
+    else if (!strcmp(err_string, "invalid_expression")){
+        fprintf(stderr, "Expression starting on stated line is not valid.");
+    }
+    else if (!strcmp(err_string, "unexpected_nil")){
+        fprintf(stderr, "Expression starting on stated line encountered an unexpectid nil value. (Possibly uninitialized variable.)");
+    }
+    else if (!strcmp(err_string, "division_by_zero")){
+        fprintf(stderr, "Expression starting on stated line contains division by zero.");
+    }
 
     
     fprintf(stderr, "\n");
