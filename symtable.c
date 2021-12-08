@@ -87,7 +87,8 @@ void symDeleteAll( symTable *table){
             (*table)[i] = tmp->next;
             if(tmp->type == FUNC_ID){
                 if(tmp->isUsed && !tmp->isInit){
-                    fprintf(stderr,"3yzx"); //TODO - add error code
+                    fprintf(stderr, "ERROR: Type: Semantic Error (definitions)\n");
+                    fprintf(stderr,"Function \"%s\" is used uninitialized.\n", tmp->name);
                     errCode = 3;
                 }
                 if(tmp->isUsed){

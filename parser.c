@@ -422,7 +422,6 @@ bool pBody(){
             scope++;
             if(!pStatement())
                 return false;
-            //TODO maybe add free
             if((cToken = nextToken()) == NULL){
                 return false;
             }
@@ -1132,7 +1131,7 @@ bool pStatement(){
             //Add entry to symtable
             item = symGetItem(table, cToken->content, scope);
             if(item != NULL){
-                ERR_CHECK((item->scope == scope) || (item->type == FUNC_ID),3,"redef_id")
+                ERR_CHECK((item->scope == scope) || (item->type == FUNC_ID),3,"id_defined")
             }
             char *tmp = cToken->content;
             free(cToken);
@@ -1313,7 +1312,6 @@ bool pStatement(){
                     ERR_CHECK(true,3,"missing_assign")
                 }
             }
-            //TODO - maybe leak here
             if(!pStatement())
                 return false;
             break;
