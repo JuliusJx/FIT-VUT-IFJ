@@ -747,7 +747,7 @@ bool pArgs(){
     if(item->isInit){
         ERR_CHECK(paramIndex >= item->paramAmount,3,"more_params_in_def") //function has more parameters in definitition than in declaration
 
-        ERR_CHECK(type != item->returnTypes[paramIndex++] - '0',3,"diff_params_in_def") //function has different parameters in definitition than in declaration
+        ERR_CHECK(type != item->paramTypes[paramIndex++] - '0',3,"diff_params_in_def") //function has different parameters in definitition than in declaration
 
     }
     else{
