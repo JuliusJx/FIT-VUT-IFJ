@@ -1076,7 +1076,7 @@ bool pCheckErr(int* expLine){
                 break;
             case 4:
                 cToken2->line = *expLine;
-                errPrint(4, cToken2, "bad_type");
+                errPrint(4, cToken2, "exp_bad_type");
                 break;
             case 6:
                 cToken2->line = *expLine;
